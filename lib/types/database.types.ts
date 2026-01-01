@@ -181,30 +181,6 @@ export type Database = {
           },
         ]
       }
-      profiles: {
-        Row: {
-          bio: string | null
-          created_at: string
-          id: string
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          bio?: string | null
-          created_at?: string
-          id: string
-          name?: string
-          updated_at?: string
-        }
-        Update: {
-          bio?: string | null
-          created_at?: string
-          id?: string
-          name?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       roast_levels: {
         Row: {
           created_at: string
@@ -425,4 +401,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-
