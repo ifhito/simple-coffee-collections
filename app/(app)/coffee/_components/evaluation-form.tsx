@@ -4,8 +4,8 @@ import { useMemo, useRef, useState, useTransition } from 'react'
 import type { FormEvent } from 'react'
 import { createCoffeeEvaluation, updateCoffeeEvaluation } from '@/lib/actions/coffee'
 import type { CoffeeEvaluation } from '@/lib/types/coffee'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/Input'
+import { Button } from '@/components/ui/Button'
 import { CoffeeSlider } from './shared/coffee-slider'
 import { PublicToggle } from './shared/public-toggle'
 
@@ -15,6 +15,7 @@ type EvaluationFormProps = {
 
 type FieldErrors = {
   _form?: string
+  bean_name?: string
 }
 
 const ratingFields = [

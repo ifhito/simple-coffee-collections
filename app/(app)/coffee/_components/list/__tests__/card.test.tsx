@@ -3,19 +3,25 @@ import { render, screen } from '@testing-library/react'
 
 const mockRatingStars = jest.fn()
 
-jest.mock('../../shared/rating-stars', () => ({
-  RatingStars: (props: any) => {
+jest.mock('../../shared/rating-stars', () => {
+  const RatingStarsMock = (props: any) => {
     mockRatingStars(props)
     return <div data-testid="rating-stars">rating-stars-mock</div>
-  },
-}))
+  }
+  RatingStarsMock.displayName = 'RatingStarsMock'
+
+  return { RatingStars: RatingStarsMock }
+})
 
 jest.mock('next/link', () => {
-  return ({ href, children, ...rest }: any) => (
+  const LinkMock = ({ href, children, ...rest }: any) => (
     <a href={typeof href === 'string' ? href : href.pathname} {...rest}>
       {children}
     </a>
   )
+  LinkMock.displayName = 'NextLinkMock'
+
+  return { __esModule: true, default: LinkMock }
 })
 
 // Lazy import after mocks are set up

@@ -1,9 +1,9 @@
+import { headers } from 'next/headers'
+import type { CoffeeEvaluationSearchParams } from '@/lib/types/coffee'
 import { getCurrentUser } from '@/lib/api/auth'
 import { getCoffeeEvaluations } from '@/lib/api/coffee'
 import { buildProfileShareUrl } from '@/lib/utils/url'
-import { headers } from 'next/headers'
 import { MyPageView } from '../_components/view'
-import type { CoffeeEvaluationSearchParams } from '@/lib/types/coffee'
 
 type MyPageContainerProps = {
   searchParams?: CoffeeEvaluationSearchParams
@@ -21,7 +21,8 @@ export async function MyPageContainer({ searchParams }: MyPageContainerProps) {
 
   let profileShareUrl: string | undefined
   try {
-    profileShareUrl = buildProfileShareUrl(user.id, headers())
+    const headerList = await headers()
+    profileShareUrl = buildProfileShareUrl(user.id, headerList)
   } catch {
     profileShareUrl = buildProfileShareUrl(user.id)
   }

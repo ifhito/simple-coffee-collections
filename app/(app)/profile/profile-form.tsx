@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { updateProfile } from '@/lib/actions/profile'
-import { Input } from '@/components/ui/input'
+import { Input } from '@/components/ui/Input'
 
 type ProfileFormProps = {
   initialDisplayName?: string | null

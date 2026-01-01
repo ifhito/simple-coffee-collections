@@ -4,17 +4,18 @@ import { getCoffeeEvaluation } from '@/lib/api/coffee'
 import { createClient } from '@/lib/supabase/server'
 import { EvaluationForm } from '../../_components/evaluation-form'
 
-type EditPageProps = {
-  params: { id: string }
-}
-
 export const metadata: Metadata = {
   title: 'コーヒー評価を編集',
   description: '既存のコーヒー評価を編集します。',
 }
 
-export default async function EditCoffeeEvaluationPage({ params }: EditPageProps) {
-  const evaluation = await getCoffeeEvaluation(params.id)
+export default async function EditCoffeeEvaluationPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
+  const evaluation = await getCoffeeEvaluation(id)
   if (!evaluation) {
     return notFound()
   }

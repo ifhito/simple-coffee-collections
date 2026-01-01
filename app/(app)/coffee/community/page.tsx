@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 }
 
 type CommunityPageProps = {
-  searchParams?: SearchParams | Promise<SearchParams>
+  searchParams?: Promise<SearchParams>
 }
 
 export default async function CommunityPage({ searchParams }: CommunityPageProps) {

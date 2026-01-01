@@ -11,7 +11,10 @@ import type { Database } from './database.types'
 // =============================================================================
 
 /** Coffee evaluation record from database */
-export type CoffeeEvaluation = Database['public']['Tables']['coffee_evaluations']['Row']
+export type CoffeeEvaluation = Database['public']['Tables']['coffee_evaluations']['Row'] & {
+  // notes is currently optional in the app layer; the column may not exist in all environments
+  notes?: string | null
+}
 
 /** Coffee evaluation insert payload */
 export type CoffeeEvaluationInsert = Database['public']['Tables']['coffee_evaluations']['Insert']

@@ -6,12 +6,13 @@ import { ProfileContainer } from './_containers/profile-container'
 import { EvaluationsContainer } from './_containers/evaluations-container'
 
 type UserProfilePageProps = {
-  params: { userId: string }
-  searchParams?: SearchParams | Promise<SearchParams>
+  params: Promise<{ userId: string }>
+  searchParams?: Promise<SearchParams>
 }
 
 export async function generateMetadata({ params }: UserProfilePageProps): Promise<Metadata> {
-  const profile = await getUserProfile(params.userId)
+  const { userId } = await params
+  const profile = await getUserProfile(userId)
   const displayName = profile.display_name || '匿名ユーザー'
 
   return {
@@ -21,22 +22,20 @@ export async function generateMetadata({ params }: UserProfilePageProps): Promis
 }
 
 export default async function UserProfilePage({ params, searchParams }: UserProfilePageProps) {
+  const { userId } = await params
   const resolved = await searchParams
   const normalizedSearchParams = normalizeSearchParams(resolved)
 
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-6 sm:py-10 animate-fade-in">
-      <ProfileContainer userId={params.userId} />
+      <ProfileContainer userId={userId} />
 
       <div className="mt-8 mb-6">
         <h2 className="text-xl font-bold text-neutral-900 mb-4">公開評価</h2>
         <SearchAndSort />
       </div>
 
-      <EvaluationsContainer
-        userId={params.userId}
-        searchParams={normalizedSearchParams}
-      />
+      <EvaluationsContainer userId={userId} searchParams={normalizedSearchParams} />
     </section>
   )
 }

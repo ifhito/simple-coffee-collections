@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 export default function CoffeeDetailError({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <section className="mx-auto w-full max-w-5xl px-4 py-8">
@@ -17,12 +19,12 @@ export default function CoffeeDetailError({ error, reset }: { error: Error; rese
           >
             再試行する
           </button>
-          <a
+          <Link
             href="/coffee"
             className="rounded-md border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-700 transition hover:bg-neutral-100"
           >
             一覧へ戻る
-          </a>
+          </Link>
         </div>
       </div>
     </section>

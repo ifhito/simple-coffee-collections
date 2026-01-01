@@ -1,3 +1,5 @@
+import type { CoffeeEvaluationSortOption } from '@/lib/types/coffee'
+
 export const SORT_OPTIONS = [
   { value: 'created_at_desc', label: '新しい順' },
   { value: 'created_at_asc', label: '古い順' },
@@ -11,7 +13,7 @@ export const DEFAULT_SORT = 'created_at_desc'
 
 export type SearchParams = {
   search?: string
-  sort?: string
+  sort?: CoffeeEvaluationSortOption
 }
 
 /**
@@ -20,7 +22,10 @@ export type SearchParams = {
  */
 export function normalizeSearchParams(searchParams?: SearchParams): SearchParams {
   const search = searchParams?.search?.trim() ?? ''
-  const sort = searchParams?.sort?.trim() || DEFAULT_SORT
+  const rawSort = searchParams?.sort?.trim()
+  const sort = SORT_OPTIONS.some((option) => option.value === rawSort)
+    ? (rawSort as CoffeeEvaluationSortOption)
+    : DEFAULT_SORT
 
   return {
     search: search || undefined,

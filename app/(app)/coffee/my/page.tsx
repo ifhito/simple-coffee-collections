@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 }
 
 type MyPageProps = {
-  searchParams?: SearchParams | Promise<SearchParams>
+  searchParams?: Promise<SearchParams>
 }
 
 export default async function MyPage({ searchParams }: MyPageProps) {

@@ -5,7 +5,7 @@ import { CoffeeCard } from './card'
 type CoffeeListViewProps = {
   evaluations: Pick<
     CoffeeEvaluation,
-    'id' | 'shop_name' | 'bean_type' | 'overall_rating' | 'created_at'
+    'id' | 'shop_name' | 'bean_type' | 'bean_name' | 'overall_rating' | 'created_at'
   >[]
 }
 

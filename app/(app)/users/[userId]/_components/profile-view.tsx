@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { UserProfile } from '@/lib/types/user'
+import type { UserProfile } from '@/lib/types/coffee'
 
 type ProfileViewProps = {
   profile: UserProfile
