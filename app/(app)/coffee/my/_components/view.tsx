@@ -46,9 +46,11 @@ export function MyPageView({ evaluations, profileShareUrl }: MyPageViewProps) {
         className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
       >
         {evaluations.map((evaluation) => (
-          <div key={evaluation.id} className="relative animate-card">
-            <PublicBadge isPublic={evaluation.is_public} />
-            <CoffeeCard evaluation={evaluation} />
+          <div key={evaluation.id} className="animate-card h-full">
+            <CoffeeCard
+              evaluation={evaluation}
+              badge={<PublicBadge isPublic={evaluation.is_public} />}
+            />
           </div>
         ))}
       </div>

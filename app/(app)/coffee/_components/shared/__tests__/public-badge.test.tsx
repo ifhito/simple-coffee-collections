@@ -24,27 +24,17 @@ describe('PublicBadge', () => {
     expect(badge).toHaveClass('text-gray-800')
   })
 
-  it('has correct positioning (absolute bottom-right)', () => {
-    const { container } = render(<PublicBadge isPublic={true} />)
-
-    const badge = screen.getByText(/🌐 公開/i)
-
-    // Check for positioning classes
-    expect(badge).toHaveClass('absolute')
-    expect(badge).toHaveClass('bottom-2')
-    expect(badge).toHaveClass('right-2')
-  })
-
   it('has correct badge styling (padding, rounded, text size)', () => {
     render(<PublicBadge isPublic={true} />)
 
     const badge = screen.getByText(/🌐 公開/i)
 
     // Check for badge style classes
+    expect(badge).toHaveClass('inline-flex')
+    expect(badge).toHaveClass('rounded-full')
     expect(badge).toHaveClass('px-2')
     expect(badge).toHaveClass('py-1')
-    expect(badge).toHaveClass('rounded')
     expect(badge).toHaveClass('text-xs')
-    expect(badge).toHaveClass('font-medium')
+    expect(badge).toHaveClass('font-semibold')
   })
 })

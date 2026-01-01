@@ -19,16 +19,18 @@ export function CommunityView({ evaluations }: CommunityViewProps) {
     >
       {evaluations.map((evaluation) => (
         <div key={evaluation.id} className="animate-card">
-          <div className="mb-2">
-            <Link
-              href={`/users/${evaluation.user_id}`}
-              className="inline-flex items-center gap-1 text-sm text-neutral-600 hover:text-amber-600 transition-colors"
-            >
-              <span>👤</span>
-              <span>{evaluation.display_name || '匿名ユーザー'}</span>
-            </Link>
-          </div>
-          <CoffeeCard evaluation={evaluation} />
+          <CoffeeCard
+            evaluation={evaluation}
+            meta={
+              <Link
+                href={`/users/${evaluation.user_id}`}
+                className="inline-flex items-center gap-1 text-neutral-600 hover:text-amber-600 transition-colors"
+              >
+                <span aria-hidden>👤</span>
+                <span>{evaluation.display_name || '匿名ユーザー'}</span>
+              </Link>
+            }
+          />
         </div>
       ))}
     </div>

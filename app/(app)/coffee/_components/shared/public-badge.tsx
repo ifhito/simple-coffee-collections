@@ -17,9 +17,10 @@ import { getVisibilityText, VISIBILITY_BADGE_STYLES } from '@/lib/constants/visi
 
 interface PublicBadgeProps {
   isPublic: boolean
+  className?: string
 }
 
-export function PublicBadge({ isPublic }: PublicBadgeProps) {
+export function PublicBadge({ isPublic, className = '' }: PublicBadgeProps) {
   const colorStyles = isPublic
     ? VISIBILITY_BADGE_STYLES.public
     : VISIBILITY_BADGE_STYLES.private
@@ -29,7 +30,7 @@ export function PublicBadge({ isPublic }: PublicBadgeProps) {
       data-testid="public-badge"
       role="status"
       aria-label={`公開設定: ${getVisibilityText(isPublic)}`}
-      className={`absolute bottom-2 right-2 z-10 px-2 py-1 rounded text-xs font-medium ${colorStyles}`}
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold shadow-sm whitespace-nowrap ${colorStyles} ${className}`}
     >
       {getVisibilityText(isPublic)}
     </div>
