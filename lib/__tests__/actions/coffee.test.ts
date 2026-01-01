@@ -77,6 +77,7 @@ describe('Coffee Evaluation Server Actions', () => {
       const formData = new FormData()
       formData.append('shop_name', 'カフェテスト')
       formData.append('bean_type', 'エチオピア イルガチェフェ')
+      formData.append('bean_name', 'イルガチェフェ G1')
       formData.append('roast_level', '中煎り')
       formData.append('acidity', '8')
       formData.append('bitterness', '4')
@@ -102,6 +103,7 @@ describe('Coffee Evaluation Server Actions', () => {
           user_id: 'user-123',
           shop_name: 'カフェテスト',
           bean_type: 'エチオピア イルガチェフェ',
+          bean_name: 'イルガチェフェ G1',
           roast_level: '中煎り',
           acidity: 8,
           bitterness: 4,
@@ -121,42 +123,23 @@ describe('Coffee Evaluation Server Actions', () => {
       expect(revalidateCall).toBeLessThan(redirectCall)
     })
 
-    it('should return validation error for missing shop_name', async () => {
-      // Arrange: FormData without shop_name
+    it('should return validation error for missing bean_name', async () => {
       const formData = new FormData()
+      formData.append('shop_name', 'カフェテスト')
       formData.append('bean_type', 'エチオピア')
+      formData.append('bean_name', '')
       formData.append('acidity', '8')
       formData.append('bitterness', '4')
       formData.append('aroma', '9')
       formData.append('overall_rating', '8')
 
-      // Act
       const result = await createCoffeeEvaluation(formData)
 
-      // Assert: Should return error object
       expect(result).toEqual({
-        error: expect.stringContaining('shop_name'),
+        error: expect.stringContaining('bean_name'),
       })
       expect(mockSupabaseClient.insert).not.toHaveBeenCalled()
       expect(redirect).not.toHaveBeenCalled()
-    })
-
-    it('should return validation error for missing bean_type', async () => {
-      // Arrange
-      const formData = new FormData()
-      formData.append('shop_name', 'カフェテスト')
-      formData.append('acidity', '8')
-      formData.append('bitterness', '4')
-      formData.append('aroma', '9')
-      formData.append('overall_rating', '8')
-
-      // Act
-      const result = await createCoffeeEvaluation(formData)
-
-      // Assert
-      expect(result).toEqual({
-        error: expect.stringContaining('bean_type'),
-      })
     })
 
     it('should return validation error for invalid rating values', async () => {
@@ -164,6 +147,7 @@ describe('Coffee Evaluation Server Actions', () => {
       const formData = new FormData()
       formData.append('shop_name', 'カフェテスト')
       formData.append('bean_type', 'エチオピア')
+      formData.append('bean_name', 'イルガチェフェ')
       formData.append('acidity', '11') // Invalid: > 10
       formData.append('bitterness', '4')
       formData.append('aroma', '9')
@@ -188,6 +172,7 @@ describe('Coffee Evaluation Server Actions', () => {
       const formData = new FormData()
       formData.append('shop_name', 'カフェテスト')
       formData.append('bean_type', 'エチオピア')
+      formData.append('bean_name', 'イルガチェフェ')
       formData.append('acidity', '8')
       formData.append('bitterness', '4')
       formData.append('aroma', '9')
@@ -208,6 +193,7 @@ describe('Coffee Evaluation Server Actions', () => {
       const formData = new FormData()
       formData.append('shop_name', 'カフェテスト')
       formData.append('bean_type', 'エチオピア')
+      formData.append('bean_name', 'イルガチェフェ')
       formData.append('acidity', '8')
       formData.append('bitterness', '4')
       formData.append('aroma', '9')
@@ -233,6 +219,7 @@ describe('Coffee Evaluation Server Actions', () => {
       const formData = new FormData()
       formData.append('shop_name', 'カフェテスト')
       formData.append('bean_type', 'エチオピア')
+      formData.append('bean_name', 'イルガチェフェ')
       formData.append('acidity', '8')
       formData.append('bitterness', '4')
       formData.append('aroma', '9')
@@ -253,6 +240,8 @@ describe('Coffee Evaluation Server Actions', () => {
         })
       )
     })
+
+    // bean_name is now required; handled in validation test above
   })
 
   describe('updateCoffeeEvaluation', () => {
@@ -263,6 +252,7 @@ describe('Coffee Evaluation Server Actions', () => {
       const formData = new FormData()
       formData.append('shop_name', 'カフェ更新')
       formData.append('bean_type', 'コロンビア')
+      formData.append('bean_name', '更新豆')
       formData.append('roast_level', '深煎り')
       formData.append('acidity', '6')
       formData.append('bitterness', '8')
@@ -297,6 +287,7 @@ describe('Coffee Evaluation Server Actions', () => {
         expect.objectContaining({
           shop_name: 'カフェ更新',
           bean_type: 'コロンビア',
+          bean_name: '更新豆',
           overall_rating: 7,
         })
       )
@@ -311,6 +302,7 @@ describe('Coffee Evaluation Server Actions', () => {
       const formData = new FormData()
       formData.append('shop_name', 'カフェ更新')
       formData.append('bean_type', 'コロンビア')
+      formData.append('bean_name', '更新豆')
       formData.append('acidity', '6')
       formData.append('bitterness', '8')
       formData.append('aroma', '7')
@@ -336,6 +328,7 @@ describe('Coffee Evaluation Server Actions', () => {
       const formData = new FormData()
       formData.append('shop_name', 'カフェ更新')
       formData.append('bean_type', 'コロンビア')
+      formData.append('bean_name', '更新豆')
       formData.append('acidity', '6')
       formData.append('bitterness', '8')
       formData.append('aroma', '7')
@@ -360,6 +353,7 @@ describe('Coffee Evaluation Server Actions', () => {
       const formData = new FormData()
       formData.append('shop_name', 'カフェ更新')
       formData.append('bean_type', 'コロンビア')
+      formData.append('bean_name', '更新豆')
       formData.append('acidity', '0') // Invalid: < 1
       formData.append('bitterness', '8')
       formData.append('aroma', '7')
@@ -374,6 +368,46 @@ describe('Coffee Evaluation Server Actions', () => {
       })
       expect(mockSupabaseClient.update).not.toHaveBeenCalled()
     })
+
+    // 🔴 TDD RED: bean_name field tests for update (Task 3)
+    it('should update bean_name when provided', async () => {
+      // Arrange: FormData with bean_name
+      const formData = new FormData()
+      formData.append('shop_name', 'カフェ更新')
+      formData.append('bean_type', 'コロンビア')
+      formData.append('bean_name', 'コロンビア スプレモ')
+      formData.append('acidity', '6')
+      formData.append('bitterness', '8')
+      formData.append('aroma', '7')
+      formData.append('overall_rating', '7')
+
+      // Mock ownership check
+      let callCount = 0
+      mockSupabaseClient.eq.mockImplementation(() => {
+        callCount++
+        if (callCount === 1) {
+          return mockSupabaseClient
+        } else {
+          return Promise.resolve({ data: null, error: null })
+        }
+      })
+
+      mockSupabaseClient.single.mockResolvedValueOnce({
+        data: { user_id: 'user-123' },
+        error: null,
+      })
+
+      // Act
+      await updateCoffeeEvaluation(evaluationId, formData)
+
+      // Assert: bean_name should be updated
+      expect(mockSupabaseClient.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          bean_name: 'コロンビア スプレモ',
+        })
+      )
+    })
+
   })
 
   describe('deleteCoffeeEvaluation', () => {

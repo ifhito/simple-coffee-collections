@@ -31,6 +31,7 @@ type ActionResponse = { error: string } | void
 interface ParsedEvaluationData {
   shop_name: string
   bean_type: string
+  bean_name: string
   roast_level: string | null
   acidity: number
   bitterness: number
@@ -100,11 +101,13 @@ function parseRating(value: FormDataEntryValue | null): number {
 function parseEvaluationFormData(formData: FormData): ParsedEvaluationData {
   const shopName = getStringField(formData, 'shop_name').trim()
   const beanType = getStringField(formData, 'bean_type').trim()
+  const beanName = getStringField(formData, 'bean_name').trim()
   const roastLevel = getStringField(formData, 'roast_level').trim()
 
   return {
     shop_name: shopName,
     bean_type: beanType,
+    bean_name: beanName,
     roast_level: roastLevel || null,
     acidity: parseRating(formData.get('acidity')),
     bitterness: parseRating(formData.get('bitterness')),
@@ -121,12 +124,8 @@ function parseEvaluationFormData(formData: FormData): ParsedEvaluationData {
  */
 function validateEvaluationData(data: ParsedEvaluationData): ValidationResult {
   // Validate required fields
-  if (!data.shop_name || !data.shop_name.trim()) {
-    return buildFieldError('shop_name', 'shop_name is required')
-  }
-
-  if (!data.bean_type || !data.bean_type.trim()) {
-    return buildFieldError('bean_type', 'bean_type is required')
+  if (!data.bean_name || !data.bean_name.trim()) {
+    return buildFieldError('bean_name', 'bean_name is required')
   }
 
   // Validate rating values (1-10)
@@ -219,6 +218,7 @@ export async function createCoffeeEvaluation(
       user_id: user.id,
       shop_name: data.shop_name,
       bean_type: data.bean_type,
+      bean_name: data.bean_name,
       roast_level: data.roast_level,
       acidity: data.acidity,
       bitterness: data.bitterness,
@@ -284,6 +284,7 @@ export async function updateCoffeeEvaluation(
     .update({
       shop_name: data.shop_name,
       bean_type: data.bean_type,
+      bean_name: data.bean_name,
       roast_level: data.roast_level,
       acidity: data.acidity,
       bitterness: data.bitterness,

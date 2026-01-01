@@ -68,7 +68,7 @@ export const getCoffeeEvaluations = cache(
     if (params?.search) {
       const pattern = `%${params.search}%`
       query = query.or(
-        `shop_name.ilike.${pattern},bean_type.ilike.${pattern},roast_level.ilike.${pattern}`
+        `shop_name.ilike.${pattern},bean_type.ilike.${pattern},bean_name.ilike.${pattern},roast_level.ilike.${pattern}`
       )
     }
 
@@ -174,7 +174,7 @@ export const searchCoffeeEvaluations = cache(
       .from('coffee_evaluations')
       .select('*')
       .or(
-        `shop_name.ilike.${searchPattern},bean_type.ilike.${searchPattern},roast_level.ilike.${searchPattern}`
+        `shop_name.ilike.${searchPattern},bean_type.ilike.${searchPattern},bean_name.ilike.${searchPattern},roast_level.ilike.${searchPattern}`
       )
       .order('created_at', { ascending: false })
 
@@ -227,7 +227,7 @@ export const getCoffeeEvaluationsWithUser = cache(
       if (params?.search) {
         const pattern = `%${params.search}%`
         query = query.or(
-          `shop_name.ilike.${pattern},bean_type.ilike.${pattern},roast_level.ilike.${pattern}`
+          `shop_name.ilike.${pattern},bean_type.ilike.${pattern},bean_name.ilike.${pattern},roast_level.ilike.${pattern}`
         )
       }
 
@@ -251,7 +251,7 @@ export const getCoffeeEvaluationsWithUser = cache(
       if (params?.search) {
         const pattern = `%${params.search}%`
         query = query.or(
-          `shop_name.ilike.${pattern},bean_type.ilike.${pattern},roast_level.ilike.${pattern}`
+          `shop_name.ilike.${pattern},bean_type.ilike.${pattern},bean_name.ilike.${pattern},roast_level.ilike.${pattern}`
         )
       }
 

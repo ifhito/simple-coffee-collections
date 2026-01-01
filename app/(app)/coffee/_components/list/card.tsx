@@ -4,13 +4,14 @@ import type { CoffeeEvaluation } from '@/lib/types/coffee'
 import { RatingStars } from '../shared/rating-stars'
 
 type CoffeeCardProps = {
-  evaluation: Pick<CoffeeEvaluation, 'id' | 'shop_name' | 'bean_type' | 'overall_rating' | 'created_at'>
+  evaluation: Pick<CoffeeEvaluation, 'id' | 'shop_name' | 'bean_type' | 'bean_name' | 'overall_rating' | 'created_at'>
 }
 
 const formatDate = (iso: string) => iso.slice(0, 10)
 
 function CoffeeCardComponent({ evaluation }: CoffeeCardProps) {
-  const { id, shop_name, bean_type, overall_rating, created_at } = evaluation
+  const { id, shop_name, bean_type, bean_name, overall_rating, created_at } = evaluation
+  const displayBeanType = bean_name ? `${bean_type} - ${bean_name}` : bean_type
 
   return (
     <Link
@@ -25,7 +26,7 @@ function CoffeeCardComponent({ evaluation }: CoffeeCardProps) {
         <div className="flex items-start justify-between gap-2">
           <div className="space-y-1">
             <h3 className="text-lg font-semibold text-neutral-900">{shop_name}</h3>
-            <p className="text-sm text-neutral-600">{bean_type}</p>
+            <p className="text-sm text-neutral-600">{displayBeanType}</p>
           </div>
           <RatingStars rating={overall_rating} size="md" />
         </div>

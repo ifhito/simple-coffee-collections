@@ -39,6 +39,11 @@ export function EvaluationDetailView({ evaluation, currentUserId }: EvaluationDe
         <p className="text-sm text-neutral-600 animate-slide-up" style={{ animationDelay: '60ms' }}>
           {evaluation.bean_type}
         </p>
+        {evaluation.bean_name && (
+          <p className="text-xs text-neutral-500 animate-slide-up" style={{ animationDelay: '90ms' }}>
+            {evaluation.bean_name}
+          </p>
+        )}
         {evaluation.roast_level && (
           <p className="text-xs text-neutral-500 animate-slide-up" style={{ animationDelay: '120ms' }}>
             {evaluation.roast_level}

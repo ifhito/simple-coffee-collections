@@ -23,6 +23,7 @@ const sampleInitialData: CoffeeEvaluation = {
   id: 'eval-123',
   shop_name: 'Blue Bottle',
   bean_type: 'Ethiopia',
+  bean_name: 'イルガチェフェ',
   roast_level: 'Medium',
   acidity: 7,
   bitterness: 4,
@@ -51,6 +52,7 @@ describe('EvaluationForm', () => {
 
     expect(screen.getByLabelText(/店名/i)).toHaveValue('')
     expect(screen.getByLabelText(/豆の種類/i)).toHaveValue('')
+    expect(screen.getByLabelText(/豆の名前/i)).toHaveValue('')
 
     const sliders = screen.getAllByRole('slider')
     expect(sliders).toHaveLength(4)
@@ -75,6 +77,8 @@ describe('EvaluationForm', () => {
 
     await user.clear(screen.getByLabelText(/店名/i))
     await user.type(screen.getByLabelText(/店名/i), 'Verve Coffee')
+    await user.clear(screen.getByLabelText(/豆の名前/i))
+    await user.type(screen.getByLabelText(/豆の名前/i), 'ケニアAA')
     setSliderValue(/酸味/i, 6)
 
     await user.click(screen.getByRole('button', { name: /更新/i }))
@@ -88,6 +92,7 @@ describe('EvaluationForm', () => {
 
     const formData = mockUpdateCoffeeEvaluation.mock.calls[0][1] as FormData
     expect(formData.get('shop_name')).toBe('Verve Coffee')
+    expect(formData.get('bean_name')).toBe('ケニアAA')
     expect(formData.get('acidity')).toBe('6')
     expect(mockCreateCoffeeEvaluation).not.toHaveBeenCalled()
   })
@@ -101,6 +106,7 @@ describe('EvaluationForm', () => {
     await user.type(screen.getByLabelText(/店名/i), 'Onibus Coffee')
     await user.type(screen.getByLabelText(/豆の種類/i), 'Kenya AA')
     await user.type(screen.getByLabelText(/焙煎度/i), 'Light roast')
+    await user.type(screen.getByLabelText(/豆の名前/i), 'Kenya AA Top')
     setSliderValue(/総合評価/i, 9)
 
     // PublicToggle defaults to false (非公開), so we don't need to toggle it
@@ -113,6 +119,7 @@ describe('EvaluationForm', () => {
 
     const formData = mockCreateCoffeeEvaluation.mock.calls[0][0] as FormData
     expect(formData.get('shop_name')).toBe('Onibus Coffee')
+    expect(formData.get('bean_name')).toBe('Kenya AA Top')
     expect(formData.get('overall_rating')).toBe('9')
     expect(formData.get('is_public')).toBe('false')
   })
@@ -123,7 +130,7 @@ describe('EvaluationForm', () => {
 
     await user.click(screen.getByRole('button', { name: /保存/i }))
 
-    expect(await screen.findByText(/店名は必須です/i)).toBeInTheDocument()
+    expect(await screen.findByText(/豆の名前は必須です/i)).toBeInTheDocument()
     expect(mockCreateCoffeeEvaluation).not.toHaveBeenCalled()
   })
 
@@ -133,8 +140,7 @@ describe('EvaluationForm', () => {
     const user = userEvent.setup()
     render(<EvaluationForm />)
 
-    await user.type(screen.getByLabelText(/店名/i), 'Glitch Coffee')
-    await user.type(screen.getByLabelText(/豆の種類/i), 'Brazil')
+    await user.type(screen.getByLabelText(/豆の名前/i), 'Brazil Santos')
     await user.click(screen.getByRole('button', { name: /保存/i }))
 
     expect(await screen.findByText(/保存に失敗しました/i)).toBeInTheDocument()
@@ -152,8 +158,7 @@ describe('EvaluationForm', () => {
     const user = userEvent.setup()
     render(<EvaluationForm />)
 
-    await user.type(screen.getByLabelText(/店名/i), 'Koffee Mameya')
-    await user.type(screen.getByLabelText(/豆の種類/i), 'Geisha')
+    await user.type(screen.getByLabelText(/豆の名前/i), 'Geisha')
     await user.click(screen.getByRole('button', { name: /保存/i }))
 
     expect(screen.getByRole('button', { name: /処理中/i })).toBeDisabled()
@@ -163,6 +168,72 @@ describe('EvaluationForm', () => {
     await waitFor(() =>
       expect(screen.getByRole('button', { name: /保存/i })).not.toBeDisabled()
     )
+  })
+
+  describe('Bean Name Field', () => {
+    it('renders bean name input field with correct label and placeholder', () => {
+      render(<EvaluationForm />)
+
+      const beanNameInput = screen.getByLabelText(/豆の名前/i)
+      expect(beanNameInput).toBeInTheDocument()
+      expect(beanNameInput).toHaveAttribute('placeholder', '例: エチオピア イルガチェフェ G1')
+      expect(beanNameInput).toHaveValue('')
+    })
+
+    it('initializes beanName state from initialData in edit mode', () => {
+      const dataWithBeanName: CoffeeEvaluation = {
+        ...sampleInitialData,
+        bean_name: 'エチオピア イルガチェフェ G1',
+      }
+      render(<EvaluationForm initialData={dataWithBeanName} />)
+
+      const beanNameInput = screen.getByLabelText(/豆の名前/i)
+      expect(beanNameInput).toHaveValue('エチオピア イルガチェフェ G1')
+    })
+
+    it('includes bean_name in FormData when creating new evaluation', async () => {
+      mockCreateCoffeeEvaluation.mockResolvedValue(undefined)
+
+      const user = userEvent.setup()
+      render(<EvaluationForm />)
+
+      await user.type(screen.getByLabelText(/店名/i), 'Test Cafe')
+      await user.type(screen.getByLabelText(/豆の種類/i), 'エチオピア')
+      await user.type(screen.getByLabelText(/豆の名前/i), 'エチオピア イルガチェフェ G1')
+      await user.click(screen.getByRole('button', { name: /保存/i }))
+
+      await waitFor(() => expect(mockCreateCoffeeEvaluation).toHaveBeenCalledWith(expect.any(FormData)))
+
+      const formData = mockCreateCoffeeEvaluation.mock.calls[0][0] as FormData
+      expect(formData.get('bean_name')).toBe('エチオピア イルガチェフェ G1')
+    })
+
+    it('includes bean_name in FormData when updating existing evaluation', async () => {
+      mockUpdateCoffeeEvaluation.mockResolvedValue(undefined)
+
+      const dataWithBeanName: CoffeeEvaluation = {
+        ...sampleInitialData,
+        bean_name: 'グアテマラ アンティグア',
+      }
+
+      const user = userEvent.setup()
+      render(<EvaluationForm initialData={dataWithBeanName} />)
+
+      const beanNameInput = screen.getByLabelText(/豆の名前/i)
+      await user.clear(beanNameInput)
+      await user.type(beanNameInput, 'コロンビア スプレモ')
+      await user.click(screen.getByRole('button', { name: /更新/i }))
+
+      await waitFor(() =>
+        expect(mockUpdateCoffeeEvaluation).toHaveBeenCalledWith(
+          sampleInitialData.id,
+          expect.any(FormData)
+        )
+      )
+
+      const formData = mockUpdateCoffeeEvaluation.mock.calls[0][1] as FormData
+      expect(formData.get('bean_name')).toBe('コロンビア スプレモ')
+    })
   })
 
   describe('PublicToggle Integration', () => {
@@ -214,11 +285,12 @@ describe('EvaluationForm', () => {
       mockCreateCoffeeEvaluation.mockResolvedValue(undefined)
 
       const user = userEvent.setup()
-      render(<EvaluationForm />)
+    render(<EvaluationForm />)
 
-      // Fill required fields
-      await user.type(screen.getByLabelText(/店名/i), 'Test Cafe')
-      await user.type(screen.getByLabelText(/豆の種類/i), 'Test Bean')
+    // Fill required fields
+    await user.type(screen.getByLabelText(/店名/i), 'Test Cafe')
+    await user.type(screen.getByLabelText(/豆の種類/i), 'Test Bean')
+    await user.type(screen.getByLabelText(/豆の名前/i), 'Test Bean Name')
 
       // Toggle public to true
       const checkbox = screen.getByRole('checkbox', { name: /🔒 非公開/i })

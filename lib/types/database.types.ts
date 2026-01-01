@@ -7,6 +7,31 @@ export type Json =
   | Json[]
 
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       bean_types: {
@@ -40,6 +65,7 @@ export type Database = {
         Row: {
           acidity: number
           aroma: number
+          bean_name: string | null
           bean_type: string
           bitterness: number
           created_at: string
@@ -54,6 +80,7 @@ export type Database = {
         Insert: {
           acidity: number
           aroma: number
+          bean_name?: string | null
           bean_type: string
           bitterness: number
           created_at?: string
@@ -68,6 +95,7 @@ export type Database = {
         Update: {
           acidity?: number
           aroma?: number
+          bean_name?: string | null
           bean_type?: string
           bitterness?: number
           created_at?: string
@@ -390,6 +418,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

@@ -14,8 +14,6 @@ type EvaluationFormProps = {
 }
 
 type FieldErrors = {
-  shop_name?: string
-  bean_type?: string
   _form?: string
 }
 
@@ -40,6 +38,7 @@ const ROAST_LEVELS = [
 export function EvaluationForm({ initialData }: EvaluationFormProps) {
   const [shopName, setShopName] = useState(initialData?.shop_name ?? '')
   const [beanType, setBeanType] = useState(initialData?.bean_type ?? '')
+  const [beanName, setBeanName] = useState(initialData?.bean_name ?? '')
   const [roastLevel, setRoastLevel] = useState(initialData?.roast_level ?? '')
   const [errors, setErrors] = useState<FieldErrors>({})
   const [isPending, startTransition] = useTransition()
@@ -58,26 +57,12 @@ export function EvaluationForm({ initialData }: EvaluationFormProps) {
   const handleValidation = () => {
     const nextErrors: FieldErrors = {}
 
-    if (!shopName.trim()) {
-      nextErrors.shop_name = '店名は必須です'
-    }
-
-    if (!beanType.trim()) {
-      nextErrors.bean_type = '豆の種類は必須です'
+    if (!beanName.trim()) {
+      nextErrors.bean_name = '豆の名前は必須です'
     }
 
     setErrors(nextErrors)
     const isValid = Object.keys(nextErrors).length === 0
-
-    if (!isValid) {
-      requestAnimationFrame(() => {
-        if (nextErrors.shop_name) {
-          document.getElementById('店名')?.focus()
-        } else if (nextErrors.bean_type) {
-          document.getElementById('豆の種類')?.focus()
-        }
-      })
-    }
 
     return isValid
   }
@@ -90,6 +75,7 @@ export function EvaluationForm({ initialData }: EvaluationFormProps) {
     // Ensure controlled input values are up-to-date
     formData.set('shop_name', shopName.trim())
     formData.set('bean_type', beanType.trim())
+    formData.set('bean_name', beanName.trim())
     formData.set('roast_level', roastLevel.trim())
     formData.set('acidity', ratings.acidity.toString())
     formData.set('bitterness', ratings.bitterness.toString())
@@ -142,6 +128,7 @@ export function EvaluationForm({ initialData }: EvaluationFormProps) {
     <form
       onSubmit={handleSubmit}
       ref={formRef}
+      noValidate
       className="space-y-6 rounded-lg border border-neutral-200 bg-white p-6 shadow-sm"
       aria-live="polite"
     >
@@ -150,13 +137,19 @@ export function EvaluationForm({ initialData }: EvaluationFormProps) {
           label="店名"
           value={shopName}
           onChange={(e) => setShopName(e.target.value)}
-          error={errors.shop_name}
         />
         <Input
           label="豆の種類"
           value={beanType}
           onChange={(e) => setBeanType(e.target.value)}
-          error={errors.bean_type}
+        />
+        <Input
+          label="豆の名前"
+          value={beanName}
+          onChange={(e) => setBeanName(e.target.value)}
+          placeholder="例: エチオピア イルガチェフェ G1"
+          required
+          error={errors.bean_name}
         />
         <div className="flex flex-col gap-2">
           <label htmlFor="roast-level" className="text-sm font-medium text-neutral-800">

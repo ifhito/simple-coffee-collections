@@ -37,7 +37,10 @@
       "Bash(git commit -m \"$\\(cat <<''EOF''\nchore: プロジェクト設定ファイルを追加\n\nNext.js 15、TypeScript、Jest、Tailwind CSS の設定を追加しました。\n\n## 設定内容\n\n### Next.js\n- `next.config.ts`: Next.js 15 App Router設定\n- `middleware.ts`: Supabase認証ミドルウェア\n\n### TypeScript\n- `tsconfig.json`: 厳格な型チェック設定\n- App Router用のパス設定 \\(@/*\\)\n\n### テスト\n- `jest.config.js`: Jest設定（React Testing Library統合）\n- `jest.setup.js`: テスト環境セットアップ\n- Supabaseモック設定\n\n### スタイリング\n- `tailwind.config.ts`: Tailwind CSS v4設定\n- `postcss.config.mjs`: PostCSS設定\n\n### リント\n- `.eslintrc.json`: ESLint設定（Next.js推奨ルール）\n\n### パッケージ管理\n- `package.json`: 依存関係定義\n- `pnpm-lock.yaml`: pnpm lockfile\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git commit:*)",
       "Bash(git fetch:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(test:*)",
+      "Bash(mkdir:*)",
+      "Bash(pnpm test:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

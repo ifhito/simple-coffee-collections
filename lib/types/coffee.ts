@@ -46,11 +46,12 @@ export interface CoffeeEvaluationWithUser extends CoffeeEvaluation {
 
 /**
  * Form data for creating a new coffee evaluation
- * All fields are required for initial input, but roast_level is optional
+ * Bean name and rating fields are required; shop name, bean type, and roast level are optional
  */
 export interface CoffeeEvaluationFormInput {
-  shop_name: string
-  bean_type: string
+  shop_name?: string
+  bean_type?: string
+  bean_name: string
   roast_level: string | null
   acidity: number
   bitterness: number
@@ -66,6 +67,7 @@ export interface CoffeeEvaluationFormInput {
 export interface CoffeeEvaluationEditFormInput {
   shop_name?: string
   bean_type?: string
+  bean_name?: string
   roast_level?: string | null
   acidity?: number
   bitterness?: number
@@ -97,10 +99,14 @@ export type RatingValue = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10
  */
 export const CoffeeEvaluationValidation = {
   shop_name: {
-    required: true,
+    required: false,
     maxLength: 255,
   },
   bean_type: {
+    required: false,
+    maxLength: 255,
+  },
+  bean_name: {
     required: true,
     maxLength: 255,
   },
@@ -146,6 +152,7 @@ export interface CoffeeEvaluationWithProfile extends CoffeeEvaluation {
 export interface FormValidationErrors {
   shop_name?: string
   bean_type?: string
+  bean_name?: string
   roast_level?: string
   acidity?: string
   bitterness?: string

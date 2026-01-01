@@ -25,6 +25,7 @@ const sampleEvaluation = {
   id: 'eval-123',
   shop_name: 'Blue Bottle Coffee',
   bean_type: 'Ethiopia Yirgacheffe',
+  bean_name: null,
   overall_rating: 8,
   created_at: '2025-01-02T12:00:00.000Z',
 }
@@ -70,5 +71,34 @@ describe('CoffeeCard', () => {
     const card = screen.getByTestId('coffee-card')
     expect(card).toHaveClass('group')
     expect(card).toHaveClass('hover:-translate-y-1')
+  })
+
+  describe('Bean Name Display', () => {
+    it('displays "bean_type - bean_name" when bean_name exists', () => {
+      const evaluationWithBeanName = {
+        ...sampleEvaluation,
+        bean_name: 'イルガチェフェ G1',
+      }
+      renderCard({ evaluation: evaluationWithBeanName })
+
+      expect(screen.getByText('Ethiopia Yirgacheffe - イルガチェフェ G1')).toBeInTheDocument()
+    })
+
+    it('displays only bean_type when bean_name is null', () => {
+      renderCard()
+
+      expect(screen.getByText(sampleEvaluation.bean_type)).toBeInTheDocument()
+      expect(screen.queryByText(/イルガチェフェ/)).not.toBeInTheDocument()
+    })
+
+    it('displays only bean_type when bean_name is empty string', () => {
+      const evaluationWithEmptyBeanName = {
+        ...sampleEvaluation,
+        bean_name: '',
+      }
+      renderCard({ evaluation: evaluationWithEmptyBeanName })
+
+      expect(screen.getByText(sampleEvaluation.bean_type)).toBeInTheDocument()
+    })
   })
 })
