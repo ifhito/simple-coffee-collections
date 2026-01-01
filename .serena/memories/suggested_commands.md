@@ -1,0 +1,11 @@
+# Suggested Commands
+- Install deps: `pnpm install`
+- Dev server: `pnpm dev` (Next.js)
+- Build: `pnpm build`; Start prod build: `pnpm start`
+- Lint: `pnpm lint`
+- Tests: `pnpm test` or `pnpm test:watch`
+- Supabase local: `supabase start` (requires Supabase CLI)
+- Preview ports: app on 3000 by default
+- Repo navigation: `rg "pattern"` for search, `rg --files` to list files
+- Env: copy `.env.example` → `.env.local` and configure Supabase creds
+- Git workflow: standard `git status`/`git diff`/`git commit`/`git push` after tasks (see task completion memory).
