@@ -24,12 +24,12 @@ function CoffeeCardComponent({ evaluation, badge, meta }: CoffeeCardProps) {
   return (
     <article
       data-testid="coffee-card"
-      className="group flex h-full flex-col justify-between rounded-lg border border-neutral-200 bg-white p-4 shadow-sm transition-transform duration-150 hover:-translate-y-1 hover:shadow-md"
+      className="group flex h-full flex-col rounded-lg border border-neutral-200 bg-white p-4 shadow-sm transition-transform duration-150 hover:-translate-y-1 hover:shadow-md"
     >
       {meta ? <div className="mb-3 text-sm text-neutral-600">{meta}</div> : null}
       <Link
         href={`/coffee/${id}`}
-        className="block h-full"
+        className="flex flex-1 flex-col"
         aria-label={`${shop_name} の評価詳細へ`}
       >
         <div className="flex items-start justify-between gap-3">

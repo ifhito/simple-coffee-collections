@@ -30,7 +30,7 @@ export function PublicBadge({ isPublic, className = '' }: PublicBadgeProps) {
       data-testid="public-badge"
       role="status"
       aria-label={`公開設定: ${getVisibilityText(isPublic)}`}
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold shadow-sm whitespace-nowrap ${colorStyles} ${className}`}
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold shadow-sm whitespace-nowrap leading-none ${colorStyles} ${className}`}
     >
       {getVisibilityText(isPublic)}
     </div>
