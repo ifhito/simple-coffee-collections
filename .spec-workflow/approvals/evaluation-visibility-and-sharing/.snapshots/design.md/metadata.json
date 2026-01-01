@@ -1,0 +1,46 @@
+{
+  "filePath": ".spec-workflow/specs/evaluation-visibility-and-sharing/design.md",
+  "currentVersion": 5,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2026-01-01T01:36:32.278Z",
+      "trigger": "initial",
+      "approvalId": "approval_1767231392272_n4ibn97jw",
+      "approvalTitle": "Design: 評価の公開制御と共有機能"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2026-01-01T01:45:35.976Z",
+      "trigger": "revision_requested",
+      "approvalId": "approval_1767231392272_n4ibn97jw",
+      "approvalTitle": "Design: 評価の公開制御と共有機能"
+    },
+    {
+      "version": 3,
+      "filename": "snapshot-003.json",
+      "timestamp": "2026-01-01T01:49:13.055Z",
+      "trigger": "revision_requested",
+      "approvalId": "approval_1767231996580_y5xcvujzi",
+      "approvalTitle": "Design (修正版): 評価の公開制御と共有機能"
+    },
+    {
+      "version": 4,
+      "filename": "snapshot-004.json",
+      "timestamp": "2026-01-01T01:50:45.599Z",
+      "trigger": "revision_requested",
+      "approvalId": "approval_1767232185363_i9rcjygg2",
+      "approvalTitle": "Design (修正版v2): 評価の公開制御と共有機能"
+    },
+    {
+      "version": 5,
+      "filename": "snapshot-005.json",
+      "timestamp": "2026-01-01T01:53:36.742Z",
+      "trigger": "approved",
+      "approvalId": "approval_1767232328881_12nx7huie",
+      "approvalTitle": "Design (最終修正版): 評価の公開制御と共有機能"
+    }
+  ]
+}

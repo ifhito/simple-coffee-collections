@@ -1,0 +1,21 @@
+{
+  "id": "approval_1767180198175_3uof44b1w",
+  "title": "Structure Document - Codebase Organization & Patterns",
+  "filePath": ".spec-workflow/steering/structure.md",
+  "type": "document",
+  "status": "needs-revision",
+  "createdAt": "2025-12-31T11:23:18.175Z",
+  "category": "steering",
+  "categoryName": "steering",
+  "response": "Feedback Summary (1 comments):\n\nGeneral Comments:\n1. nextjs-best-practicesに従ってコードを書くようなPatternに変更してください\n\n",
+  "annotations": "{\n  \"decision\": \"needs-revision\",\n  \"comments\": [\n    {\n      \"type\": \"general\",\n      \"comment\": \"nextjs-best-practicesに従ってコードを書くようなPatternに変更してください\",\n      \"timestamp\": \"2025-12-31T11:26:58.815Z\",\n      \"id\": \"comment_1767180418815_qiw694c8b\"\n    }\n  ],\n  \"summary\": \"Feedback Summary (1 comments):\\n\\nGeneral Comments:\\n1. nextjs-best-practicesに従ってコードを書くようなPatternに変更してください\\n\\n\",\n  \"timestamp\": \"2025-12-31T11:27:01.991Z\"\n}",
+  "respondedAt": "2025-12-31T11:27:02.013Z",
+  "comments": [
+    {
+      "type": "general",
+      "comment": "nextjs-best-practicesに従ってコードを書くようなPatternに変更してください",
+      "timestamp": "2025-12-31T11:26:58.815Z",
+      "id": "comment_1767180418815_qiw694c8b"
+    }
+  ]
+}

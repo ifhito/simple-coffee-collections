@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/profile-share-link/design.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2026-01-01T06:28:09.235Z",
+      "trigger": "initial",
+      "approvalId": "approval_1767248889228_p1ybe4ogi",
+      "approvalTitle": "profile-share-link design"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2026-01-01T06:29:12.377Z",
+      "trigger": "approved",
+      "approvalId": "approval_1767248889228_p1ybe4ogi",
+      "approvalTitle": "profile-share-link design"
+    }
+  ]
+}

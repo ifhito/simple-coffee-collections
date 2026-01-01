@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/evaluation-visibility-and-sharing/requirements.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-12-31T16:54:32.139Z",
+      "trigger": "initial",
+      "approvalId": "approval_1767200072135_atpzvpaw1",
+      "approvalTitle": "Requirements: 評価の公開制御と共有機能"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2026-01-01T01:33:07.837Z",
+      "trigger": "approved",
+      "approvalId": "approval_1767200072135_atpzvpaw1",
+      "approvalTitle": "Requirements: 評価の公開制御と共有機能"
+    }
+  ]
+}

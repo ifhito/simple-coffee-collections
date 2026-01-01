@@ -1,0 +1,29 @@
+{
+  "id": "approval_1767232185363_i9rcjygg2",
+  "title": "Design (修正版v2): 評価の公開制御と共有機能",
+  "filePath": ".spec-workflow/specs/evaluation-visibility-and-sharing/design.md",
+  "type": "document",
+  "status": "needs-revision",
+  "createdAt": "2026-01-01T01:49:45.363Z",
+  "category": "spec",
+  "categoryName": "evaluation-visibility-and-sharing",
+  "response": "Feedback Summary (1 comments):\n\nSpecific Text Comments:\n1. \"User[User] --> Nav[Navigation]\n    Nav --> MyPage[...\": Lexical error on line 3. Unrecognized text.\n...-> MyPage[/coffee/my]    Nav --> Commun\n-----------------------^\n\nまだ治らないです\n",
+  "annotations": "{\n  \"decision\": \"needs-revision\",\n  \"comments\": [\n    {\n      \"type\": \"selection\",\n      \"comment\": \"Lexical error on line 3. Unrecognized text.\\n...-> MyPage[/coffee/my]    Nav --> Commun\\n-----------------------^\\n\\nまだ治らないです\",\n      \"timestamp\": \"2026-01-01T01:50:39.387Z\",\n      \"selectedText\": \"User[User] --> Nav[Navigation]\\n    Nav --> MyPage[/coffee/my]\\n    Nav --> Community[/coffee/community]\\n    Nav --> Profile[/users/:userId]\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1767232239387_q4csjw0l9\",\n      \"startOffset\": 3019,\n      \"endOffset\": 3157\n    }\n  ],\n  \"summary\": \"Feedback Summary (1 comments):\\n\\nSpecific Text Comments:\\n1. \\\"User[User] --> Nav[Navigation]\\n    Nav --> MyPage[...\\\": Lexical error on line 3. Unrecognized text.\\n...-> MyPage[/coffee/my]    Nav --> Commun\\n-----------------------^\\n\\nまだ治らないです\\n\",\n  \"timestamp\": \"2026-01-01T01:50:45.590Z\"\n}",
+  "respondedAt": "2026-01-01T01:50:45.600Z",
+  "comments": [
+    {
+      "type": "selection",
+      "comment": "Lexical error on line 3. Unrecognized text.\n...-> MyPage[/coffee/my]    Nav --> Commun\n-----------------------^\n\nまだ治らないです",
+      "timestamp": "2026-01-01T01:50:39.387Z",
+      "selectedText": "User[User] --> Nav[Navigation]\n    Nav --> MyPage[/coffee/my]\n    Nav --> Community[/coffee/community]\n    Nav --> Profile[/users/:userId]",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1767232239387_q4csjw0l9",
+      "startOffset": 3019,
+      "endOffset": 3157
+    }
+  ]
+}

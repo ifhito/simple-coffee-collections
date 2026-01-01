@@ -1,0 +1,39 @@
+-- =============================================================================
+-- Coffee Evaluation App - Sample Seed Data (Development Only)
+-- =============================================================================
+-- This file contains sample data for development and testing purposes.
+-- NOTE: This migration should only be run in development environments.
+--       Do not include in production deployments.
+-- =============================================================================
+
+-- Sample data will be inserted via the application or Supabase Dashboard.
+-- This file serves as a reference for the expected data format.
+
+-- Example INSERT statements for reference:
+--
+-- INSERT INTO user_profiles (id, display_name, bio)
+-- VALUES (
+--     'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',  -- auth.users id
+--     'コーヒー太郎',
+--     '毎日コーヒーを楽しんでいます。'
+-- );
+--
+-- INSERT INTO coffee_evaluations (
+--     user_id, shop_name, bean_type, roast_level,
+--     acidity, bitterness, aroma, overall_rating, is_public
+-- )
+-- VALUES (
+--     'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',  -- auth.users id
+--     'スターバックス 渋谷店',
+--     'エチオピア イルガチェフェ',
+--     '中煎り',
+--     7,   -- acidity (1-10)
+--     5,   -- bitterness (1-10)
+--     9,   -- aroma (1-10)
+--     8,   -- overall_rating (1-10)
+--     true -- is_public
+-- );
+
+-- =============================================================================
+-- End of Seed Data
+-- =============================================================================

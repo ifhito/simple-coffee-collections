@@ -1,0 +1,93 @@
+# Tasks Document
+
+## Phase 1: RED (Write tests first)
+
+- [x] 1.1 Add unit tests for profile share URL builder
+  - File: `lib/utils/__tests__/url.test.ts` (new)
+  - Write tests for `buildProfileShareUrl` (new) and `buildAbsoluteUrl` helpers
+  - _Requirements: Req 2 (正しいURLおよびアクセス制御)_
+  - _Prompt:
+    - **Role**: TypeScript Utility Testing Specialist
+    - **Task**: Implement the task for spec profile-share-link. First run spec-workflow-guide to get the workflow guide, then implement the task. **[RED Phase]** Add unit tests covering: (1) origin derived from headers (X-Forwarded-Proto/Host), (2) fallback to localhost for dev, (3) path join to `/users/{id}`, (4) no double slashes, (5) returns absolute URL string. Tests should FAIL before implementation.
+    - **Restrictions**: Do not implement production code yet, use jest mocks only, keep tests focused on pure functions
+    - **Success**: Tests written and failing for missing implementations, clear coverage of all cases
+    - **Instructions**: Mark task [-] before starting. After writing tests, run `npm test lib/utils/__tests__/url.test.ts` and confirm failures. Log implementation after completion, then mark [x].
+
+- [x] 1.2 Add component tests for copy button
+  - File: `app/(app)/coffee/my/_components/__tests__/copy-profile-link-button.test.tsx` (new)
+  - Write tests for Client Component copy button behavior
+  - _Requirements: Req 1 (コピー操作), Req 2 (アクセス制御)_
+  - _Prompt:
+    - **Role**: React Client Component Testing Specialist
+    - **Task**: Implement the task for spec profile-share-link. First run spec-workflow-guide to get the workflow guide, then implement the task. **[RED Phase]** Add tests covering: (1) calls `navigator.clipboard.writeText` with provided URL on click, (2) shows success feedback, (3) on failure shows fallback input and error feedback, (4) accessible label `aria-label="プロフィールリンクをコピー"`, (5) keyboard activation via Enter.
+    - **Restrictions**: Do not implement component yet; mock clipboard; avoid timers by using fake timers if needed
+    - **Success**: Tests fail initially, cover success/failure and accessibility, no production code changes
+    - **Instructions**: Mark task [-] before starting. After writing tests, run `npm test app/(app)/coffee/my/_components/__tests__/copy-profile-link-button.test.tsx` and confirm failures. Log then mark [x].
+
+- [x] 1.3 Add integration test for My Page copy UI
+  - File: `app/(app)/coffee/my/__tests__/share-link.test.tsx` (new)
+  - Test MyPage view renders copy panel with provided URL and triggers copy logic when clicking button (clipboard mocked)
+  - _Requirements: Req 1, Req 2_
+  - _Prompt:
+    - **Role**: Integration Testing Specialist (React + Next RSC hybrid)
+    - **Task**: Implement the task for spec profile-share-link. First run spec-workflow-guide to get the workflow guide, then implement the task. **[RED Phase]** Add tests ensuring: (1) MyPageView renders CopyProfileLinkButton when `profileShareUrl` prop exists, (2) clicking button invokes clipboard write with that URL, (3) success feedback appears. Mock the Client Component or clipboard as needed. Tests should fail prior to implementation.
+    - **Restrictions**: Keep server/client boundary respected; no production code changes; mock clipboard
+    - **Success**: Tests failing initially, asserting presence of button and invocation of copy with given URL
+    - **Instructions**: Mark task [-] before starting. Run targeted test, confirm failures, log, mark [x].
+
+## Phase 2: GREEN (Implement to pass tests)
+
+- [x] 2.1 Implement URL helpers
+  - File: `lib/utils/url.ts` (new)
+  - Implement `buildAbsoluteUrl` and `buildProfileShareUrl`
+  - _Leverage: `next/headers`, existing patterns for memoized helpers_
+  - _Requirements: Req 2_
+  - _Prompt:
+    - **Role**: TypeScript Utility Implementer
+    - **Task**: Implement the task for spec profile-share-link. First run spec-workflow-guide to get the workflow guide, then implement the task. **[GREEN Phase]** Add utilities to construct absolute URLs from headers and userId. Handle X-Forwarded-Proto/Host, fallback to `http://localhost:3000`, and ensure correct path joining to `/users/{id}`.
+    - **Restrictions**: Avoid `window` on server, pure functions with headers input, no redundant slashes
+    - **Success**: Unit tests in 1.1 pass
+    - **Instructions**: Mark task [-], implement, run tests, log, mark [x].
+
+- [x] 2.2 Implement CopyProfileLinkButton (Client)
+  - File: `app/(app)/coffee/my/_components/copy-profile-link-button.tsx` (new)
+  - Client Component to handle copy, feedback, fallback
+  - _Requirements: Req 1, Req 2_
+  - _Prompt:
+    - **Role**: React Client Developer
+    - **Task**: Implement the task for spec profile-share-link. First run spec-workflow-guide to get the workflow guide, then implement the task. **[GREEN Phase]** Build button with `aria-label="プロフィールリンクをコピー"`, success/error states, clipboard write with fallback input (auto-select). Provide minimal inline feedback text; auto-dismiss success after ~3-4s.
+    - **Restrictions**: Use 'use client'; no external toast libs; keep styles consistent with existing buttons
+    - **Success**: Tests in 1.2 pass, accessibility satisfied
+    - **Instructions**: Mark task [-], implement, run tests, log, mark [x].
+
+- [x] 2.3 Integrate into MyPage view
+  - Files: `app/(app)/coffee/my/_containers/container.tsx`, `app/(app)/coffee/my/_components/view.tsx`
+  - Compute share URL in container, render copy panel in view
+  - _Leverage: buildProfileShareUrl, getCurrentUser_
+  - _Requirements: Req 1, Req 2_
+  - _Prompt:
+    - **Role**: Next.js Server/Client Integrator
+    - **Task**: Implement the task for spec profile-share-link. First run spec-workflow-guide to get the workflow guide, then implement the task. **[GREEN Phase]** In container, build `profileShareUrl` from user.id and headers; pass to view. In view, render `CopyProfileLinkButton` section with label/description and pass the URL. Ensure layout aligns with existing MyPage styling.
+    - **Restrictions**: Keep Container/Presentational split; do not fetch extra data; avoid showing button if URL missing
+    - **Success**: Integration test 1.3 passes; manual render shows button with URL wired
+    - **Instructions**: Mark task [-], implement, run tests, log, mark [x].
+
+## Phase 3: REFACTOR (if needed)
+
+- [ ] 3.1 Refine UX and code quality
+  - Files: copy button/component files and url util
+  - Improve minor UX (focus ring, timing, messages), clean code
+  - _Requirements: Non-functional (Usability, Code Architecture)_
+  - _Prompt:
+    - **Role**: Code Quality & UX Polish Specialist
+    - **Task**: Implement the task for spec profile-share-link. First run spec-workflow-guide to get the workflow guide, then implement the task. **[REFACTOR Phase]** Tidy code, ensure SRP, polish messages, and keep tests green.
+    - **Restrictions**: No behavior regressions; keep tests passing
+    - **Success**: Tests remain green; code readability improved
+    - **Instructions**: Mark task [-], refactor lightly, run tests, log, mark [x].
+
+## Phase 4: (Optional) E2E
+
+- [ ] 4.1 Add E2E coverage for shared profile link
+  - File: `app/(app)/coffee/__tests__/integration/profile-share-link.test.tsx` (new, optional)
+  - Cover: copy button visible, clipboard mock called, shared URL loads profile publicly
+  - _Prompt: Add if time permits; otherwise skip._

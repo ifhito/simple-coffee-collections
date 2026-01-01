@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/profile-share-link/tasks.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2026-01-01T06:31:02.554Z",
+      "trigger": "initial",
+      "approvalId": "approval_1767249062548_rewwh93tz",
+      "approvalTitle": "profile-share-link tasks"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2026-01-01T06:31:52.580Z",
+      "trigger": "approved",
+      "approvalId": "approval_1767249062548_rewwh93tz",
+      "approvalTitle": "profile-share-link tasks"
+    }
+  ]
+}

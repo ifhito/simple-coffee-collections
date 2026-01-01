@@ -1,0 +1,30 @@
+{
+  "filePath": ".spec-workflow/specs/coffee-evaluation/tasks.md",
+  "currentVersion": 3,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-12-31T12:13:31.446Z",
+      "trigger": "initial",
+      "approvalId": "approval_1767183211443_jqsej3o10",
+      "approvalTitle": "Tasks Document - Coffee Evaluation Implementation Tasks"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2025-12-31T12:17:57.754Z",
+      "trigger": "revision_requested",
+      "approvalId": "approval_1767183211443_jqsej3o10",
+      "approvalTitle": "Tasks Document - Coffee Evaluation Implementation Tasks"
+    },
+    {
+      "version": 3,
+      "filename": "snapshot-003.json",
+      "timestamp": "2025-12-31T12:22:59.103Z",
+      "trigger": "approved",
+      "approvalId": "approval_1767183715439_hn36xf1bl",
+      "approvalTitle": "Tasks Document - TDD Implementation Plan"
+    }
+  ]
+}

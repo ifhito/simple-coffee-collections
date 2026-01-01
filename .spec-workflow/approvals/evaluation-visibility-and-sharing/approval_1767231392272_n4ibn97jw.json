@@ -1,0 +1,29 @@
+{
+  "id": "approval_1767231392272_n4ibn97jw",
+  "title": "Design: 評価の公開制御と共有機能",
+  "filePath": ".spec-workflow/specs/evaluation-visibility-and-sharing/design.md",
+  "type": "document",
+  "status": "needs-revision",
+  "createdAt": "2026-01-01T01:36:32.272Z",
+  "category": "spec",
+  "categoryName": "evaluation-visibility-and-sharing",
+  "response": "Feedback Summary (1 comments):\n\nSpecific Text Comments:\n1. \"graph TD\n    User[User] --> Nav[Navigation]\n    Na...\": Mermaid Diagram Error\n\nLexical error on line 3. Unrecognized text.\n.../coffee/my<br/>マイページ]    Nav --> Commun\n-----------------------^\n",
+  "annotations": "{\n  \"decision\": \"needs-revision\",\n  \"comments\": [\n    {\n      \"type\": \"selection\",\n      \"comment\": \"Mermaid Diagram Error\\n\\nLexical error on line 3. Unrecognized text.\\n.../coffee/my<br/>マイページ]    Nav --> Commun\\n-----------------------^\",\n      \"timestamp\": \"2026-01-01T01:44:41.240Z\",\n      \"selectedText\": \"graph TD\\n    User[User] --> Nav[Navigation]\\n    Nav --> MyPage[/coffee/my<br/>マイページ]\\n    Nav --> Community[/coffee/community<br/>コミュニティ]\\n    Nav --> Profile[/users/:userId<br/>プロフィール]\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1767231881240_27pdb8j8w\",\n      \"startOffset\": 3006,\n      \"endOffset\": 3189\n    }\n  ],\n  \"summary\": \"Feedback Summary (1 comments):\\n\\nSpecific Text Comments:\\n1. \\\"graph TD\\n    User[User] --> Nav[Navigation]\\n    Na...\\\": Mermaid Diagram Error\\n\\nLexical error on line 3. Unrecognized text.\\n.../coffee/my<br/>マイページ]    Nav --> Commun\\n-----------------------^\\n\",\n  \"timestamp\": \"2026-01-01T01:45:35.953Z\"\n}",
+  "respondedAt": "2026-01-01T01:45:35.982Z",
+  "comments": [
+    {
+      "type": "selection",
+      "comment": "Mermaid Diagram Error\n\nLexical error on line 3. Unrecognized text.\n.../coffee/my<br/>マイページ]    Nav --> Commun\n-----------------------^",
+      "timestamp": "2026-01-01T01:44:41.240Z",
+      "selectedText": "graph TD\n    User[User] --> Nav[Navigation]\n    Nav --> MyPage[/coffee/my<br/>マイページ]\n    Nav --> Community[/coffee/community<br/>コミュニティ]\n    Nav --> Profile[/users/:userId<br/>プロフィール]",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1767231881240_27pdb8j8w",
+      "startOffset": 3006,
+      "endOffset": 3189
+    }
+  ]
+}

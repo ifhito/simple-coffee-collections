@@ -1,0 +1,29 @@
+{
+  "id": "approval_1767231996580_y5xcvujzi",
+  "title": "Design (修正版): 評価の公開制御と共有機能",
+  "filePath": ".spec-workflow/specs/evaluation-visibility-and-sharing/design.md",
+  "type": "document",
+  "status": "needs-revision",
+  "createdAt": "2026-01-01T01:46:36.580Z",
+  "category": "spec",
+  "categoryName": "evaluation-visibility-and-sharing",
+  "response": "Feedback Summary (1 comments):\n\nSpecific Text Comments:\n1. \"User[User] --> Nav[Navigation]\n    Nav --> MyPage[...\": まだエラーです\n\nLexical error on line 3. Unrecognized text.\n...e[/coffee/my - マイページ]    Nav --> Commun\n-----------------------^\n",
+  "annotations": "{\n  \"decision\": \"needs-revision\",\n  \"comments\": [\n    {\n      \"type\": \"selection\",\n      \"comment\": \"まだエラーです\\n\\nLexical error on line 3. Unrecognized text.\\n...e[/coffee/my - マイページ]    Nav --> Commun\\n-----------------------^\",\n      \"timestamp\": \"2026-01-01T01:49:08.738Z\",\n      \"selectedText\": \"User[User] --> Nav[Navigation]\\n    Nav --> MyPage[/coffee/my - マイページ]\\n    Nav --> Community[/coffee/community - コミュニティ]\\n    Nav --> Profile[/users/:userId - プロフィール]\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1767232148739_ry0qjukjy\",\n      \"startOffset\": 3019,\n      \"endOffset\": 3183\n    }\n  ],\n  \"summary\": \"Feedback Summary (1 comments):\\n\\nSpecific Text Comments:\\n1. \\\"User[User] --> Nav[Navigation]\\n    Nav --> MyPage[...\\\": まだエラーです\\n\\nLexical error on line 3. Unrecognized text.\\n...e[/coffee/my - マイページ]    Nav --> Commun\\n-----------------------^\\n\",\n  \"timestamp\": \"2026-01-01T01:49:13.046Z\"\n}",
+  "respondedAt": "2026-01-01T01:49:13.057Z",
+  "comments": [
+    {
+      "type": "selection",
+      "comment": "まだエラーです\n\nLexical error on line 3. Unrecognized text.\n...e[/coffee/my - マイページ]    Nav --> Commun\n-----------------------^",
+      "timestamp": "2026-01-01T01:49:08.738Z",
+      "selectedText": "User[User] --> Nav[Navigation]\n    Nav --> MyPage[/coffee/my - マイページ]\n    Nav --> Community[/coffee/community - コミュニティ]\n    Nav --> Profile[/users/:userId - プロフィール]",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1767232148739_ry0qjukjy",
+      "startOffset": 3019,
+      "endOffset": 3183
+    }
+  ]
+}

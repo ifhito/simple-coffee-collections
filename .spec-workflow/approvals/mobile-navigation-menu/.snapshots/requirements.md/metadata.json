@@ -1,0 +1,30 @@
+{
+  "filePath": ".spec-workflow/specs/mobile-navigation-menu/requirements.md",
+  "currentVersion": 3,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-12-31T15:57:37.184Z",
+      "trigger": "initial",
+      "approvalId": "approval_1767196657178_17dvjebfk",
+      "approvalTitle": "モバイルナビゲーションメニューの要件定義"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2025-12-31T15:58:32.232Z",
+      "trigger": "revision_requested",
+      "approvalId": "approval_1767196657178_17dvjebfk",
+      "approvalTitle": "モバイルナビゲーションメニューの要件定義"
+    },
+    {
+      "version": 3,
+      "filename": "snapshot-003.json",
+      "timestamp": "2025-12-31T16:01:30.673Z",
+      "trigger": "approved",
+      "approvalId": "approval_1767196831543_nqeakn6oy",
+      "approvalTitle": "モバイルナビゲーションメニューの要件定義（TDD要件追加版）"
+    }
+  ]
+}

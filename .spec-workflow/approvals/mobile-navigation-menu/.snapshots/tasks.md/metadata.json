@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/mobile-navigation-menu/tasks.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-12-31T16:07:21.954Z",
+      "trigger": "initial",
+      "approvalId": "approval_1767197241952_2h7emlp94",
+      "approvalTitle": "モバイルナビゲーションメニューのタスク分解"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2025-12-31T16:08:23.781Z",
+      "trigger": "approved",
+      "approvalId": "approval_1767197241952_2h7emlp94",
+      "approvalTitle": "モバイルナビゲーションメニューのタスク分解"
+    }
+  ]
+}

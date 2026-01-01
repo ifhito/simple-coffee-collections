@@ -1,0 +1,391 @@
+# Tasks Document
+
+## Phase 1: API Layer with TDD (API層 - TDD)
+
+### 1. [RED] Write API tests first
+- [x] 1.1 Write tests for getUserProfile API
+  - File: `lib/api/__tests__/user.test.ts` (new file)
+  - Write failing tests for getUserProfile() before implementation
+  - _Leverage: Existing test patterns from `lib/api/__tests__/coffee.test.ts`_
+  - _Requirements: Requirement 4 (ユーザープロフィールページ), Non-Functional (Testing - TDD)_
+  - _Prompt:
+    - **Role**: TDD Specialist focusing on API testing with Jest and Supabase mocking
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[RED Phase]** Create lib/api/__tests__/user.test.ts with comprehensive tests for getUserProfile() function that doesn't exist yet. Write tests for: (1) successful user fetch returns UserProfile, (2) invalid userId calls notFound(), (3) database error throws error. Mock Supabase client responses. Tests will FAIL because implementation doesn't exist - this is expected in TDD RED phase.
+    - **Restrictions**: Must write tests BEFORE implementation, tests must fail initially, use existing test patterns from coffee.test.ts, mock all Supabase calls
+    - **Success**: Tests written and FAIL with clear error messages (function not found), test cases cover success and error scenarios, >90% planned coverage
+    - **Instructions**: Mark task [-] before starting. Run tests with `npm test user.test.ts` to confirm failures. After completion, log implementation with artifacts: {filesCreated: ["lib/api/__tests__/user.test.ts"], statistics: {linesAdded: X, linesRemoved: 0}}. Mark task [x] when tests are written and failing.
+
+- [x] 1.2 Write tests for getCurrentUser API
+  - File: `lib/api/__tests__/auth.test.ts` (new file)
+  - Write failing tests for getCurrentUser() before implementation
+  - _Requirements: Requirement 2 (マイページ), Non-Functional (Testing - TDD, Security - Authentication)_
+  - _Prompt:
+    - **Role**: TDD Specialist with authentication testing expertise
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[RED Phase]** Create lib/api/__tests__/auth.test.ts with tests for getCurrentUser() function that doesn't exist yet. Write tests for: (1) authenticated user returns User object, (2) unauthenticated user redirects to /login, (3) function uses cache() wrapper. Mock Supabase auth.getUser() responses. Tests will FAIL - this is expected in TDD RED phase.
+    - **Restrictions**: Must write tests BEFORE implementation, tests must fail initially, mock redirect() function to test redirect behavior
+    - **Success**: Tests written and FAIL clearly, test cases cover authenticated/unauthenticated scenarios, redirect behavior tested
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm failures. After completion, log implementation. Mark task [x] when tests are written and failing.
+
+- [x] 1.3 Write tests for getCoffeeEvaluationsWithUser API
+  - File: `lib/api/__tests__/coffee.test.ts` (extend existing)
+  - Write failing tests for getCoffeeEvaluationsWithUser() before implementation
+  - _Requirements: Requirement 3 (コミュニティフィード), Requirement 4 (ユーザープロフィール), Non-Functional (Testing - TDD)_
+  - _Prompt:
+    - **Role**: TDD Database Query Testing Specialist
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[RED Phase]** Extend lib/api/__tests__/coffee.test.ts with tests for getCoffeeEvaluationsWithUser() function that doesn't exist yet. Write tests for: (1) JOIN query returns CoffeeEvaluationWithUser[] with display_name field, (2) filtering by is_public works, (3) filtering by user_id works, (4) search and sort work correctly, (5) function uses cache() wrapper. Mock Supabase JOIN query responses. Tests will FAIL - expected in RED phase.
+    - **Restrictions**: Must write tests BEFORE implementation, tests must fail initially, mock Supabase .select() with JOIN syntax
+    - **Success**: Tests written and FAIL clearly, test cases cover JOIN behavior, filtering, search, sort, >90% coverage planned
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm failures. After completion, log implementation. Mark task [x] when tests are written and failing.
+
+- [x] 1.4 Write tests for type definitions
+  - File: `lib/types/__tests__/coffee.test.ts` (new file)
+  - Write type tests for CoffeeEvaluationWithUser
+  - _Requirements: Requirement 3, Requirement 4, Non-Functional (Type Safety)_
+  - _Prompt:
+    - **Role**: TypeScript Type Testing Specialist
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[RED Phase]** Create lib/types/__tests__/coffee.test.ts with TypeScript type tests for CoffeeEvaluationWithUser interface that doesn't exist yet. Use type assertions to test: (1) CoffeeEvaluationWithUser extends CoffeeEvaluation, (2) includes display_name: string | null field, (3) type-safe assignment works. Tests will FAIL - expected in RED phase.
+    - **Restrictions**: Must write type tests BEFORE implementation, use TypeScript type assertions for compile-time testing
+    - **Success**: Type tests written and FAIL with TypeScript errors, comprehensive type coverage
+    - **Instructions**: Mark task [-] before starting. Run `npx tsc` to confirm type errors. After completion, log implementation. Mark task [x] when tests are written and failing.
+
+### 2. [GREEN] Implement API to pass tests
+- [x] 2.1 Implement getUserProfile API function
+  - File: `lib/api/user.ts` (new file)
+  - Implement minimal code to pass tests written in 1.1
+  - _Leverage: `lib/api/coffee.ts` (cache pattern), `lib/supabase/server.ts`_
+  - _Requirements: Requirement 4 (ユーザープロフィールページ)_
+  - _Prompt:
+    - **Role**: Next.js API Developer implementing TDD GREEN phase
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[GREEN Phase]** Create lib/api/user.ts with getUserProfile() function to make tests in task 1.1 PASS. Follow exact pattern from getCoffeeEvaluation() in lib/api/coffee.ts: wrap with cache(), query user_profiles table via Supabase, call notFound() for missing users. Write minimal code to pass tests - no over-engineering.
+    - **Restrictions**: Must make tests PASS, follow existing API patterns exactly, use cache() wrapper, must call notFound() for missing users
+    - **Success**: Tests written in task 1.1 now PASS (green), function returns UserProfile type, minimal implementation
+    - **Instructions**: Mark task [-] before starting. Run tests with `npm test user.test.ts` to confirm all tests PASS. After completion, log implementation with artifacts: {functions: [{name: "getUserProfile", purpose: "Fetch user profile by userId", location: "lib/api/user.ts:X", signature: "cache(async (userId: string) => Promise<UserProfile>)", isExported: true}], filesCreated: ["lib/api/user.ts"]}. Mark task [x] when all tests PASS.
+
+- [x] 2.2 Implement getCurrentUser helper function
+  - File: `lib/api/auth.ts` (new file)
+  - Implement minimal code to pass tests written in 1.2
+  - _Leverage: `lib/supabase/server.ts`_
+  - _Requirements: Requirement 2 (マイページ), Non-Functional (Security - Authentication)_
+  - _Prompt:
+    - **Role**: Authentication Developer implementing TDD GREEN phase
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[GREEN Phase]** Create lib/api/auth.ts with getCurrentUser() function to make tests in task 1.2 PASS. Wrap with cache(), call Supabase auth.getUser(), redirect to /login if not authenticated. Write minimal code to pass tests.
+    - **Restrictions**: Must make tests PASS, use cache() and redirect(), minimal implementation
+    - **Success**: Tests written in task 1.2 now PASS, function returns User type, redirects unauthenticated users
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm PASS. After completion, log implementation with artifacts: {functions: [{name: "getCurrentUser", purpose: "Get authenticated user or redirect", location: "lib/api/auth.ts:X", signature: "cache(async () => Promise<User>)", isExported: true}], filesCreated: ["lib/api/auth.ts"]}. Mark task [x] when tests PASS.
+
+- [x] 2.3 Implement CoffeeEvaluationWithUser type
+  - File: `lib/types/coffee.ts` (extend existing)
+  - Implement type to pass tests written in 1.4
+  - _Requirements: Requirement 3, Requirement 4_
+  - _Prompt:
+    - **Role**: TypeScript Developer implementing TDD GREEN phase
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[GREEN Phase]** Add CoffeeEvaluationWithUser interface to lib/types/coffee.ts to make type tests in task 1.4 PASS. Extend CoffeeEvaluation with display_name: string | null field. Minimal type definition to pass tests.
+    - **Restrictions**: Must make type tests PASS, extend existing CoffeeEvaluation, minimal type definition
+    - **Success**: Type tests written in task 1.4 now PASS, TypeScript compiles successfully
+    - **Instructions**: Mark task [-] before starting. Run `npx tsc` to confirm compilation success. After completion, log implementation. Mark task [x] when type tests PASS.
+
+- [x] 2.4 Implement getCoffeeEvaluationsWithUser API function
+  - File: `lib/api/coffee.ts` (extend existing)
+  - Implement minimal JOIN query to pass tests written in 1.3
+  - _Leverage: Existing `getCoffeeEvaluations`, `applySortOrder` helper_
+  - _Requirements: Requirement 3, Requirement 4_
+  - _Prompt:
+    - **Role**: Database Query Developer implementing TDD GREEN phase
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[GREEN Phase]** Add getCoffeeEvaluationsWithUser() to lib/api/coffee.ts to make tests in task 1.3 PASS. Use Supabase .select('*, user_profiles!inner(display_name)') for JOIN, filter by is_public and user_id params, apply search and sort using existing applySortOrder helper, flatten JOIN result to CoffeeEvaluationWithUser[] format, wrap with cache(). Write minimal code to pass tests.
+    - **Restrictions**: Must make tests PASS, use !inner JOIN syntax, use existing applySortOrder helper, flatten nested user_profiles object
+    - **Success**: Tests written in task 1.3 now PASS, function returns CoffeeEvaluationWithUser[], JOIN works with display_name
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm PASS. After completion, log implementation with artifacts: {functions: [{name: "getCoffeeEvaluationsWithUser", purpose: "Fetch evaluations with user display names via JOIN", location: "lib/api/coffee.ts:X", signature: "cache(async (params?: CoffeeEvaluationSearchParams) => Promise<CoffeeEvaluationWithUser[]>)", isExported: true}], filesModified: ["lib/api/coffee.ts"]}. Mark task [x] when tests PASS.
+
+### 3. [REFACTOR] Refactor API layer if needed
+- [x] 3.1 Review and refactor API code
+  - Files: `lib/api/user.ts`, `lib/api/auth.ts`, `lib/api/coffee.ts`
+  - Refactor while keeping tests green
+  - _Requirements: Non-Functional (Code Architecture - Single Responsibility, Modularity)_
+  - _Prompt:
+    - **Role**: Code Quality Specialist in TDD REFACTOR phase
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[REFACTOR Phase]** Review API layer implementation and refactor if needed while keeping all tests PASSING. Check for: (1) code duplication, (2) naming consistency, (3) error handling patterns, (4) Single Responsibility Principle. Run tests after each refactor to ensure green.
+    - **Restrictions**: Must keep all tests PASSING during refactoring, do not change test behavior, only improve code quality
+    - **Success**: Code is clean and maintainable, no duplication, consistent patterns, all tests still PASS
+    - **Instructions**: Mark task [-] before starting. Run tests frequently during refactoring to ensure green. After completion, log implementation with summary of refactoring (what was improved, why). Mark task [x] when refactoring complete and tests PASS.
+
+## Phase 2: UI Components with TDD (UIコンポーネント - TDD)
+
+### 1. [RED] Write component tests first
+- [x] 1.1 Write tests for PublicBadge component
+  - File: `app/(app)/coffee/_components/shared/__tests__/public-badge.test.tsx` (new)
+  - Write failing tests for PublicBadge before implementation
+  - _Leverage: Existing test patterns from `app/(app)/coffee/_components/__tests__/`_
+  - _Requirements: Requirement 2 (マイページ - 公開状態表示), Non-Functional (Testing - TDD)_
+  - _Prompt:
+    - **Role**: React Component Testing Specialist with TDD expertise
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[RED Phase]** Create test file for PublicBadge component that doesn't exist yet. Write tests using @testing-library/react for: (1) displays "🌐 公開" with green styling when isPublic=true, (2) displays "🔒 非公開" with gray styling when isPublic=false, (3) has correct positioning (absolute top-right). Tests will FAIL - expected in RED phase.
+    - **Restrictions**: Must write tests BEFORE implementation, tests must fail initially, use React Testing Library, test rendered output not implementation
+    - **Success**: Tests written and FAIL with component not found error, test cases cover both public/private states and styling
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm failures. After completion, log implementation with artifacts: {filesCreated: ["app/(app)/coffee/_components/shared/__tests__/public-badge.test.tsx"]}. Mark task [x] when tests written and failing.
+
+- [x] 1.2 Write tests for PublicToggle component
+  - File: `app/(app)/coffee/_components/shared/__tests__/public-toggle.test.tsx` (new)
+  - Write failing tests for PublicToggle before implementation
+  - _Requirements: Requirement 1 (公開/非公開設定), Non-Functional (Testing - TDD)_
+  - _Prompt:
+    - **Role**: React Client Component Testing Specialist with TDD expertise
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[RED Phase]** Create test file for PublicToggle component that doesn't exist yet. Write tests using @testing-library/react and @testing-library/user-event for: (1) initial state matches defaultChecked prop, (2) label shows correct emoji based on state, (3) clicking toggle updates state and label, (4) hidden input value updates on state change, (5) accessible via keyboard. Tests will FAIL - expected in RED phase.
+    - **Restrictions**: Must write tests BEFORE implementation, tests must fail initially, test user interactions with userEvent
+    - **Success**: Tests written and FAIL clearly, test cases cover state management, user interactions, accessibility
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm failures. After completion, log implementation. Mark task [x] when tests written and failing.
+
+### 2. [GREEN] Implement components to pass tests
+- [x] 2.1 Implement PublicBadge component
+  - File: `app/(app)/coffee/_components/shared/public-badge.tsx` (new)
+  - Implement minimal Server Component to pass tests written in 1.1
+  - _Leverage: Tailwind CSS patterns from `app/(app)/coffee/_components/list/card.tsx`_
+  - _Requirements: Requirement 2 (マイページ - 公開状態表示)_
+  - _Prompt:
+    - **Role**: React Server Component Developer implementing TDD GREEN phase
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[GREEN Phase]** Create PublicBadge Server Component to make tests in task 1.1 PASS. Receives { isPublic: boolean } prop, displays "🌐 公開" with green background (bg-green-100 text-green-800) when true, "🔒 非公開" with gray background (bg-gray-100 text-gray-800) when false. Styled as absolute positioned badge (absolute top-2 right-2 px-2 py-1 rounded text-xs font-medium). Write minimal code to pass tests.
+    - **Restrictions**: Must make tests PASS, Server Component (no 'use client'), use Tailwind CSS only, minimal implementation
+    - **Success**: Tests written in task 1.1 now PASS, correct badge display and styling for both states
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm PASS. After completion, log implementation with artifacts: {components: [{name: "PublicBadge", type: "React Server", purpose: "Display public/private status badge", location: "app/(app)/coffee/_components/shared/public-badge.tsx", props: "{ isPublic: boolean }", exports: ["PublicBadge"]}], filesCreated: ["app/(app)/coffee/_components/shared/public-badge.tsx"]}. Mark task [x] when tests PASS.
+
+- [x] 2.2 Implement PublicToggle component
+  - File: `app/(app)/coffee/_components/shared/public-toggle.tsx` (new)
+  - Implement minimal Client Component to pass tests written in 1.2
+  - _Leverage: Existing form patterns from `app/(app)/coffee/_components/evaluation-form.tsx`_
+  - _Requirements: Requirement 1 (公開/非公開設定)_
+  - _Prompt:
+    - **Role**: React Client Component Developer implementing TDD GREEN phase
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[GREEN Phase]** Create PublicToggle Client Component to make tests in task 1.2 PASS. Include 'use client' directive, receives { defaultChecked: boolean, name: string } props, uses useState for isPublic state, renders checkbox with onChange handler, displays "🌐 公開" or "🔒 非公開" label, includes hidden input for form submission. Write minimal code to pass tests.
+    - **Restrictions**: Must make tests PASS, must have 'use client' directive, use React useState, minimal implementation
+    - **Success**: Tests written in task 1.2 now PASS, toggle works correctly with state management and form submission
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm PASS. After completion, log implementation with artifacts: {components: [{name: "PublicToggle", type: "React Client", purpose: "Toggle for public/private setting", location: "app/(app)/coffee/_components/shared/public-toggle.tsx", props: "{ defaultChecked: boolean, name: string }", exports: ["PublicToggle"]}], filesCreated: ["app/(app)/coffee/_components/shared/public-toggle.tsx"]}. Mark task [x] when tests PASS.
+
+### 3. [GREEN] Integrate components into forms
+- [x] 3.1 Write integration tests for form with PublicToggle
+  - File: `app/(app)/coffee/_components/__tests__/evaluation-form-with-toggle.test.tsx` (new)
+  - Write tests for PublicToggle integration in evaluation form
+  - _Requirements: Requirement 1 (公開/非公開設定 - フォーム統合)_
+  - _Prompt:
+    - **Role**: Integration Testing Specialist with TDD focus
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[RED Phase]** Write integration tests for evaluation form with PublicToggle. Test: (1) PublicToggle appears in form, (2) defaults to public for new evaluations, (3) uses existing is_public value for edits, (4) form submission includes is_public field. Tests will FAIL initially - expected.
+    - **Restrictions**: Must write tests BEFORE integration, mock form submission to verify is_public field
+    - **Success**: Integration tests written and FAIL, test cases cover form integration scenarios
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm failures. After completion, log implementation. Mark task [x] when tests written.
+
+- [x] 3.2 Extend evaluation form to include PublicToggle
+  - Files: `app/(app)/coffee/_components/evaluation-form.tsx`, `app/(app)/coffee/new/page.tsx`, `app/(app)/coffee/[id]/edit/page.tsx`
+  - Add PublicToggle to make integration tests PASS
+  - _Leverage: Existing form structure in `evaluation-form.tsx`_
+  - _Requirements: Requirement 1 (公開/非公開設定 - フォーム統合)_
+  - _Prompt:
+    - **Role**: React Form Developer implementing TDD GREEN phase
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[GREEN Phase]** Add PublicToggle to evaluation-form.tsx to make integration tests in task 3.1 PASS. Add field label "公開設定", set defaultChecked from initialValues.is_public or true for new evaluations. Ensure PublicToggle is included in form submission. Update new/page.tsx and [id]/edit/page.tsx if needed for is_public initial value. Write minimal code to pass tests.
+    - **Restrictions**: Must make integration tests PASS, maintain existing form structure, default to true for new evaluations
+    - **Success**: Integration tests in task 3.1 now PASS, PublicToggle works in create and edit forms
+    - **Instructions**: Mark task [-] before starting. Run integration tests to confirm PASS. After completion, log implementation with artifacts: {filesModified: ["app/(app)/coffee/_components/evaluation-form.tsx", "app/(app)/coffee/new/page.tsx", "app/(app)/coffee/[id]/edit/page.tsx"]}. Mark task [x] when tests PASS.
+
+### 4. [REFACTOR] Refactor components if needed
+- [x] 4.1 Review and refactor UI components
+  - Files: `public-badge.tsx`, `public-toggle.tsx`, `evaluation-form.tsx`
+  - Refactor while keeping tests green
+  - _Requirements: Non-Functional (Code Architecture, Accessibility)_
+  - _Prompt:
+    - **Role**: React Code Quality Specialist in TDD REFACTOR phase
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[REFACTOR Phase]** Review component implementations and refactor if needed while keeping all tests PASSING. Check for: (1) accessibility (ARIA labels, keyboard nav), (2) consistent styling, (3) code duplication, (4) prop type definitions. Run tests after each refactor.
+    - **Restrictions**: Must keep all tests PASSING, maintain accessibility, improve code quality only
+    - **Success**: Components are accessible and well-structured, all tests still PASS, code is clean
+    - **Instructions**: Mark task [-] before starting. Run tests frequently during refactoring. After completion, log implementation with summary. Mark task [x] when complete and tests PASS.
+
+## Phase 3: Pages with TDD (ページ実装 - TDD)
+
+### 1. [RED] Write page integration tests first
+- [x] 1.1 Write tests for My Page (/coffee/my)
+  - File: `app/(app)/coffee/my/__tests__/page.test.tsx` (new)
+  - Write failing integration tests for My Page before implementation
+  - _Leverage: Existing integration test patterns from `app/(app)/coffee/__tests__/integration/`_
+  - _Requirements: Requirement 2 (マイページ), Non-Functional (Testing - TDD)_
+  - _Prompt:
+    - **Role**: Integration Testing Specialist with Next.js App Router expertise
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[RED Phase]** Create integration tests for My Page that doesn't exist yet. Write tests using React Testing Library for: (1) redirects to /login when not authenticated, (2) displays authenticated user's evaluations (both public and private), (3) shows PublicBadge (🌐 or 🔒) on each card, (4) search and sort functionality works, (5) page has correct metadata. Mock getCurrentUser and getCoffeeEvaluations API calls. Tests will FAIL - expected in RED phase.
+    - **Restrictions**: Must write tests BEFORE implementation, tests must fail initially, mock all API calls, test user flows not implementation
+    - **Success**: Tests written and FAIL with page not found error, test cases cover auth, data display, search/sort, >85% scenario coverage
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm failures. After completion, log implementation with artifacts: {filesCreated: ["app/(app)/coffee/my/__tests__/page.test.tsx"]}. Mark task [x] when tests written and failing.
+
+- [x] 1.2 Write tests for Community Feed Page (/coffee/community)
+  - File: `app/(app)/coffee/community/__tests__/page.test.tsx` (new)
+  - Write failing integration tests for Community Feed before implementation
+  - _Requirements: Requirement 3 (コミュニティフィード), Non-Functional (Testing - TDD)_
+  - _Prompt:
+    - **Role**: Integration Testing Specialist with public feed testing expertise
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[RED Phase]** Create integration tests for Community Feed that doesn't exist yet. Write tests for: (1) displays all public evaluations without auth requirement, (2) shows user display_name or "匿名ユーザー" on each card, (3) user name links navigate to /users/{userId}, (4) search and sort work, (5) page has correct metadata. Mock getCoffeeEvaluationsWithUser API call. Tests will FAIL - expected.
+    - **Restrictions**: Must write tests BEFORE implementation, tests must fail initially, mock API with public evaluations, test navigation links
+    - **Success**: Tests written and FAIL clearly, test cases cover public access, user links, search/sort
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm failures. After completion, log implementation. Mark task [x] when tests written and failing.
+
+- [x] 1.3 Write tests for User Profile Page (/users/[userId])
+  - File: `app/(app)/users/__tests__/[userId]/page.test.tsx` (new)
+  - Write failing integration tests for User Profile Page before implementation
+  - _Requirements: Requirement 4 (ユーザープロフィールページ), Non-Functional (Testing - TDD)_
+  - _Prompt:
+    - **Role**: Integration Testing Specialist with profile page expertise
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[RED Phase]** Create integration tests for User Profile Page that doesn't exist yet. Write tests for: (1) displays user profile (display_name or "匿名ユーザー", bio), (2) shows user's public evaluations only, (3) shows "プロフィールを編集" button only for own profile, (4) 404 page for invalid userId, (5) empty state message when no public evaluations, (6) search and sort work. Mock getUserProfile, getCurrentUser, getCoffeeEvaluationsWithUser. Tests will FAIL - expected.
+    - **Restrictions**: Must write tests BEFORE implementation, tests must fail initially, mock notFound() for invalid userId, test conditional edit button
+    - **Success**: Tests written and FAIL clearly, test cases cover profile display, auth checks, 404 handling, empty states
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm failures. After completion, log implementation. Mark task [x] when tests written and failing.
+
+### 2. [GREEN] Implement pages to pass tests
+- [x] 2.1 Implement My Page (/coffee/my)
+  - Files: `app/(app)/coffee/my/page.tsx`, `app/(app)/coffee/my/_containers/container.tsx`, `app/(app)/coffee/my/_components/view.tsx`
+  - Implement minimal page to pass tests written in 1.1
+  - _Leverage: Existing `app/(app)/coffee/page.tsx` structure, Container/Presentational pattern_
+  - _Requirements: Requirement 2 (マイページ)_
+  - _Prompt:
+    - **Role**: Next.js Page Developer implementing TDD GREEN phase
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[GREEN Phase]** Create My Page to make tests in task 1.1 PASS. Follow Container/Presentational pattern. page.tsx composes MyPageContainer with metadata. MyPageContainer (Server Component) calls getCurrentUser() for auth (redirects if not logged in), calls getCoffeeEvaluations({ user_id: user.id }) for both public and private evaluations, passes to MyPageView. MyPageView displays evaluations grid with CoffeeCard + PublicBadge overlay. Include SearchAndSort component. Write minimal code to pass tests.
+    - **Restrictions**: Must make tests PASS, use Container/Presentational pattern, Server Component, call getCurrentUser() for auth, show both public/private
+    - **Success**: Tests written in task 1.1 now PASS, page works correctly with auth, displays evaluations with badges, search/sort work
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm PASS. After completion, log implementation with artifacts: {components: [{name: "MyPage", type: "Next.js Page", location: "app/(app)/coffee/my/page.tsx"}, {name: "MyPageContainer", type: "React Server", location: "app/(app)/coffee/my/_containers/container.tsx"}, {name: "MyPageView", type: "React Server", location: "app/(app)/coffee/my/_components/view.tsx"}], filesCreated: ["app/(app)/coffee/my/page.tsx", "app/(app)/coffee/my/_containers/container.tsx", "app/(app)/coffee/my/_components/view.tsx"]}. Mark task [x] when tests PASS.
+
+- [x] 2.2 Implement Community Feed Page (/coffee/community)
+  - Files: `app/(app)/coffee/community/page.tsx`, `app/(app)/coffee/community/_containers/container.tsx`, `app/(app)/coffee/community/_components/view.tsx`
+  - Implement minimal page to pass tests written in 1.2
+  - _Leverage: Container/Presentational pattern, getCoffeeEvaluationsWithUser API_
+  - _Requirements: Requirement 3 (コミュニティフィード)_
+  - _Prompt:
+    - **Role**: Next.js Public Feed Developer implementing TDD GREEN phase
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[GREEN Phase]** Create Community Feed to make tests in task 1.2 PASS. page.tsx composes CommunityContainer. CommunityContainer calls getCoffeeEvaluationsWithUser({ is_public: true }) for all public evaluations with display_name, passes to CommunityView. CommunityView displays evaluations grid with CoffeeCard + clickable user link "👤 {display_name || '匿名ユーザー'}" linking to /users/{user_id}. Include SearchAndSort. No auth required. Write minimal code to pass tests.
+    - **Restrictions**: Must make tests PASS, use getCoffeeEvaluationsWithUser for JOIN, filter is_public: true, display user links, no auth
+    - **Success**: Tests written in task 1.2 now PASS, shows public evaluations with user names, links work, accessible without login
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm PASS. After completion, log implementation with artifacts: {components: [...], integrations: [{description: "Community feed fetches public evaluations", frontendComponent: "CommunityView", backendEndpoint: "getCoffeeEvaluationsWithUser", dataFlow: "Page load → Server Component fetch → Display with user links"}], filesCreated: [...]}.  Mark task [x] when tests PASS.
+
+- [x] 2.3 Implement User Profile Page (/users/[userId])
+  - Files: `app/(app)/users/[userId]/page.tsx`, `app/(app)/users/[userId]/_containers/profile-container.tsx`, `app/(app)/users/[userId]/_containers/evaluations-container.tsx`, `app/(app)/users/[userId]/_components/profile-view.tsx`
+  - Implement minimal page to pass tests written in 1.3
+  - _Leverage: Container/Presentational pattern, getUserProfile and getCoffeeEvaluationsWithUser_
+  - _Requirements: Requirement 4 (ユーザープロフィールページ)_
+  - _Prompt:
+    - **Role**: Next.js Profile Page Developer implementing TDD GREEN phase
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[GREEN Phase]** Create User Profile Page to make tests in task 1.3 PASS. page.tsx composes ProfileContainer and EvaluationsContainer with generateMetadata using getUserProfile. ProfileContainer fetches getUserProfile(userId) (calls notFound() if missing), getCurrentUser() to check isOwnProfile, passes to ProfileView. ProfileView shows display_name (or "匿名ユーザー"), bio, "プロフィールを編集" button (Link to /profile) if isOwnProfile. EvaluationsContainer fetches getCoffeeEvaluationsWithUser({ user_id: userId, is_public: true }), displays grid with SearchAndSort. Write minimal code to pass tests.
+    - **Restrictions**: Must make tests PASS, getUserProfile handles notFound(), filter is_public: true for others, edit button only for own profile
+    - **Success**: Tests written in task 1.3 now PASS, profile displays correctly, edit button conditional, 404 for invalid userId
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm PASS. After completion, log implementation with artifacts: {components: [...], integrations: [{description: "Profile page fetches user and evaluations", frontendComponent: "ProfileContainer", backendEndpoint: "getUserProfile, getCoffeeEvaluationsWithUser", dataFlow: "Page load → Fetch profile → Check auth → Fetch evaluations → Display"}], filesCreated: [...]}. Mark task [x] when tests PASS.
+
+### 3. [REFACTOR] Refactor pages if needed
+- [x] 3.1 Review and refactor page implementations
+  - Files: All page components in `/coffee/my`, `/coffee/community`, `/users/[userId]`
+  - Refactor while keeping tests green
+  - _Requirements: Non-Functional (Code Architecture, Performance)_
+  - _Prompt:
+    - **Role**: Next.js Architecture Specialist in TDD REFACTOR phase
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[REFACTOR Phase]** Review page implementations and refactor if needed while keeping all tests PASSING. Check for: (1) Container/Presentational separation, (2) Server Component optimization, (3) code duplication (shared components), (4) loading and error states, (5) metadata optimization. Run tests after each refactor.
+    - **Restrictions**: Must keep all tests PASSING, maintain Server Components First, improve code quality only
+    - **Success**: Pages are well-structured and performant, Container/Presentational pattern consistent, all tests still PASS
+    - **Instructions**: Mark task [-] before starting. Run tests frequently during refactoring. After completion, log implementation with summary. Mark task [x] when complete and tests PASS.
+
+## Phase 4: Navigation & Polish with TDD (ナビゲーション＆仕上げ - TDD)
+
+### 1. [RED] Write tests for navigation and polish features
+- [x] 1.1 Write tests for navigation updates
+  - File: `app/(app)/_components/__tests__/nav-bar.test.tsx` (extend existing or new)
+  - Write tests for updated navigation with new links
+  - _Leverage: Existing nav-bar test patterns_
+  - _Requirements: Requirement 5 (ナビゲーション改善), Non-Functional (Testing - TDD)_
+  - _Prompt:
+    - **Role**: React Navigation Testing Specialist with TDD focus
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[RED Phase]** Write tests for updated nav-bar component. Test: (1) "マイページ" link with 📝 icon navigates to /coffee/my, (2) "コミュニティ" link with 🌐 icon navigates to /coffee/community, (3) active state highlights current page using pathname, (4) mobile hamburger menu shows all links, (5) desktop view shows horizontal layout. Mock usePathname hook. Tests will FAIL initially - expected.
+    - **Restrictions**: Must write tests BEFORE implementation, tests must fail initially, mock Next.js navigation hooks
+    - **Success**: Tests written and FAIL, test cases cover new links, active state, responsive behavior
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm failures. After completion, log implementation. Mark task [x] when tests written and failing.
+
+- [x] 1.2 Write tests for /coffee page redirect logic
+  - File: `app/(app)/coffee/__tests__/page.test.tsx` (extend or new)
+  - Write tests for redirect behavior based on auth status
+  - _Requirements: Requirement 6 (既存 /coffee ページの扱い), Non-Functional (Testing - TDD)_
+  - _Prompt:
+    - **Role**: Next.js Routing Testing Specialist with TDD expertise
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[RED Phase]** Write tests for /coffee page redirect logic. Test: (1) authenticated users redirect to /coffee/my, (2) unauthenticated users redirect to /coffee/community, (3) redirect is seamless (no UI flash). Mock getCurrentUser to control auth state and mock redirect() to verify calls. Tests will FAIL - expected.
+    - **Restrictions**: Must write tests BEFORE implementation, mock getCurrentUser and redirect() function, test both auth scenarios
+    - **Success**: Tests written and FAIL clearly, test cases cover authenticated/unauthenticated redirect paths
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm failures. After completion, log implementation. Mark task [x] when tests written and failing.
+
+- [x] 1.3 Write tests for empty states
+  - Files: `app/(app)/coffee/my/__tests__/empty-state.test.tsx`, `app/(app)/coffee/community/__tests__/empty-state.test.tsx`, `app/(app)/users/__tests__/[userId]/empty-state.test.tsx`
+  - Write tests for empty state handling in all pages
+  - _Requirements: Non-Functional (Usability - Empty States), Testing - TDD_
+  - _Prompt:
+    - **Role**: UX Testing Specialist with empty state expertise
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[RED Phase]** Write tests for empty states in My Page, Community Feed, and User Profile. Test that when evaluations.length === 0, each page displays appropriate message: My Page: "まだ評価がありません", Community: "まだ公開評価がありません", Profile: "まだ公開評価がありません". Tests will FAIL initially.
+    - **Restrictions**: Must write tests BEFORE implementation, mock API responses with empty arrays, test user-friendly messages
+    - **Success**: Tests written and FAIL, test cases verify correct empty state messages for each page
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm failures. After completion, log implementation. Mark task [x] when tests written and failing.
+
+### 2. [GREEN] Implement navigation and polish features to pass tests
+- [x] 2.1 Update navigation with new links
+  - File: `app/(app)/_components/nav-bar.tsx` (modify existing)
+  - Implement navigation updates to pass tests written in 1.1
+  - _Leverage: Existing nav-bar structure_
+  - _Requirements: Requirement 5 (ナビゲーション改善)_
+  - _Prompt:
+    - **Role**: React Navigation Developer implementing TDD GREEN phase
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[GREEN Phase]** Update nav-bar.tsx to make tests in task 1.1 PASS. Add "マイページ" link (/coffee/my) with 📝 icon and "コミュニティ" link (/coffee/community) with 🌐 icon. Add active state highlighting using usePathname(). Maintain mobile hamburger menu functionality. Write minimal code to pass tests.
+    - **Restrictions**: Must make tests PASS, maintain existing navigation structure, add active state styling, work in desktop and mobile
+    - **Success**: Tests written in task 1.1 now PASS, new links appear, active state highlights correctly, responsive layout works
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm PASS. After completion, log implementation with artifacts: {filesModified: ["app/(app)/_components/nav-bar.tsx"]}. Mark task [x] when tests PASS.
+
+- [x] 2.2 Implement /coffee page redirect logic
+  - File: `app/(app)/coffee/page.tsx` (modify existing)
+  - Implement redirect logic to pass tests written in 1.2
+  - _Leverage: Next.js redirect() function_
+  - _Requirements: Requirement 6 (既存 /coffee ページの扱い)_
+  - _Prompt:
+    - **Role**: Next.js Routing Developer implementing TDD GREEN phase
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[GREEN Phase]** Modify app/(app)/coffee/page.tsx to make tests in task 1.2 PASS. Check auth via getCurrentUser() (wrapped in try-catch to handle redirect), redirect authenticated users to /coffee/my using redirect('/coffee/my'), redirect unauthenticated to /coffee/community using redirect('/coffee/community'). Write minimal code to pass tests.
+    - **Restrictions**: Must make tests PASS, use try-catch for getCurrentUser() redirect, use redirect() from 'next/navigation', seamless redirect
+    - **Success**: Tests written in task 1.2 now PASS, authenticated redirect to /my, unauthenticated to /community, no UI flash
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm PASS. After completion, log implementation. Mark task [x] when tests PASS.
+
+- [x] 2.3 Add empty state handling
+  - Files: `app/(app)/coffee/my/_components/view.tsx`, `app/(app)/coffee/community/_components/view.tsx`, `app/(app)/users/[userId]/_components/profile-view.tsx`
+  - Implement empty states to pass tests written in 1.3
+  - _Requirements: Non-Functional (Usability - Empty States)_
+  - _Prompt:
+    - **Role**: UX Developer implementing TDD GREEN phase
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[GREEN Phase]** Add empty state handling to view components to make tests in task 1.3 PASS. When evaluations.length === 0, display centered message: MyPageView: "まだ評価がありません", CommunityView: "まだ公開評価がありません", UserProfileView (evaluations section): "まだ公開評価がありません". Use consistent Tailwind styling. Write minimal code to pass tests.
+    - **Restrictions**: Must make tests PASS, messages in Japanese, maintain consistent styling, centered display
+    - **Success**: Tests written in task 1.3 now PASS, empty states display appropriate messages on all pages
+    - **Instructions**: Mark task [-] before starting. Run tests to confirm PASS. After completion, log implementation. Mark task [x] when tests PASS.
+
+### 3. [RED] Write E2E tests for complete flows
+- [x] 3.1 Write end-to-end tests for visibility and sharing flows
+  - File: `app/(app)/coffee/__tests__/integration/visibility-flows.test.tsx` (new)
+  - Write comprehensive E2E tests for all user flows
+  - _Requirements: All requirements (end-to-end validation), Non-Functional (Testing - E2E)_
+  - _Prompt:
+    - **Role**: E2E Testing Specialist with complete user journey expertise
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[RED Phase]** Create comprehensive E2E test file testing complete user journeys: (1) User creates private evaluation, views in My Page with 🔒 badge, evaluation NOT in Community feed. (2) User toggles evaluation to public, appears in Community feed with user name. (3) Another user clicks user name, navigates to profile page, sees public evaluation. (4) User with no public evaluations shows empty state. (5) Unauthenticated user accesses /coffee, redirects to Community, views public evaluations. Mock all API calls appropriately. Tests will FAIL initially - implementation may not be complete yet.
+    - **Restrictions**: Must test complete user journeys, mock all external dependencies, tests must be reliable
+    - **Success**: Comprehensive E2E tests written, test cases cover critical user flows, >90% scenario coverage
+    - **Instructions**: Mark task [-] before starting. Run tests (may FAIL or PASS depending on implementation state). After completion, log implementation with artifacts: {filesCreated: ["app/(app)/coffee/__tests__/integration/visibility-flows.test.tsx"]}. Mark task [x] when tests written.
+
+### 4. [GREEN] Ensure E2E tests pass
+- [ ] 4.1 Fix any issues to make E2E tests pass
+  - Files: Any implementation files as needed
+  - Fix implementation issues identified by E2E tests
+  - _Requirements: All requirements_
+  - _Prompt:
+    - **Role**: Full-Stack Developer fixing E2E test failures
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[GREEN Phase]** Run E2E tests from task 3.1 and fix any failures. Identify root causes of test failures and implement minimal fixes to make tests PASS. This task validates that all previous implementation work integrates correctly for complete user flows.
+    - **Restrictions**: Must make E2E tests PASS, minimal fixes only, do not break existing unit/integration tests
+    - **Success**: All E2E tests in task 3.1 now PASS, complete user flows work correctly end-to-end
+    - **Instructions**: Mark task [-] before starting. Run E2E tests iteratively until all PASS. After completion, log implementation with summary of fixes made. Mark task [x] when all E2E tests PASS.
+
+### 5. [REFACTOR] Final code review and cleanup
+- [x] 5.1 Final code review and refactoring
+  - Files: All implementation files
+  - Review code quality, refactor while keeping tests green
+  - _Requirements: Non-Functional (Code Architecture, Performance, Accessibility)_
+  - _Prompt:
+    - **Role**: Senior Code Reviewer in TDD REFACTOR phase
+    - **Task**: Implement the task for spec evaluation-visibility-and-sharing. First run spec-workflow-guide to get the workflow guide, then implement the task. **[REFACTOR Phase]** Perform comprehensive code review while keeping all tests PASSING: (1) Run ESLint and fix warnings, (2) Check for code duplication and refactor, (3) Ensure Single Responsibility Principle, (4) Verify Container/Presentational separation, (5) Remove unused imports/dead code, (6) Ensure consistent Tailwind CSS usage, (7) Verify TypeScript types, (8) Check accessibility (ARIA labels, keyboard nav), (9) Test responsive design. Run ALL tests (unit + integration + E2E) after each refactor to ensure green.
+    - **Restrictions**: Must keep ALL tests PASSING throughout refactoring, maintain test coverage, follow existing standards
+    - **Success**: ESLint passes, no duplication, SRP followed, code is clean, responsive and accessible, ALL tests still PASS (unit + integration + E2E)
+    - **Instructions**: Mark task [-] before starting. Run full test suite frequently during refactoring. After completion, log implementation with comprehensive summary of refactoring (files refactored, issues fixed, improvements made, final test coverage stats). Mark task [x] when complete and all tests PASS.
