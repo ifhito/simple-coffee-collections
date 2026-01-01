@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Coffee bean one-line icon">
+  <path
+    d="
+      M 54 22
+      C 34 24, 22 42, 22 62
+      C 22 88, 42 106, 64 106
+      C 86 106, 106 88, 106 62
+      C 106 42, 94 24, 74 22
+      C 66 21, 60 23, 54 22
+
+      C 64 36, 68 46, 64 56
+      C 60 46, 64 36, 64 56
+      C 64 70, 64 88, 76 102
+
+      L 92 96
+
+      L 98 82
+      L 104 96
+      L 118 98
+      L 107 107
+      L 110 121
+      L 98 113
+      L 86 121
+      L 89 107
+      L 78 98
+      L 92 96
+    "
+    fill="none"
+    stroke="#000"
+    stroke-width="8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

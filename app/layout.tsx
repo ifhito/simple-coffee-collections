@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Simple Coffee Collections",
   description: "コーヒー豆の評価記録アプリ",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
