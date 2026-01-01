@@ -51,7 +51,7 @@ describe('EvaluationForm', () => {
     render(<EvaluationForm />)
 
     expect(screen.getByLabelText(/店名/i)).toHaveValue('')
-    expect(screen.getByLabelText(/豆の種類/i)).toHaveValue('')
+    expect(screen.getByLabelText(/豆の産地/i)).toHaveValue('')
     expect(screen.getByLabelText(/豆の名前/i)).toHaveValue('')
 
     const sliders = screen.getAllByRole('slider')
@@ -104,7 +104,7 @@ describe('EvaluationForm', () => {
     render(<EvaluationForm />)
 
     await user.type(screen.getByLabelText(/店名/i), 'Onibus Coffee')
-    await user.type(screen.getByLabelText(/豆の種類/i), 'Kenya AA')
+    await user.type(screen.getByLabelText(/豆の産地/i), 'Kenya AA')
     await user.type(screen.getByLabelText(/焙煎度/i), 'Light roast')
     await user.type(screen.getByLabelText(/豆の名前/i), 'Kenya AA Top')
     setSliderValue(/総合評価/i, 9)
@@ -198,7 +198,7 @@ describe('EvaluationForm', () => {
       render(<EvaluationForm />)
 
       await user.type(screen.getByLabelText(/店名/i), 'Test Cafe')
-      await user.type(screen.getByLabelText(/豆の種類/i), 'エチオピア')
+    await user.type(screen.getByLabelText(/豆の産地/i), 'エチオピア')
       await user.type(screen.getByLabelText(/豆の名前/i), 'エチオピア イルガチェフェ G1')
       await user.click(screen.getByRole('button', { name: /保存/i }))
 
@@ -289,7 +289,7 @@ describe('EvaluationForm', () => {
 
     // Fill required fields
     await user.type(screen.getByLabelText(/店名/i), 'Test Cafe')
-    await user.type(screen.getByLabelText(/豆の種類/i), 'Test Bean')
+    await user.type(screen.getByLabelText(/豆の産地/i), 'Test Bean')
     await user.type(screen.getByLabelText(/豆の名前/i), 'Test Bean Name')
 
       // Toggle public to true

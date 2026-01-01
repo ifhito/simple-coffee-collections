@@ -57,7 +57,7 @@ describe('Coffee end-to-end flows (mocked)', () => {
     mockCreateCoffeeEvaluation.mockResolvedValue(undefined)
     render(<EvaluationForm />)
     await user.type(screen.getByLabelText(/店名/i), 'Verve')
-    await user.type(screen.getByLabelText(/豆の種類/i), 'Kenya')
+    await user.type(screen.getByLabelText(/豆の産地/i), 'Kenya')
     await user.type(screen.getByLabelText(/豆の名前/i), 'Kenya AA')
     await user.click(screen.getByRole('button', { name: /保存/i }))
     await waitFor(() => expect(mockCreateCoffeeEvaluation).toHaveBeenCalled())
@@ -100,7 +100,7 @@ describe('Coffee end-to-end flows (mocked)', () => {
       mockCreateCoffeeEvaluation.mockResolvedValue(undefined)
       render(<EvaluationForm />)
       await user.type(screen.getByLabelText(/店名/i), 'Verve Coffee')
-      await user.type(screen.getByLabelText(/豆の種類/i), 'Ethiopia')
+      await user.type(screen.getByLabelText(/豆の産地/i), 'Ethiopia')
       await user.type(screen.getByLabelText(/豆の名前/i), 'イルガチェフェ G1')
       await user.click(screen.getByRole('button', { name: /保存/i }))
 

@@ -139,7 +139,7 @@ export function EvaluationForm({ initialData }: EvaluationFormProps) {
           onChange={(e) => setShopName(e.target.value)}
         />
         <Input
-          label="豆の種類"
+          label="豆の産地"
           value={beanType}
           onChange={(e) => setBeanType(e.target.value)}
         />
