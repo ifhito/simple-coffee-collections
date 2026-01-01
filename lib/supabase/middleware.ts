@@ -44,6 +44,7 @@ export async function updateSession(request: NextRequest) {
   const publicMatchers: Array<(p: string) => boolean> = [
     (p) => p === '/',
     (p) => p === '/coffee', // handled in page.tsx to redirect appropriately
+    (p) => /^\/coffee\/[^/]+$/.test(p), // allow viewing coffee detail without auth
     (p) => p.startsWith('/coffee/community'),
     (p) => p.startsWith('/users'),
     (p) => p.startsWith('/login'),
