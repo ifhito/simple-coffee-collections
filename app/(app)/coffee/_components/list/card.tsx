@@ -19,7 +19,7 @@ const clampTwoLines: CSSProperties = {
 
 function CoffeeCardComponent({ evaluation, badge, meta }: CoffeeCardProps) {
   const { id, shop_name, bean_type, bean_name, overall_rating, created_at } = evaluation
-  const displayBeanType = bean_name ? `${bean_type} - ${bean_name}` : bean_type
+  const displayName = bean_name || (bean_type === 'Unknown' ? '産地不明' : bean_type)
 
   return (
     <article
@@ -30,15 +30,15 @@ function CoffeeCardComponent({ evaluation, badge, meta }: CoffeeCardProps) {
       <Link
         href={`/coffee/${id}`}
         className="flex flex-1 flex-col"
-        aria-label={`${shop_name} の評価詳細へ`}
+        aria-label={`${displayName} の評価詳細へ`}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
             <h3 style={clampTwoLines} className="text-lg font-semibold text-neutral-900 break-words">
-              {shop_name}
+              {displayName}
             </h3>
             <p style={clampTwoLines} className="text-sm text-neutral-600 break-words">
-              {displayBeanType}
+              {shop_name}
             </p>
           </div>
           <div className="shrink-0">

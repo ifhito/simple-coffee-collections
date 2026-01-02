@@ -48,11 +48,17 @@ const renderCard = (props?: Partial<ComponentProps<typeof CoffeeCard>>) => {
 }
 
 describe('CoffeeCard', () => {
-  it('renders shop name, bean type, and formatted date', () => {
+  it('renders coffee name as title and shop name as subtitle', () => {
     renderCard()
 
+    // Coffee name should be in the heading (h3)
+    const heading = screen.getByRole('heading', { level: 3 })
+    expect(heading).toHaveTextContent(sampleEvaluation.bean_type)
+
+    // Shop name should be in the paragraph
     expect(screen.getByText(sampleEvaluation.shop_name)).toBeInTheDocument()
-    expect(screen.getByText(sampleEvaluation.bean_type)).toBeInTheDocument()
+
+    // Date should be displayed
     expect(screen.getByText(/2025-01-02/)).toBeInTheDocument()
   })
 
@@ -80,31 +86,48 @@ describe('CoffeeCard', () => {
   })
 
   describe('Bean Name Display', () => {
-    it('displays "bean_type - bean_name" when bean_name exists', () => {
+    it('displays only bean_name in heading when bean_name exists', () => {
       const evaluationWithBeanName = {
         ...sampleEvaluation,
         bean_name: 'イルガチェフェ G1',
       }
       renderCard({ evaluation: evaluationWithBeanName })
 
-      expect(screen.getByText('Ethiopia Yirgacheffe - イルガチェフェ G1')).toBeInTheDocument()
+      const heading = screen.getByRole('heading', { level: 3 })
+      expect(heading).toHaveTextContent('イルガチェフェ G1')
+      // bean_type should not be displayed when bean_name exists
+      expect(heading).not.toHaveTextContent(sampleEvaluation.bean_type)
     })
 
-    it('displays only bean_type when bean_name is null', () => {
+    it('displays bean_type in heading when bean_name is null (fallback)', () => {
       renderCard()
 
-      expect(screen.getByText(sampleEvaluation.bean_type)).toBeInTheDocument()
-      expect(screen.queryByText(/イルガチェフェ/)).not.toBeInTheDocument()
+      const heading = screen.getByRole('heading', { level: 3 })
+      expect(heading).toHaveTextContent(sampleEvaluation.bean_type)
     })
 
-    it('displays only bean_type when bean_name is empty string', () => {
+    it('displays bean_type in heading when bean_name is empty string (fallback)', () => {
       const evaluationWithEmptyBeanName = {
         ...sampleEvaluation,
         bean_name: '',
       }
       renderCard({ evaluation: evaluationWithEmptyBeanName })
 
-      expect(screen.getByText(sampleEvaluation.bean_type)).toBeInTheDocument()
+      const heading = screen.getByRole('heading', { level: 3 })
+      expect(heading).toHaveTextContent(sampleEvaluation.bean_type)
+    })
+
+    it('displays "産地不明" in heading when bean_name is null and bean_type is "Unknown"', () => {
+      const evaluationWithUnknownOrigin = {
+        ...sampleEvaluation,
+        bean_name: null,
+        bean_type: 'Unknown',
+      }
+      renderCard({ evaluation: evaluationWithUnknownOrigin })
+
+      const heading = screen.getByRole('heading', { level: 3 })
+      expect(heading).toHaveTextContent('産地不明')
+      expect(heading).not.toHaveTextContent('Unknown')
     })
   })
 })

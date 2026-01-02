@@ -22,6 +22,7 @@ const labelMap: Record<typeof ratings[number], string> = {
 export function EvaluationDetailView({ evaluation, currentUserId }: EvaluationDetailViewProps) {
   const isOwner = evaluation.user_id === currentUserId
   const [isPending, startTransition] = useTransition()
+  const displayBeanType = evaluation.bean_type === 'Unknown' ? '産地不明' : evaluation.bean_type
 
   const handleDelete = () => {
     const confirmed = window.confirm('本当に削除しますか？')
@@ -35,15 +36,13 @@ export function EvaluationDetailView({ evaluation, currentUserId }: EvaluationDe
   return (
     <article className="space-y-6 rounded-lg border border-neutral-200 bg-white p-6 shadow-sm animate-fade-in">
       <header className="space-y-2">
-        <h1 className="text-2xl font-bold text-neutral-900 animate-slide-up">{evaluation.shop_name}</h1>
+        <h1 className="text-2xl font-bold text-neutral-900 animate-slide-up">{evaluation.bean_name}</h1>
         <p className="text-sm text-neutral-600 animate-slide-up" style={{ animationDelay: '60ms' }}>
-          {evaluation.bean_type}
+          {evaluation.shop_name}
         </p>
-        {evaluation.bean_name && (
-          <p className="text-xs text-neutral-500 animate-slide-up" style={{ animationDelay: '90ms' }}>
-            {evaluation.bean_name}
-          </p>
-        )}
+        <p className="text-xs text-neutral-500 animate-slide-up" style={{ animationDelay: '90ms' }}>
+          {displayBeanType}
+        </p>
         {evaluation.roast_level && (
           <p className="text-xs text-neutral-500 animate-slide-up" style={{ animationDelay: '120ms' }}>
             {evaluation.roast_level}

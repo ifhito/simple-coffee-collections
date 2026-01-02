@@ -294,6 +294,16 @@ graph TD
 ### 3. CoffeeCard (Presentational Component)
 
 - **Purpose:** 単一の評価カード表示
+- **Display Order:**
+  - **Title (h3):** コーヒー名 (`bean_name`) - 必須（ない場合は`bean_type`をフォールバック）
+  - **Subtitle (p):** 店舗名 (`shop_name`)
+  - **Rating:** 総合評価 (`overall_rating`)
+  - **Date:** 作成日時 (`created_at`)
+- **Display Logic:**
+  - `bean_name`が存在する場合: `bean_name`を表示
+  - `bean_name`がなく、`bean_type === 'Unknown'`の場合: 「産地不明」と表示
+  - `bean_name`がなく、`bean_type !== 'Unknown'`の場合: `bean_type`を表示
+- **Note:** コーヒー名（`bean_name`）は必須フィールドとして推奨。データ移行期間中のレガシーデータのために、`bean_type`（産地）をフォールバックとして使用。
 - **Interfaces:**
   ```typescript
   interface CoffeeCardProps {
@@ -398,7 +408,36 @@ graph TD
 - **Dependencies:** なし
 - **Reuses:** なし
 
-### 10. lib/api/coffee.ts (Data Access Layer)
+### 10. EvaluationDetailView (Client Component)
+
+- **Purpose:** コーヒー評価の詳細表示
+- **Location:** `app/(app)/coffee/[id]/_components/evaluation/view.tsx`
+- **Display Order:**
+  - **Title (h1):** コーヒー名 (`bean_name`) - 必須
+  - **Subtitle (p):** 店舗名 (`shop_name`)
+  - **Origin (p):** 産地 (`bean_type`)
+  - **Roast Level (p, optional):** 焙煎度 (`roast_level`)
+  - **Ratings:** 総合評価、酸味、苦味、香り（各1-10）
+  - **Notes (optional):** メモ (`notes`)
+- **Display Logic:**
+  - 産地（`bean_type`）が`'Unknown'`の場合: 「産地不明」と表示
+  - それ以外の場合: `bean_type`の値をそのまま表示
+- **Note:** コーヒー名（`bean_name`）は必須フィールドとして扱う。産地（`bean_type`）は常に別途表示される。
+- **Interfaces:**
+  ```typescript
+  interface EvaluationDetailViewProps {
+    evaluation: CoffeeEvaluation
+    currentUserId?: string
+  }
+  export function EvaluationDetailView(props: EvaluationDetailViewProps): JSX.Element
+  ```
+- **Dependencies:**
+  - `RatingStars` component
+  - `lib/actions/coffee.ts` - deleteCoffeeEvaluation
+  - Next.js `Link` component
+- **Reuses:** Next.js Link, RatingStars
+
+### 11. lib/api/coffee.ts (Data Access Layer)
 
 - **Purpose:** コーヒー評価のデータフェッチング関数
 - **Interfaces:**
@@ -413,7 +452,7 @@ graph TD
   - `lib/supabase/server.ts`
 - **Reuses:** Supabase server client pattern
 
-### 11. lib/actions/coffee.ts (Server Actions)
+### 12. lib/actions/coffee.ts (Server Actions)
 
 - **Purpose:** CRUD mutations
 - **Interfaces:**

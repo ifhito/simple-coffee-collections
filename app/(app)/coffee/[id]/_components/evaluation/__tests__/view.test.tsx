@@ -18,7 +18,7 @@ const sampleEvaluation = {
   user_id: 'owner-1',
   shop_name: 'Blue Bottle',
   bean_type: 'Ethiopia',
-  bean_name: null,
+  bean_name: 'Yirgacheffe',
   roast_level: 'Medium',
   acidity: 8,
   bitterness: 4,
@@ -41,6 +41,11 @@ describe('EvaluationDetailView', () => {
   it('renders all evaluation fields and ratings', () => {
     render(<EvaluationDetailView evaluation={sampleEvaluation as any} currentUserId="owner-1" />)
 
+    // Coffee name should be in heading
+    const heading = screen.getByRole('heading', { level: 1 })
+    expect(heading).toHaveTextContent(sampleEvaluation.bean_name!)
+
+    // Shop name and bean_type should be displayed
     expect(screen.getByText(sampleEvaluation.shop_name)).toBeInTheDocument()
     expect(screen.getByText(sampleEvaluation.bean_type)).toBeInTheDocument()
     expect(screen.getByText(sampleEvaluation.roast_level!)).toBeInTheDocument()
@@ -64,33 +69,40 @@ describe('EvaluationDetailView', () => {
     expect(screen.queryByRole('button', { name: /削除/i })).not.toBeInTheDocument()
   })
 
-  describe('Bean Name Display', () => {
-    it('displays bean_name when it exists', () => {
-      const evaluationWithBeanName = {
-        ...sampleEvaluation,
-        bean_name: 'イルガチェフェ G1',
-      }
-      render(<EvaluationDetailView evaluation={evaluationWithBeanName as any} currentUserId="owner-1" />)
-
-      expect(screen.getByText('イルガチェフェ G1')).toBeInTheDocument()
-    })
-
-    it('does not display bean_name section when bean_name is null', () => {
+  describe('Coffee Name and Origin Display', () => {
+    it('displays bean_name in heading and bean_type separately', () => {
       render(<EvaluationDetailView evaluation={sampleEvaluation as any} currentUserId="owner-1" />)
 
-      // bean_name should not appear in the document
-      expect(screen.queryByText(/イルガチェフェ/)).not.toBeInTheDocument()
+      const heading = screen.getByRole('heading', { level: 1 })
+      expect(heading).toHaveTextContent(sampleEvaluation.bean_name!)
+      
+      // bean_type should be displayed separately, not in heading
+      expect(screen.getByText(sampleEvaluation.bean_type)).toBeInTheDocument()
+      expect(heading).not.toHaveTextContent(sampleEvaluation.bean_type)
     })
 
-    it('does not display bean_name section when bean_name is empty string', () => {
-      const evaluationWithEmptyBeanName = {
+    it('displays different coffee names correctly', () => {
+      const evaluationWithDifferentName = {
         ...sampleEvaluation,
-        bean_name: '',
+        bean_name: 'イルガチェフェ G1',
+        bean_type: 'エチオピア',
       }
-      render(<EvaluationDetailView evaluation={evaluationWithEmptyBeanName as any} currentUserId="owner-1" />)
+      render(<EvaluationDetailView evaluation={evaluationWithDifferentName as any} currentUserId="owner-1" />)
 
-      // Should only see bean_type, not bean_name
-      expect(screen.getByText(sampleEvaluation.bean_type)).toBeInTheDocument()
+      const heading = screen.getByRole('heading', { level: 1 })
+      expect(heading).toHaveTextContent('イルガチェフェ G1')
+      expect(screen.getByText('エチオピア')).toBeInTheDocument()
+    })
+
+    it('displays "産地不明" when bean_type is "Unknown"', () => {
+      const evaluationWithUnknownOrigin = {
+        ...sampleEvaluation,
+        bean_type: 'Unknown',
+      }
+      render(<EvaluationDetailView evaluation={evaluationWithUnknownOrigin as any} currentUserId="owner-1" />)
+
+      expect(screen.getByText('産地不明')).toBeInTheDocument()
+      expect(screen.queryByText('Unknown')).not.toBeInTheDocument()
     })
   })
 })
