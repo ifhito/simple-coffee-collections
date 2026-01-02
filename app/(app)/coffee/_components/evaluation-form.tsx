@@ -135,9 +135,12 @@ export function EvaluationForm({ initialData }: EvaluationFormProps) {
     >
       <div className="grid gap-4 md:grid-cols-2">
         <Input
-          label="店名"
-          value={shopName}
-          onChange={(e) => setShopName(e.target.value)}
+          label="豆の名前"
+          value={beanName}
+          onChange={(e) => setBeanName(e.target.value)}
+          placeholder="例: エチオピア イルガチェフェ G1"
+          required
+          error={errors.bean_name}
         />
         <Input
           label="豆の産地"
@@ -145,12 +148,9 @@ export function EvaluationForm({ initialData }: EvaluationFormProps) {
           onChange={(e) => setBeanType(e.target.value)}
         />
         <Input
-          label="豆の名前"
-          value={beanName}
-          onChange={(e) => setBeanName(e.target.value)}
-          placeholder="例: エチオピア イルガチェフェ G1"
-          required
-          error={errors.bean_name}
+          label="店名"
+          value={shopName}
+          onChange={(e) => setShopName(e.target.value)}
         />
         <div className="flex flex-col gap-2">
           <label htmlFor="roast-level" className="text-sm font-medium text-neutral-800">
