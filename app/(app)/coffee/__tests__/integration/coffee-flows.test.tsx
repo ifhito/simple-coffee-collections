@@ -116,7 +116,8 @@ describe('Coffee end-to-end flows (mocked)', () => {
         bean_name: 'イルガチェフェ G1',
       }
       render(<CoffeeListView evaluations={[evalWithBeanName]} />)
-      expect(screen.getByText('Ethiopia - イルガチェフェ G1')).toBeInTheDocument()
+      // CoffeeCard displays bean_name when present, not "bean_type - bean_name"
+      expect(screen.getByText('イルガチェフェ G1')).toBeInTheDocument()
 
       // Detail view with bean_name
       cleanup()
