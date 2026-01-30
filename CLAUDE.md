@@ -10,51 +10,49 @@ Helps enthusiasts track their coffee journey, discover patterns, and explore new
 
 ---
 
-## WHAT: Components
+## WHAT: Architecture & Components
 
-### Skills
+### Architecture: Clean Architecture + DDD
 
-| Skill | Description |
-|-------|-------------|
-| claude-md-creator | Auto-generates CLAUDE.md with WHY/WHAT/HOW structure (max 60 lines) |
-| nextjs-best-practices | Next.js App Router (RSC) best practices for data fetching & component design |
+- **Domain**: Entities, Value Objects (`lib/domain/`)
+- **Application**: Use Cases, DTOs (`lib/application/`)
+- **Infrastructure**: Supabase, Repository (`lib/infrastructure/`)
+- **Presentation**: Next.js, Server Actions (`app/`, `lib/actions/`)
 
-> Details: `.claude/skills/[skill-name]/SKILL.md`
-
-### Features (Planned)
-
-- Coffee record CRUD operations
-- Cafe information management
-- Tasting notes & tagging
-- Search & filtering
-- Statistics & insights
+**Skills**: claude-md-creator, nextjs-best-practices (`.claude/skills/`)
 
 ---
 
-## HOW: Usage
+## HOW: Development Guidelines
 
-### Development with Claude Code
+### Ubiquitous Language (MANDATORY)
 
-**Skills**:
-- CLAUDE.md generation: `.claude/skills/claude-md-creator/`
-- Next.js development: `.claude/skills/nextjs-best-practices/`
+**Before coding**: Check `docs/UBIQUITOUS_LANGUAGE_DICTIONARY.md`
+**New terms**: Add using template
+**Usage**: `CoffeeEvaluation` ✓ / `CoffeeReview` ✗ (Code), "評価" ✓ / "レビュー" ✗ (UI)
 
-**Next.js Principles**:
-- Server Components first for data fetching
-- Tree-based UI decomposition (top-down design)
-- Container/Presentational pattern
-- Request optimization (Memoization & DataLoader)
-- Composition over props drilling
+### TDD Workflow (80%+ coverage)
 
-**Doc Principles**:
-- Keep CLAUDE.md under 60 lines
-- WHY/WHAT/HOW structure only
-- Use `@path/to/file` for detailed imports
+Test → Fail → Implement → Pass → Refactor
 
-### Future Additions
+- Unit: Jest + Testing Library
+- Integration: API, DB
+- E2E: Playwright (`e2e/README.md`)
 
-Add as needed: `docs/PRINCIPLES.md`, `docs/ARCHITECTURE.md`, `docs/API.md`
+### Next.js Principles
+
+Server Components first, Container/Presentational, Composition over drilling
+
+### Documentation
+
+- `docs/UBIQUITOUS_LANGUAGE_DICTIONARY.md` - Term reference (推奨)
+- `docs/UBIQUITOUS_LANGUAGE.md` - Domain model details
+- `e2e/README.md` - E2E testing
+
+### Development Steps
+
+1. Check dictionary → 2. Write test → 3. Implement → 4. Update dict → 5. Run tests
 
 ---
 
-**Last Updated**: 2025-12-31 | **Version**: Initial
+**Last Updated**: 2026-01-30 | **Version**: 1.1.0
