@@ -233,9 +233,10 @@ export async function createCoffeeEvaluation(
 
   // 4. Revalidate cache BEFORE redirect
   revalidatePath('/coffee')
+  revalidatePath('/coffee/my')
 
-  // 5. Redirect to list page
-  redirect('/coffee')
+  // 5. Redirect to user's my page
+  redirect('/coffee/my')
 }
 
 /**
@@ -348,7 +349,8 @@ export async function deleteCoffeeEvaluation(
 
   // 4. Revalidate cache BEFORE redirect
   revalidatePath('/coffee')
+  revalidatePath('/coffee/my')
 
-  // 5. Redirect to list page
-  redirect('/coffee')
+  // 5. Redirect to user's my page
+  redirect('/coffee/my')
 }
