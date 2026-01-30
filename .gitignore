@@ -38,3 +38,14 @@ next-env.d.ts
 
 # supabase
 .supabase
+
+# playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# claude
+.claude/settings.local.json
+
+# logs
+audit.log
