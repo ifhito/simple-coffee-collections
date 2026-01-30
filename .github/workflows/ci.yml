@@ -40,14 +40,19 @@ jobs:
       - name: Export Supabase env
         run: |
           set -euo pipefail
-          status="$(supabase status)"
-          echo "$status"
-          supabase_url="$(echo "$status" | awk -F': ' '/API URL/ {print $2}')"
-          supabase_anon_key="$(echo "$status" | awk -F': ' '/anon key/ {print $2}')"
+          # Use env format output which is more stable across versions
+          supabase status -o env > .env.supabase
+
+          # Extract the required values
+          supabase_url=$(grep 'API_URL=' .env.supabase | cut -d '=' -f2- | tr -d '"')
+          supabase_anon_key=$(grep 'ANON_KEY=' .env.supabase | cut -d '=' -f2- | tr -d '"')
+
           if [ -z "$supabase_url" ] || [ -z "$supabase_anon_key" ]; then
-            echo "Failed to parse Supabase status output" >&2
+            echo "Failed to extract Supabase credentials" >&2
+            cat .env.supabase
             exit 1
           fi
+
           echo "NEXT_PUBLIC_SUPABASE_URL=$supabase_url" >> "$GITHUB_ENV"
           echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$supabase_anon_key" >> "$GITHUB_ENV"
 
