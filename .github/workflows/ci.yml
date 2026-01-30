@@ -57,7 +57,10 @@ jobs:
           echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$supabase_anon_key" >> "$GITHUB_ENV"
 
       - name: Create test user
-        run: supabase db execute --file e2e/setup-test-user.sql
+        run: |
+          # Extract DB_URL from supabase status and run SQL directly via psql
+          db_url=$(grep 'DB_URL=' .env.supabase | cut -d '=' -f2- | tr -d '"')
+          psql "$db_url" -f e2e/setup-test-user.sql
 
       - name: Unit tests with coverage
         run: pnpm test:coverage
