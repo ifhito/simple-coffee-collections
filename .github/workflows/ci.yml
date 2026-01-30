@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+
+      - name: Start Supabase
+        run: supabase start
+
+      - name: Export Supabase env
+        run: |
+          set -euo pipefail
+          status="$(supabase status)"
+          echo "$status"
+          supabase_url="$(echo "$status" | awk -F': ' '/API URL/ {print $2}')"
+          supabase_anon_key="$(echo "$status" | awk -F': ' '/anon key/ {print $2}')"
+          if [ -z "$supabase_url" ] || [ -z "$supabase_anon_key" ]; then
+            echo "Failed to parse Supabase status output" >&2
+            exit 1
+          fi
+          echo "NEXT_PUBLIC_SUPABASE_URL=$supabase_url" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$supabase_anon_key" >> "$GITHUB_ENV"
+
+      - name: Create test user
+        run: supabase db execute --file e2e/setup-test-user.sql
+
+      - name: Unit tests with coverage
+        run: pnpm test:coverage
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps
+
+      - name: E2E tests
+        run: pnpm test:e2e
