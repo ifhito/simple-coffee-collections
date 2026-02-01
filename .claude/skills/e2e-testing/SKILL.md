@@ -1,6 +1,6 @@
 ---
 skillName: e2e-testing
-description: User-centric E2E test design from use cases to implementation with Playwright
+description: User-centric E2E test design from use cases to implementation with Playwright。ユーザーが「E2Eテストを作成して」、「e2eテストを作る」などと言った場合に使用
 version: 1.0.0
 author: hotake
 tags: [e2e, playwright, testing, use-case-driven, page-object-model]
@@ -21,10 +21,10 @@ Guide E2E test creation from user needs to implementation:
 
 ## Documentation
 
-- **Workflow**: @.claude/skills/e2e-testing/WORKFLOW.md - Step-by-step process from use cases to tests
-- **Patterns**: @.claude/skills/e2e-testing/PATTERNS.md - Page Object Model, fixtures, test structure
-- **Best Practices**: @.claude/skills/e2e-testing/BEST_PRACTICES.md - Principles, anti-patterns, tips
-- **Templates**: @.claude/skills/e2e-testing/TEMPLATES.md - Reusable test templates
+- **Workflow**: @.claude/skills/e2e-testing/references/WORKFLOW.md - Step-by-step process from use cases to tests
+- **Patterns**: @.claude/skills/e2e-testing/references/PATTERNS.md - Page Object Model, fixtures, test structure
+- **Best Practices**: @.claude/skills/e2e-testing/references/BEST_PRACTICES.md - Principles, anti-patterns, tips
+- **Templates**: @.claude/skills/e2e-testing/references/TEMPLATES.md - Reusable test templates
 
 ## Usage
 
@@ -46,10 +46,10 @@ When creating E2E tests:
    - Create test data strategy
 
 4. **Implement Tests** (WORKFLOW.md Step 4)
-   - Follow Page Object Model (PATTERNS.md)
-   - Use fixtures for test data (PATTERNS.md)
-   - Apply best practices (BEST_PRACTICES.md)
-   - Use templates (TEMPLATES.md)
+   - Follow Page Object Model (./references/PATTERNS.md)
+   - Use fixtures for test data (./references/PATTERNS.md)
+   - Apply best practices (./references/BEST_PRACTICES.md)
+   - Use templates (./references/TEMPLATES.md)
 
 ## Target Framework
 
