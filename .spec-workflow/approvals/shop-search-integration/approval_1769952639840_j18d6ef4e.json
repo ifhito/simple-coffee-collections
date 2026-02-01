@@ -1,0 +1,21 @@
+{
+  "id": "approval_1769952639840_j18d6ef4e",
+  "title": "Tasks: Design完全準拠（31タスク、設計line参照付き）",
+  "filePath": ".spec-workflow/specs/shop-search-integration/tasks.md",
+  "type": "document",
+  "status": "needs-revision",
+  "createdAt": "2026-02-01T13:30:39.840Z",
+  "category": "spec",
+  "categoryName": "shop-search-integration",
+  "response": "Feedback Summary (1 comments):\n\nGeneral Comments:\n1. 中: Task 3でIShopSearchServiceを作成する指示が残っていますが、設計にはこのインターフェースが存在しません。不要ならタスク削除、必要なら設計追記が必要です。tasks.md (line 27)\n中: E2Eテストで「実Nominatim API or mock」が残っており、規約/レート制限リスクが残存します。E2Eはモック固定にしてください。tasks.md (line 289)\n\n",
+  "annotations": "{\n  \"decision\": \"needs-revision\",\n  \"comments\": [\n    {\n      \"type\": \"general\",\n      \"comment\": \"中: Task 3でIShopSearchServiceを作成する指示が残っていますが、設計にはこのインターフェースが存在しません。不要ならタスク削除、必要なら設計追記が必要です。tasks.md (line 27)\\n中: E2Eテストで「実Nominatim API or mock」が残っており、規約/レート制限リスクが残存します。E2Eはモック固定にしてください。tasks.md (line 289)\",\n      \"timestamp\": \"2026-02-01T13:32:21.435Z\",\n      \"id\": \"comment_1769952741435_83fjavn65\"\n    }\n  ],\n  \"summary\": \"Feedback Summary (1 comments):\\n\\nGeneral Comments:\\n1. 中: Task 3でIShopSearchServiceを作成する指示が残っていますが、設計にはこのインターフェースが存在しません。不要ならタスク削除、必要なら設計追記が必要です。tasks.md (line 27)\\n中: E2Eテストで「実Nominatim API or mock」が残っており、規約/レート制限リスクが残存します。E2Eはモック固定にしてください。tasks.md (line 289)\\n\\n\",\n  \"timestamp\": \"2026-02-01T13:32:23.055Z\"\n}",
+  "respondedAt": "2026-02-01T13:32:23.065Z",
+  "comments": [
+    {
+      "type": "general",
+      "comment": "中: Task 3でIShopSearchServiceを作成する指示が残っていますが、設計にはこのインターフェースが存在しません。不要ならタスク削除、必要なら設計追記が必要です。tasks.md (line 27)\n中: E2Eテストで「実Nominatim API or mock」が残っており、規約/レート制限リスクが残存します。E2Eはモック固定にしてください。tasks.md (line 289)",
+      "timestamp": "2026-02-01T13:32:21.435Z",
+      "id": "comment_1769952741435_83fjavn65"
+    }
+  ]
+}
