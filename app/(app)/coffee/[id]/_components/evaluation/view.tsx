@@ -73,7 +73,6 @@ export function EvaluationDetailView({ evaluation, currentUserId }: EvaluationDe
       {isOwner && (
         <div className="flex gap-2">
           <Link
-            role="button"
             href={`/coffee/${evaluation.id}/edit`}
             className="inline-flex items-center rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800"
           >
