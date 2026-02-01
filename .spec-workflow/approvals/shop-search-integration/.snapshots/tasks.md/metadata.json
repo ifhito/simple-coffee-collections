@@ -1,0 +1,30 @@
+{
+  "filePath": ".spec-workflow/specs/shop-search-integration/tasks.md",
+  "currentVersion": 3,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2026-02-01T12:58:29.046Z",
+      "trigger": "initial",
+      "approvalId": "approval_1769950709034_f0hjo343m",
+      "approvalTitle": "Tasks: Shop Search Integration (29 tasks, TDD-first)"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2026-02-01T13:32:23.062Z",
+      "trigger": "revision_requested",
+      "approvalId": "approval_1769952639840_j18d6ef4e",
+      "approvalTitle": "Tasks: Design完全準拠（31タスク、設計line参照付き）"
+    },
+    {
+      "version": 3,
+      "filename": "snapshot-003.json",
+      "timestamp": "2026-02-01T13:55:12.553Z",
+      "trigger": "approved",
+      "approvalId": "approval_1769954057841_sqz0cwgqx",
+      "approvalTitle": "Tasks: 設計追記とE2Eモック固定反映"
+    }
+  ]
+}
