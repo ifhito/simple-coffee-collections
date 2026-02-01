@@ -155,3 +155,14 @@ pnpm exec playwright install chromium
 ## CI/CD
 
 GitHub Actionsなどで実行する場合は、環境変数 `CI=true` を設定してください。リトライ回数やワーカー数が自動調整されます。
+
+## E2Eテスト開発ガイド
+
+新しいE2Eテストを作成する際は、`.claude/skills/e2e-testing/` のスキルドキュメントを参照してください：
+
+- **WORKFLOW.md**: Use Cases → Scenarios → Test Cases → Implementation の4ステップワークフロー
+- **PATTERNS.md**: Page Object Model、Fixtures、AAA パターンなど
+- **BEST_PRACTICES.md**: テスト独立性、アンチパターン、デバッグ方法
+- **TEMPLATES.md**: すぐに使えるテストテンプレート集
+
+テスト項目の全体像は `e2e/TEST_MATRIX.md` を参照してください。
