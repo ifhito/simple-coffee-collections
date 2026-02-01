@@ -12,3 +12,7 @@ export const coffeeFormDefaults = {
 export function getUniqueBeanName() {
   return `E2E Bean ${Date.now()}`
 }
+
+export function getUniqueEmail() {
+  return `e2e-${Date.now()}@example.com`
+}

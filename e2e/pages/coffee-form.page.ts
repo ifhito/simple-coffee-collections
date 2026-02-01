@@ -24,7 +24,7 @@ export class CoffeeFormPage {
   }
 
   async setRating(label: string, value: number) {
-    const slider = this.page.locator(`input[type="range"]`).filter({ has: this.page.getByText(label) })
+    const slider = this.page.getByRole('slider', { name: label })
     await slider.fill(value.toString())
   }
 
@@ -45,7 +45,7 @@ export class CoffeeFormPage {
   }
 
   async togglePublic() {
-    await this.page.getByRole('switch').click()
+    await this.page.getByTestId('public-toggle').getByRole('checkbox').click()
   }
 
   async submit() {

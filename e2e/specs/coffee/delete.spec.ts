@@ -99,7 +99,7 @@ test.describe('Coffee Evaluation Delete', () => {
 
     // Navigate to detail page
     await page.getByRole('heading', { name: uniqueBeanName }).click()
-    await expect(page).toHaveURL(/\/coffee\/[a-zA-Z0-9-]+$/)
+    await page.waitForURL((url) => /\/coffee\/[a-f0-9-]+$/.test(url.pathname))
     const currentUrl = page.url()
 
     // Act: Dismiss deletion dialog
