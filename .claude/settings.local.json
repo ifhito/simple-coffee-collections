@@ -40,7 +40,15 @@
       "Bash(git pull:*)",
       "Bash(test:*)",
       "Bash(mkdir:*)",
-      "Bash(pnpm test:*)"
+      "Bash(pnpm test:*)",
+      "Bash(git restore:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(gh issue create:*)",
+      "Bash(gh label list:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh issue edit:*)",
+      "WebSearch"
     ]
   },
   "enableAllProjectMcpServers": true,

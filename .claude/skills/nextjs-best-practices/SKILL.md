@@ -1,6 +1,6 @@
 ---
 skillName: nextjs-best-practices
-description: Next.js App Router (RSC) best practices for data fetching, component design, and architecture
+description: Next.js App Router (RSC) best practices for data fetching, component design, and architecture. ユーザが「Nextjsの方針に沿っていますか?」、「Nextjsのベストプラクティス」、「Nextjsで」などを指示したら使用する。
 version: 1.0.0
 author: hotake
 tags: [nextjs, react, rsc, server-components, architecture]
@@ -21,9 +21,9 @@ Guide implementation following Next.js v15+ App Router best practices:
 
 ## Documentation
 
-- **Principles**: @.claude/skills/nextjs-best-practices/PRINCIPLES.md
-- **Patterns**: @.claude/skills/nextjs-best-practices/PATTERNS.md
-- **Reference**: @.claude/skills/nextjs-best-practices/REFERENCE.md
+- **Principles**: @.claude/skills/nextjs-best-practices/references/PRINCIPLES.md
+- **Patterns**: @.claude/skills/nextjs-best-practices/references/PATTERNS.md
+- **Reference**: @.claude/skills/nextjs-best-practices/references/REFERENCE.md
 
 ## Usage
 

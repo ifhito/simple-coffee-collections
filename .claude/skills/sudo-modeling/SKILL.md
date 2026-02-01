@@ -1,6 +1,6 @@
 ---
 skillName: sudo-modeling
-description: DDDドメイン分析のためのsudoモデリング手法（Object図から始めて具体→抽象の順でS-U-D-O 4つの図を作成）
+description: DDDドメイン分析のためのsudoモデリング手法（Object図から始めて具体→抽象の順でS-U-D-O 4つの図を作成）。ユーザが「sudoモデリングを使用して」、「sudoモデリングで」、「DDD設計をして」と言ったら使用してください。
 version: 1.0.0
 author: hotake
 tags: [ddd, domain-modeling, sudo-modeling, analysis, design]
@@ -21,15 +21,15 @@ DDDドメイン分析のための「sudoモデリング」手法スキル。
 
 ## 関連ドキュメント
 
-- **PRINCIPLES.md**: コア原則（5つ）
-- **WORKFLOW.md**: 4フェーズのワークフロー
-- **TEMPLATES.md**: Mermaidダイアグラムテンプレート
+- **./references/PRINCIPLES.md**: コア原則（5つ）
+- **./references/PWORKFLOW.md**: 4フェーズのワークフロー
+- **./references/PTEMPLATES.md**: Mermaidダイアグラムテンプレート
 
 ## 使用方法
 
-1. `WORKFLOW.md`のフェーズに従って進める
-2. `TEMPLATES.md`のテンプレートを使用してダイアグラムを作成
-3. `PRINCIPLES.md`の原則に基づいて設計を検証
+1. `./references/PWORKFLOW.md`のフェーズに従って進める
+2. `./references/PTEMPLATES.md`のテンプレートを使用してダイアグラムを作成
+3. `./references/PPRINCIPLES.md`の原則に基づいて設計を検証
 
 ## 出力形式
 
