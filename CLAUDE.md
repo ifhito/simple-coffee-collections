@@ -35,6 +35,10 @@ Helps enthusiasts track their coffee journey, discover patterns, and explore new
 
 ### Development with Claude Code
 
+**Feature Development Workflow**:
+1. Create branch: `git checkout -b feature/name`
+2. Use spec-workflow MCP (Requirements → Design → Tasks → Implementation)
+
 **Skills**:
 - CLAUDE.md generation: `.claude/skills/claude-md-creator/`
 - Next.js development: `.claude/skills/nextjs-best-practices/`
@@ -46,14 +50,7 @@ Helps enthusiasts track their coffee journey, discover patterns, and explore new
 - Request optimization (Memoization & DataLoader)
 - Composition over props drilling
 
-**Doc Principles**:
-- Keep CLAUDE.md under 60 lines
-- WHY/WHAT/HOW structure only
-- Use `@path/to/file` for detailed imports
-
-### Future Additions
-
-Add as needed: `docs/PRINCIPLES.md`, `docs/ARCHITECTURE.md`, `docs/API.md`
+**Doc**: Keep under 60 lines, WHY/WHAT/HOW only. Extended docs: `docs/PRINCIPLES.md`, `docs/ARCHITECTURE.md`
 
 ---
 
