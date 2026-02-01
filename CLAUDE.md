@@ -19,7 +19,7 @@ Helps enthusiasts track their coffee journey, discover patterns, and explore new
 - **Infrastructure**: Supabase, Repository (`lib/infrastructure/`)
 - **Presentation**: Next.js, Server Actions (`app/`, `lib/actions/`)
 
-**Skills**: claude-md-creator, nextjs-best-practices (`.claude/skills/`)
+**Skills**: claude-md-creator, nextjs-best-practices, e2e-testing (`.claude/skills/`)
 
 ---
 

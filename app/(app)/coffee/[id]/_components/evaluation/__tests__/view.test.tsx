@@ -59,13 +59,13 @@ describe('EvaluationDetailView', () => {
 
   it('shows edit and delete buttons only for the owner', () => {
     render(<EvaluationDetailView evaluation={sampleEvaluation as any} currentUserId="owner-1" />)
-    expect(screen.getByRole('button', { name: /編集/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /編集/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /削除/i })).toBeInTheDocument()
   })
 
   it('hides edit and delete buttons for non-owners', () => {
     render(<EvaluationDetailView evaluation={sampleEvaluation as any} currentUserId="other-user" />)
-    expect(screen.queryByRole('button', { name: /編集/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /編集/i })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /削除/i })).not.toBeInTheDocument()
   })
 
