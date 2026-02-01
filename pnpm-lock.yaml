@@ -36,6 +36,9 @@ importers:
       '@storybook/addon-webpack5-compiler-swc':
         specifier: 1.0.6
         version: 1.0.6(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.25.12))
+      '@storybook/react':
+        specifier: 8.6.15
+        version: 8.6.15(@storybook/test@8.6.15(storybook@8.6.15))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(storybook@8.6.15)(typescript@5.9.3)
       '@storybook/react-webpack5':
         specifier: 8.6.15
         version: 8.6.15(@storybook/test@8.6.15(storybook@8.6.15))(@swc/core@1.15.11)(esbuild@0.25.12)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(storybook@8.6.15)(typescript@5.9.3)
