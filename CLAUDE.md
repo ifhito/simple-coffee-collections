@@ -25,33 +25,26 @@ Helps enthusiasts track their coffee journey, discover patterns, and explore new
 
 ## HOW: Development Guidelines
 
+### Feature Development Workflow
+
+1. Branch: `git checkout -b feature/name`
+2. spec-workflow MCP: Requirements → Design → Tasks → Implementation
+3. TDD: Test → Fail → Implement → Pass → Refactor (80%+ coverage)
+
 ### Ubiquitous Language (MANDATORY)
 
 **Before coding**: Check `docs/UBIQUITOUS_LANGUAGE_DICTIONARY.md`
-**New terms**: Add using template
 **Usage**: `CoffeeEvaluation` ✓ / `CoffeeReview` ✗ (Code), "評価" ✓ / "レビュー" ✗ (UI)
 
-### TDD Workflow (80%+ coverage)
+### Next.js & Testing
 
-Test → Fail → Implement → Pass → Refactor
+- Server Components first, Container/Presentational, Composition over drilling
+- Unit: Jest + Testing Library | Integration: API, DB | E2E: Playwright (`e2e/README.md`)
 
-- Unit: Jest + Testing Library
-- Integration: API, DB
-- E2E: Playwright (`e2e/README.md`)
-
-### Next.js Principles
-
-Server Components first, Container/Presentational, Composition over drilling
-
-### Documentation
+### Key Resources
 
 - `docs/UBIQUITOUS_LANGUAGE_DICTIONARY.md` - Term reference (推奨)
-- `docs/UBIQUITOUS_LANGUAGE.md` - Domain model details
-- `e2e/README.md` - E2E testing
-
-### Development Steps
-
-1. Check dictionary → 2. Write test → 3. Implement → 4. Update dict → 5. Run tests
+- `.claude/skills/` - claude-md-creator, nextjs-best-practices
 
 ---
 
