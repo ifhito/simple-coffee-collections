@@ -10,6 +10,7 @@ import { coffeeFormDefaults, getUniqueBeanName } from '../../fixtures/test-data'
 
 test.describe('Coffee Evaluation Delete', () => {
   test.beforeEach(async ({ page }) => {
+    await page.goto('/coffee/my')
     await expect(page.getByRole('button', { name: 'ログアウト' })).toBeVisible()
   })
 

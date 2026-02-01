@@ -11,6 +11,7 @@ import { coffeeFormDefaults, getUniqueBeanName } from '../../fixtures/test-data'
 test.describe('Coffee Evaluation Detail View', () => {
   test.beforeEach(async ({ page }) => {
     // Ensure user is authenticated
+    await page.goto('/coffee/my')
     await expect(page.getByRole('button', { name: 'ログアウト' })).toBeVisible()
   })
 
