@@ -115,7 +115,8 @@ describe('Coffee Evaluation Server Actions', () => {
 
       // Verify revalidatePath is called BEFORE redirect
       expect(revalidatePath).toHaveBeenCalledWith('/coffee')
-      expect(redirect).toHaveBeenCalledWith('/coffee')
+      expect(revalidatePath).toHaveBeenCalledWith('/coffee/my')
+      expect(redirect).toHaveBeenCalledWith('/coffee/my')
 
       // Verify order: revalidatePath before redirect
       const revalidateCall = (revalidatePath as jest.Mock).mock.invocationCallOrder[0]
@@ -440,7 +441,8 @@ describe('Coffee Evaluation Server Actions', () => {
       expect(mockSupabaseClient.delete).toHaveBeenCalled()
       expect(mockSupabaseClient.eq).toHaveBeenCalledWith('id', evaluationId)
       expect(revalidatePath).toHaveBeenCalledWith('/coffee')
-      expect(redirect).toHaveBeenCalledWith('/coffee')
+      expect(revalidatePath).toHaveBeenCalledWith('/coffee/my')
+      expect(redirect).toHaveBeenCalledWith('/coffee/my')
 
       // Verify order: revalidatePath before redirect
       const revalidateCall = (revalidatePath as jest.Mock).mock.invocationCallOrder[0]

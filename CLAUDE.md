@@ -10,48 +10,42 @@ Helps enthusiasts track their coffee journey, discover patterns, and explore new
 
 ---
 
-## WHAT: Components
+## WHAT: Architecture & Components
 
-### Skills
+### Architecture: Clean Architecture + DDD
 
-| Skill | Description |
-|-------|-------------|
-| claude-md-creator | Auto-generates CLAUDE.md with WHY/WHAT/HOW structure (max 60 lines) |
-| nextjs-best-practices | Next.js App Router (RSC) best practices for data fetching & component design |
+- **Domain**: Entities, Value Objects (`lib/domain/`)
+- **Application**: Use Cases, DTOs (`lib/application/`)
+- **Infrastructure**: Supabase, Repository (`lib/infrastructure/`)
+- **Presentation**: Next.js, Server Actions (`app/`, `lib/actions/`)
 
-> Details: `.claude/skills/[skill-name]/SKILL.md`
-
-### Features (Planned)
-
-- Coffee record CRUD operations
-- Cafe information management
-- Tasting notes & tagging
-- Search & filtering
-- Statistics & insights
+**Skills**: claude-md-creator, nextjs-best-practices (`.claude/skills/`)
 
 ---
 
-## HOW: Usage
+## HOW: Development Guidelines
 
-### Development with Claude Code
+### Feature Development Workflow
 
-**Feature Development Workflow**:
-1. Create branch: `git checkout -b feature/name`
-2. Use spec-workflow MCP (Requirements → Design → Tasks → Implementation)
+1. Branch: `git checkout -b feature/name`
+2. spec-workflow MCP: Requirements → Design → Tasks → Implementation
+3. TDD: Test → Fail → Implement → Pass → Refactor (80%+ coverage)
 
-**Skills**:
-- CLAUDE.md generation: `.claude/skills/claude-md-creator/`
-- Next.js development: `.claude/skills/nextjs-best-practices/`
+### Ubiquitous Language (MANDATORY)
 
-**Next.js Principles**:
-- Server Components first for data fetching
-- Tree-based UI decomposition (top-down design)
-- Container/Presentational pattern
-- Request optimization (Memoization & DataLoader)
-- Composition over props drilling
+**Before coding**: Check `docs/UBIQUITOUS_LANGUAGE_DICTIONARY.md`
+**Usage**: `CoffeeEvaluation` ✓ / `CoffeeReview` ✗ (Code), "評価" ✓ / "レビュー" ✗ (UI)
 
-**Doc**: Keep under 60 lines, WHY/WHAT/HOW only. Extended docs: `docs/PRINCIPLES.md`, `docs/ARCHITECTURE.md`
+### Next.js & Testing
+
+- Server Components first, Container/Presentational, Composition over drilling
+- Unit: Jest + Testing Library | Integration: API, DB | E2E: Playwright (`e2e/README.md`)
+
+### Key Resources
+
+- `docs/UBIQUITOUS_LANGUAGE_DICTIONARY.md` - Term reference (推奨)
+- `.claude/skills/` - claude-md-creator, nextjs-best-practices
 
 ---
 
-**Last Updated**: 2025-12-31 | **Version**: Initial
+**Last Updated**: 2026-01-30 | **Version**: 1.1.0
