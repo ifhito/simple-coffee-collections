@@ -1,6 +1,6 @@
 'use client'
 
-import { useTransition } from 'react'
+import React, { useTransition } from 'react'
 import { signOut } from '@/lib/actions/auth'
 
 type LogoutButtonProps = {
