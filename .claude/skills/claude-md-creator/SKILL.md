@@ -1,6 +1,6 @@
 ---
 skillName: claude-md-creator
-description: プロジェクトの内容をもとに、最適なCLAUDE.mdを作成する（60行以下、普遍的で常に適用されるべき内容を中心にWHY/WHAT/HOWのみ）
+description: プロジェクトの内容をもとに、最適なCLAUDE.mdを作成する（60行以下、普遍的で常に適用されるべき内容を中心にWHY/WHAT/HOWのみ）。ユーザが「CLAUDE.mdを作成」、「CLAUDE.mdを更新」などと発言したら使用します。
 version: 1.0.0
 author: masayan
 tags: [docs, claude-md, creation]
@@ -13,6 +13,6 @@ tags: [docs, claude-md, creation]
 
 ## 詳細ドキュメント
 
-For detailed workflow, see [WORKFLOW.md](WORKFLOW.md).
-For CLAUDE.md template, see [TEMPLATES.md](TEMPLATES.md).
-For design principles, see [PRINCIPLES.md](PRINCIPLES.md).
+For detailed workflow, see [WORKFLOW.md](./references/WORKFLOW.md).
+For CLAUDE.md template, see [TEMPLATES.md](./references/TEMPLATES.md).
+For design principles, see [PRINCIPLES.md](./references/PRINCIPLES.md).
