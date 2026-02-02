@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useRef, useState, useTransition } from 'react'
+import { useCallback, useMemo, useRef, useState, useTransition } from 'react'
 import type { FormEvent } from 'react'
 import { createCoffeeEvaluation, updateCoffeeEvaluation } from '@/lib/actions/coffee'
 import type { CoffeeEvaluation } from '@/lib/types/coffee'
@@ -8,9 +8,20 @@ import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { CoffeeSlider } from './shared/coffee-slider'
 import { PublicToggle } from './shared/public-toggle'
+import { ShopSearchInput, type ShopSelection } from './shop-search-input'
 
 type EvaluationFormProps = {
   initialData?: CoffeeEvaluation
+}
+
+/**
+ * Shop data state including location information
+ */
+interface ShopData {
+  name: string
+  address: string | null
+  latitude: number | null
+  longitude: number | null
 }
 
 type FieldErrors = {
@@ -37,13 +48,29 @@ const ROAST_LEVELS = [
 ]
 
 export function EvaluationForm({ initialData }: EvaluationFormProps) {
-  const [shopName, setShopName] = useState(initialData?.shop_name ?? '')
+  // Shop data now includes address and location from search
+  const [shopData, setShopData] = useState<ShopData>({
+    name: initialData?.shop_name ?? '',
+    address: null,
+    latitude: null,
+    longitude: null,
+  })
   const [beanType, setBeanType] = useState(initialData?.bean_type ?? '')
   const [beanName, setBeanName] = useState(initialData?.bean_name ?? '')
   const [roastLevel, setRoastLevel] = useState(initialData?.roast_level ?? '')
   const [errors, setErrors] = useState<FieldErrors>({})
   const [isPending, startTransition] = useTransition()
   const formRef = useRef<HTMLFormElement | null>(null)
+
+  // Handle shop selection from ShopSearchInput
+  const handleShopSelect = useCallback((shop: ShopSelection) => {
+    setShopData({
+      name: shop.name,
+      address: shop.address,
+      latitude: shop.latitude,
+      longitude: shop.longitude,
+    })
+  }, [])
 
   const [ratings, setRatings] = useState(() => ({
     overall_rating: initialData?.overall_rating ?? 5,
@@ -74,7 +101,7 @@ export function EvaluationForm({ initialData }: EvaluationFormProps) {
     const formData = new FormData(formRef.current)
 
     // Ensure controlled input values are up-to-date
-    formData.set('shop_name', shopName.trim())
+    formData.set('shop_name', shopData.name.trim())
     formData.set('bean_type', beanType.trim())
     formData.set('bean_name', beanName.trim())
     formData.set('roast_level', roastLevel.trim())
@@ -83,6 +110,18 @@ export function EvaluationForm({ initialData }: EvaluationFormProps) {
     formData.set('aroma', ratings.aroma.toString())
     formData.set('overall_rating', ratings.overall_rating.toString())
     // is_public is automatically included from PublicToggle's hidden input
+
+    // Add shop location data (for future use when DB columns are added)
+    if (shopData.address) {
+      formData.set('shop_address', shopData.address)
+    }
+    if (shopData.latitude !== null) {
+      formData.set('shop_latitude', shopData.latitude.toString())
+    }
+    if (shopData.longitude !== null) {
+      formData.set('shop_longitude', shopData.longitude.toString())
+    }
+
     return formData
   }
 
@@ -147,10 +186,10 @@ export function EvaluationForm({ initialData }: EvaluationFormProps) {
           value={beanType}
           onChange={(e) => setBeanType(e.target.value)}
         />
-        <Input
+        <ShopSearchInput
           label="店名"
-          value={shopName}
-          onChange={(e) => setShopName(e.target.value)}
+          initialValue={shopData.name}
+          onSelect={handleShopSelect}
         />
         <div className="flex flex-col gap-2">
           <label htmlFor="roast-level" className="text-sm font-medium text-neutral-800">
