@@ -8,18 +8,16 @@
 supabase start
 ```
 
-### 2. テストユーザーの作成
+### 2. テストユーザーの作成（任意）
+
+E2Eテストは実行時に一意のユーザーを自動作成します。  
+既存ユーザーを手動で用意したい場合のみ、以下を実行してください。
 
 ```bash
-# SQLスクリプトを実行
 supabase db execute --file e2e/setup-test-user.sql
 ```
 
-または、Supabase Studio (http://localhost:54323) のSQL Editorで `e2e/setup-test-user.sql` の内容を実行してください。
-
-**テストユーザー情報:**
-- Email: `e2e-test@example.com`
-- Password: `TestPassword123!`
+または、Supabase Studio (http://localhost:54323) のSQL Editorで `e2e/setup-test-user.sql` を実行してください。
 
 ### 3. Chromiumブラウザのインストール（初回のみ）
 

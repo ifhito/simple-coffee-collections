@@ -3,6 +3,8 @@ export const testUser = {
   password: 'TestPassword123!',
 }
 
+export const testPassword = 'TestPassword123!'
+
 export const coffeeFormDefaults = {
   beanType: 'Ethiopia',
   shopName: 'E2E Test Cafe',

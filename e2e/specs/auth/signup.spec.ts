@@ -1,5 +1,6 @@
 import { test, expect } from '../../fixtures'
-import { testUser, getUniqueEmail } from '../../fixtures/test-data'
+import { createTestUser } from '../../helpers/supabase'
+import { getUniqueEmail, testPassword } from '../../fixtures/test-data'
 
 test.describe('signup', () => {
   test.use({ storageState: { cookies: [], origins: [] } })
@@ -7,7 +8,7 @@ test.describe('signup', () => {
   test('successful signup (UC1-1)', async ({ page }) => {
     // Arrange
     const email = getUniqueEmail()
-    const password = 'TestPassword123!'
+    const password = testPassword
 
     // Act
     await page.goto('/signup')
@@ -22,13 +23,15 @@ test.describe('signup', () => {
     await expect(loginStatus.locator('strong')).toHaveText(email)
   })
 
-  test('rejects existing email (UC1-2)', async ({ page }) => {
+  test('rejects existing email (UC1-2)', async ({ page, request }) => {
+    const existingEmail = getUniqueEmail()
+    await createTestUser(request, existingEmail, testPassword)
     const formAlert = page.locator('form').getByRole('alert')
 
     // Act
     await page.goto('/signup')
-    await page.getByLabel('メールアドレス').fill(testUser.email)
-    await page.getByLabel('パスワード').fill(testUser.password)
+    await page.getByLabel('メールアドレス').fill(existingEmail)
+    await page.getByLabel('パスワード').fill(testPassword)
     await page.getByRole('button', { name: 'アカウント作成' }).click()
 
     // Assert
