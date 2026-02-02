@@ -4,7 +4,7 @@
 
 > 開発者とドメインエキスパートが共有する用語の定義と使用ガイド
 
-**最終更新**: 2026-01-30
+**最終更新**: 2026-02-02
 **管理者**: 開発チーム
 
 ---
@@ -317,6 +317,117 @@ status: "public"    // 文字列ではなくboolean
 
 ---
 
+### Shop Search Result
+
+| 項目 | 内容 |
+|------|------|
+| **単語** | 店舗検索結果 |
+| **英語（コード）** | ShopSearchResult |
+| **よくある間違い** | ✗ ShopResult、SearchResult、店舗結果 |
+| **プロダクト内文言** | 検索結果 |
+| **タグ** | #値オブジェクト |
+| **意味** | 店舗検索の結果を表す値オブジェクト。店名、住所、位置情報、検索ソースを含む。 |
+| **モデル名** | `ShopSearchResult` (shop-search-result.ts) |
+| **関連モデル** | ShopLocation, SearchSource |
+
+**プロパティ**:
+- **name**: 店舗名（必須）
+- **address**: 住所（オプション）
+- **location**: 位置情報（オプション、ShopLocation）
+- **source**: 検索ソース（'database' | 'nominatim'）
+
+**メソッド**:
+- **displayText**: 表示用テキスト（「店名 - 住所」または「店名」）
+- **matchesByName(other)**: 店舗名で重複判定（大文字小文字無視）
+
+**使用例**:
+```typescript
+// ✓ 正しい
+const result = ShopSearchResult.fromPrimitive(
+  "スターバックス 渋谷店",
+  "東京都渋谷区",
+  null,
+  "database"
+)
+result.displayText  // "スターバックス 渋谷店 - 東京都渋谷区"
+
+// ✗ 避ける
+const result = { name: "スタバ", source: "api" }  // Value Objectを使用する
+```
+
+---
+
+### Shop Location
+
+| 項目 | 内容 |
+|------|------|
+| **単語** | 店舗位置情報 |
+| **英語（コード）** | ShopLocation / shop_latitude, shop_longitude |
+| **よくある間違い** | ✗ Location、Coordinates、座標、位置 |
+| **プロダクト内文言** | 位置情報 |
+| **タグ** | #値オブジェクト |
+| **意味** | 店舗の緯度・経度を表す値オブジェクト。Haversine公式による距離計算機能を持つ。 |
+| **モデル名** | `ShopLocation` (shop-location.ts) |
+| **関連モデル** | ShopSearchResult, CoffeeEvaluation |
+
+**制約**:
+- 緯度（latitude）: -90 〜 90
+- 経度（longitude）: -180 〜 180
+
+**メソッド**:
+- **distanceTo(other)**: 他の位置との距離をキロメートルで計算（Haversine公式）
+
+**使用例**:
+```typescript
+// ✓ 正しい
+const location = ShopLocation.create({ latitude: 35.6812, longitude: 139.7671 })
+if (location.isOk()) {
+  const distance = location.value.distanceTo(otherLocation)
+}
+
+// ✗ 避ける
+const coords = { lat: 35.6812, lng: 139.7671 }  // Value Objectを使用する
+```
+
+---
+
+### Search Source
+
+| 項目 | 内容 |
+|------|------|
+| **単語** | 検索ソース |
+| **英語（コード）** | SearchSource / source |
+| **よくある間違い** | ✗ DataSource、Origin、ソース種別 |
+| **プロダクト内文言** | （非表示） |
+| **タグ** | #値オブジェクト #列挙型 |
+| **意味** | 店舗検索結果の取得元を示す。データベースまたはNominatim API。 |
+| **選択肢** | 下記参照 |
+
+**検索ソース一覧**:
+
+| コード値 | 説明 | 優先度 |
+|---------|------|--------|
+| `database` | 既存のコーヒー評価から取得 | 高（優先） |
+| `nominatim` | OpenStreetMap Nominatim APIから取得 | 低 |
+
+**ビジネスルール**:
+- データベースの結果を優先する
+- データベース結果が3件未満の場合のみAPIを呼び出す
+- 重複時はデータベースの結果を採用する
+
+**使用例**:
+```typescript
+// ✓ 正しい
+source: "database"   // 既存データから取得
+source: "nominatim"  // 外部APIから取得
+
+// ✗ 避ける
+source: "db"         // 略称は使わない
+source: "api"        // 具体的なAPI名を使用
+```
+
+---
+
 ## 🎬 ユースケース
 
 ### Create Evaluation
@@ -415,6 +526,39 @@ await listEvaluations({ sort: "rating_desc" })
 // ✗ 避ける
 await getAllEvaluations()  // "getAll"は使わない
 await fetchEvaluations()   // "fetch"より"list"
+```
+
+---
+
+### Search Shop
+
+| 項目 | 内容 |
+|------|------|
+| **単語** | 店舗検索 |
+| **英語（コード）** | SearchShopUseCase / searchShopAction |
+| **よくある間違い** | ✗ 店検索、ショップサーチ、店舗サーチ |
+| **プロダクト内文言** | 店舗名を入力して検索 |
+| **タグ** | #ユースケース #クエリ |
+| **意味** | 店舗名で検索し、既存データとNominatim APIから結果を取得する操作 |
+| **クラス名** | `SearchShopUseCase` |
+| **関連モデル** | ShopSearchResult, ShopLocation |
+
+**実行フロー**:
+1. クエリのバリデーション（3文字以上100文字以内）
+2. データベースから既存店舗を検索
+3. 結果が3件未満の場合、Nominatim APIを呼び出し
+4. 結果を重複排除して統合（最大5件）
+
+**使用例**:
+```typescript
+// ✓ 正しい
+const results = await searchShopAction("スターバックス")
+店舗を検索する
+
+// ✗ 避ける
+await findShop()           // "find"より"search"
+await queryShops()         // "query"より"search"
+await getShopSuggestions() // "search"を使う
 ```
 
 ---
@@ -580,6 +724,7 @@ query: "エチオピア"      // "search"を使う
 
 | 日付 | 変更内容 | 理由 |
 |------|---------|------|
+| 2026-02-02 | ShopSearchResult, ShopLocation, SearchSource, SearchShopUseCaseを追加 | 店舗検索機能の実装 |
 | 2026-01-30 | 初版作成 | ユビキタス言語の確立 |
 
 ---
