@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import { Input } from '@/components/ui/Input'
-import { searchShopAction } from '@/lib/actions/shop-search'
+import { cachedSearchShopAction } from '@/lib/api/shop-search'
 import type { ShopSearchResultDTO } from '@/lib/actions/shop-search'
 import { ShopSearchDropdown } from './shop-search-dropdown'
 
@@ -93,8 +93,11 @@ export function ShopSearchInput({
       return
     }
 
+    setResults([])
+    setIsOpen(true)
+
     startTransition(async () => {
-      const response = await searchShopAction(query)
+      const response = await cachedSearchShopAction(query)
       if (response.success) {
         setResults(response.data)
         setIsOpen(true)

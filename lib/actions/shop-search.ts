@@ -9,7 +9,6 @@
 
 'use server'
 
-import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { SearchShopUseCase, SEARCH_QUERY_CONSTRAINTS } from '@/lib/application/use-cases/search-shop-use-case'
 import { SupabaseShopRepository } from '@/lib/infrastructure/repositories/supabase-shop-repository'
@@ -124,11 +123,3 @@ export async function searchShopAction(
     }
   }
 }
-
-/**
- * Cached version of searchShopAction for request-level memoization
- *
- * Same query within one render cycle returns memoized result.
- * Note: This is NOT time-based caching, just request-level deduplication.
- */
-export const cachedSearchShopAction = cache(searchShopAction)
