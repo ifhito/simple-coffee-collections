@@ -105,6 +105,8 @@ export interface NominatimSearchOptions {
   polygon_geojson?: 0 | 1
 }
 
+import type { ShopSearchResult } from '../../domain/value-objects/shop-search-result'
+
 /**
  * Nominatim client interface
  * Defines the contract for Nominatim API interactions
@@ -114,9 +116,9 @@ export interface INominatimClient {
    * Search for places matching the query
    * @param query - Search query string
    * @param options - Search options
-   * @returns Promise resolving to array of NominatimPlace
+   * @returns Promise resolving to array of ShopSearchResult (converted from NominatimPlace)
    */
-  search(query: string, options?: Partial<NominatimSearchOptions>): Promise<NominatimPlace[]>
+  search(query: string, options?: Partial<NominatimSearchOptions>): Promise<ShopSearchResult[]>
 
   /**
    * Check if a request can be made (rate limit check)

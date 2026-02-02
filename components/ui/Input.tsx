@@ -1,19 +1,22 @@
-import React, { InputHTMLAttributes } from 'react'
+import React, { forwardRef, InputHTMLAttributes } from 'react'
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
   error?: string
 }
 
-export function Input({
-  label,
-  error,
-  id,
-  required,
-  disabled,
-  className = '',
-  ...props
-}: InputProps) {
+export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
+  {
+    label,
+    error,
+    id,
+    required,
+    disabled,
+    className = '',
+    ...props
+  },
+  ref
+) {
   const inputId = id || label?.toLowerCase().replace(/\s+/g, '-')
   const errorId = error ? `${inputId}-error` : undefined
 
@@ -35,6 +38,7 @@ export function Input({
         </label>
       )}
       <input
+        ref={ref}
         id={inputId}
         className={combinedClassName}
         disabled={disabled}
@@ -50,4 +54,4 @@ export function Input({
       )}
     </div>
   )
-}
+})
