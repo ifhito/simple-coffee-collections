@@ -45,10 +45,23 @@ export default defineConfig({
   ],
 
   // Start local dev server before running tests
-  webServer: {
-    command: 'pnpm dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000, // 2 minutes
-  },
+  webServer: [
+    {
+      command: 'node e2e/mock-nominatim-server.js',
+      url: 'http://127.0.0.1:3999/health',
+      reuseExistingServer: !process.env.CI,
+      timeout: 10 * 1000,
+    },
+    {
+      command: 'pnpm dev',
+      url: 'http://localhost:3000',
+      env: {
+        ...process.env,
+        NEXT_PUBLIC_NOMINATIM_BASE_URL: 'http://127.0.0.1:3999',
+        NOMINATIM_USER_AGENT: 'SimpleCoffeeCollections/1.0 (E2E)',
+      },
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000, // 2 minutes
+    },
+  ],
 })
