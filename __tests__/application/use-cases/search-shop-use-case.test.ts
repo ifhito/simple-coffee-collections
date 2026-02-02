@@ -80,6 +80,7 @@ describe('SearchShopUseCase', () => {
         limit: 3, // 5 - 2 = 3
         countrycodes: 'jp',
         'accept-language': 'ja',
+        amenity: 'cafe,restaurant',
       })
       expect(results).toHaveLength(3)
     })

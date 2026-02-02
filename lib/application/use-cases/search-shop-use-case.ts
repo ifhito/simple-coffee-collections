@@ -80,6 +80,7 @@ export class SearchShopUseCase {
         limit: apiLimit,
         countrycodes: 'jp',
         'accept-language': 'ja',
+        amenity: 'cafe,restaurant',
       })
     }
 

@@ -37,7 +37,7 @@ export class SupabaseShopRepository implements IShopRepository {
       // until the migration is applied
       const { data, error } = await supabase
         .from('coffee_evaluations')
-        .select('shop_name')
+        .select('shop_name, shop_address, shop_latitude, shop_longitude')
         .ilike('shop_name', `%${query}%`)
         .not('shop_name', 'eq', '')
         .order('created_at', { ascending: false })
@@ -62,10 +62,9 @@ export class SupabaseShopRepository implements IShopRepository {
           seenNames.add(normalizedName)
           uniqueRecords.push({
             shop_name: row.shop_name,
-            // These fields will be available after migration
-            shop_address: null,
-            shop_latitude: null,
-            shop_longitude: null,
+            shop_address: row.shop_address ?? null,
+            shop_latitude: row.shop_latitude ?? null,
+            shop_longitude: row.shop_longitude ?? null,
           })
 
           if (uniqueRecords.length >= limit) {

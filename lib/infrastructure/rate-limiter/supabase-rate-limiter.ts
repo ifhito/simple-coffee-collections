@@ -25,6 +25,7 @@ export class SupabaseRateLimiter implements IRateLimiter {
   private readonly serviceName: string
   private readonly minIntervalMs: number
   private readonly pollingIntervalMs: number
+  private lastError: boolean = false
 
   constructor(
     private readonly supabaseClient: SupabaseClient,
@@ -50,13 +51,16 @@ export class SupabaseRateLimiter implements IRateLimiter {
       if (error) {
         console.error('[SupabaseRateLimiter] Error checking rate limit:', error)
         // On error, conservatively return false and wait
+        this.lastError = true
         return false
       }
 
+      this.lastError = false
       return data === true
     } catch (error) {
       console.error('[SupabaseRateLimiter] Exception checking rate limit:', error)
       // On error, conservatively return false
+      this.lastError = true
       return false
     }
   }
@@ -91,6 +95,11 @@ export class SupabaseRateLimiter implements IRateLimiter {
     while (attempts < maxAttempts) {
       const canMake = await this.canMakeRequest()
       if (canMake) {
+        return
+      }
+
+      if (this.lastError) {
+        await this.sleep(this.minIntervalMs)
         return
       }
 
