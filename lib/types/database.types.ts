@@ -73,6 +73,9 @@ export type Database = {
           is_public: boolean
           overall_rating: number
           roast_level: string | null
+          shop_address: string | null
+          shop_latitude: number | null
+          shop_longitude: number | null
           shop_name: string
           updated_at: string
           user_id: string
@@ -88,6 +91,9 @@ export type Database = {
           is_public?: boolean
           overall_rating: number
           roast_level?: string | null
+          shop_address?: string | null
+          shop_latitude?: number | null
+          shop_longitude?: number | null
           shop_name: string
           updated_at?: string
           user_id: string
@@ -103,6 +109,9 @@ export type Database = {
           is_public?: boolean
           overall_rating?: number
           roast_level?: string | null
+          shop_address?: string | null
+          shop_latitude?: number | null
+          shop_longitude?: number | null
           shop_name?: string
           updated_at?: string
           user_id?: string

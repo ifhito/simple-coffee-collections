@@ -191,6 +191,19 @@ export function EvaluationForm({ initialData }: EvaluationFormProps) {
           initialValue={shopData.name}
           onSelect={handleShopSelect}
         />
+        <input type="hidden" name="shop_address" value={shopData.address ?? ''} data-testid="shop-address" />
+        <input
+          type="hidden"
+          name="shop_latitude"
+          value={shopData.latitude ?? ''}
+          data-testid="shop-latitude"
+        />
+        <input
+          type="hidden"
+          name="shop_longitude"
+          value={shopData.longitude ?? ''}
+          data-testid="shop-longitude"
+        />
         <div className="flex flex-col gap-2">
           <label htmlFor="roast-level" className="text-sm font-medium text-neutral-800">
             焙煎度

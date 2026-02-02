@@ -38,6 +38,9 @@ interface ParsedEvaluationData {
   aroma: number
   overall_rating: number
   is_public: boolean
+  shop_address: string | null
+  shop_latitude: number | null
+  shop_longitude: number | null
 }
 
 type ValidationResult = { error: string } | null
@@ -94,6 +97,36 @@ function parseRating(value: FormDataEntryValue | null): number {
 }
 
 /**
+ * Parse an optional numeric field from FormData
+ */
+function parseOptionalNumber(
+  value: FormDataEntryValue | null
+): number | null {
+  if (typeof value !== 'string' || value.trim() === '') {
+    return null
+  }
+  const parsed = Number.parseFloat(value)
+  return Number.isNaN(parsed) ? null : parsed
+}
+
+function isMissingShopColumnsError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') {
+    return false
+  }
+
+  const message = 'message' in error ? String(error.message ?? '') : ''
+  if (!message.includes('schema cache')) {
+    return false
+  }
+
+  return (
+    message.includes('shop_address') ||
+    message.includes('shop_latitude') ||
+    message.includes('shop_longitude')
+  )
+}
+
+/**
  * Parse coffee evaluation data from FormData
  * @param formData - Form data from client
  * @returns Parsed evaluation data object
@@ -103,6 +136,9 @@ function parseEvaluationFormData(formData: FormData): ParsedEvaluationData {
   const beanType = getStringField(formData, 'bean_type').trim()
   const beanName = getStringField(formData, 'bean_name').trim()
   const roastLevel = getStringField(formData, 'roast_level').trim()
+  const shopAddress = getStringField(formData, 'shop_address').trim()
+  const shopLatitude = parseOptionalNumber(formData.get('shop_latitude'))
+  const shopLongitude = parseOptionalNumber(formData.get('shop_longitude'))
 
   return {
     shop_name: shopName,
@@ -114,6 +150,9 @@ function parseEvaluationFormData(formData: FormData): ParsedEvaluationData {
     aroma: parseRating(formData.get('aroma')),
     overall_rating: parseRating(formData.get('overall_rating')),
     is_public: formData.get('is_public') === 'true',
+    shop_address: shopAddress || null,
+    shop_latitude: shopLatitude,
+    shop_longitude: shopLongitude,
   }
 }
 
@@ -138,6 +177,18 @@ function validateEvaluationData(data: ParsedEvaluationData): ValidationResult {
   for (const rating of ratings) {
     if (isNaN(rating) || rating < 1 || rating > 10) {
       return { error: 'rating must be between 1-10' }
+    }
+  }
+
+  if (data.shop_latitude !== null) {
+    if (data.shop_latitude < -90 || data.shop_latitude > 90) {
+      return buildFieldError('shop_latitude', 'latitude out of range')
+    }
+  }
+
+  if (data.shop_longitude !== null) {
+    if (data.shop_longitude < -180 || data.shop_longitude > 180) {
+      return buildFieldError('shop_longitude', 'longitude out of range')
     }
   }
 
@@ -212,23 +263,45 @@ export async function createCoffeeEvaluation(
 
   // 3. Insert into database
   const supabase = await createClient()
+  const insertPayload = {
+    user_id: user.id,
+    shop_name: data.shop_name,
+    bean_type: data.bean_type,
+    bean_name: data.bean_name,
+    roast_level: data.roast_level,
+    acidity: data.acidity,
+    bitterness: data.bitterness,
+    aroma: data.aroma,
+    overall_rating: data.overall_rating,
+    is_public: data.is_public,
+    shop_address: data.shop_address,
+    shop_latitude: data.shop_latitude,
+    shop_longitude: data.shop_longitude,
+  }
+
   const { error: insertError } = await supabase
     .from('coffee_evaluations')
-    .insert({
-      user_id: user.id,
-      shop_name: data.shop_name,
-      bean_type: data.bean_type,
-      bean_name: data.bean_name,
-      roast_level: data.roast_level,
-      acidity: data.acidity,
-      bitterness: data.bitterness,
-      aroma: data.aroma,
-      overall_rating: data.overall_rating,
-      is_public: data.is_public,
-    })
+    .insert(insertPayload)
 
   if (insertError) {
-    return { error: insertError.message }
+    if (isMissingShopColumnsError(insertError)) {
+      const {
+        shop_address: _shopAddress,
+        shop_latitude: _shopLatitude,
+        shop_longitude: _shopLongitude,
+        ...fallbackPayload
+      } = insertPayload
+
+      const { error: retryError } = await supabase
+        .from('coffee_evaluations')
+        .insert(fallbackPayload)
+
+      if (retryError) {
+        return { error: retryError.message }
+      }
+    } else {
+      return { error: insertError.message }
+    }
   }
 
   // 4. Revalidate cache BEFORE redirect
@@ -280,23 +353,46 @@ export async function updateCoffeeEvaluation(
 
   // 4. Update database
   const supabase = await createClient()
+  const updatePayload = {
+    shop_name: data.shop_name,
+    bean_type: data.bean_type,
+    bean_name: data.bean_name,
+    roast_level: data.roast_level,
+    acidity: data.acidity,
+    bitterness: data.bitterness,
+    aroma: data.aroma,
+    overall_rating: data.overall_rating,
+    is_public: data.is_public,
+    shop_address: data.shop_address,
+    shop_latitude: data.shop_latitude,
+    shop_longitude: data.shop_longitude,
+  }
+
   const { error: updateError } = await supabase
     .from('coffee_evaluations')
-    .update({
-      shop_name: data.shop_name,
-      bean_type: data.bean_type,
-      bean_name: data.bean_name,
-      roast_level: data.roast_level,
-      acidity: data.acidity,
-      bitterness: data.bitterness,
-      aroma: data.aroma,
-      overall_rating: data.overall_rating,
-      is_public: data.is_public,
-    })
+    .update(updatePayload)
     .eq('id', id)
 
   if (updateError) {
-    return { error: updateError.message }
+    if (isMissingShopColumnsError(updateError)) {
+      const {
+        shop_address: _shopAddress,
+        shop_latitude: _shopLatitude,
+        shop_longitude: _shopLongitude,
+        ...fallbackPayload
+      } = updatePayload
+
+      const { error: retryError } = await supabase
+        .from('coffee_evaluations')
+        .update(fallbackPayload)
+        .eq('id', id)
+
+      if (retryError) {
+        return { error: retryError.message }
+      }
+    } else {
+      return { error: updateError.message }
+    }
   }
 
   // 5. Revalidate caches BEFORE redirect
