@@ -71,10 +71,10 @@ export class NominatimAPIClient implements INominatimClient {
     // Check rate limit before making request
     const canMake = await this.rateLimiter.canMakeRequest()
     if (!canMake) {
-      console.log(
-        `[NominatimClient] Rate limit hit, skipping request for query: ${query}`
+      console.warn(
+        `[NominatimClient] Rate limit hit, waiting before request for query: ${query}`
       )
-      return []
+      await this.rateLimiter.waitUntilReady()
     }
 
     try {
@@ -113,8 +113,11 @@ export class NominatimAPIClient implements INominatimClient {
       // Parse response
       const places: NominatimPlace[] = await response.json()
 
+      // Filter results locally when amenity is requested to avoid invalid URL params.
+      const filteredPlaces = this.filterByAmenity(places, options?.amenity)
+
       // Convert to domain objects
-      return NominatimMapper.toShopSearchResults(places)
+      return NominatimMapper.toShopSearchResults(filteredPlaces)
     } catch (error) {
       console.error(`[NominatimClient] Exception for query: ${query}`, error)
       // Return empty array on any error (no retry)
@@ -148,10 +151,8 @@ export class NominatimAPIClient implements INominatimClient {
     url.searchParams.set('accept-language', options?.['accept-language'] ?? 'ja')
     url.searchParams.set('addressdetails', '1')
 
-    // Filter for cafe/restaurant amenities
-    if (options?.amenity) {
-      url.searchParams.set('amenity', options.amenity)
-    }
+    // NOTE: Nominatim rejects amenity filters with free-form `q` in some cases.
+    // Keep the request compatible by omitting amenity when using `q`.
 
     // Optional parameters
     if (options?.extratags) {
@@ -159,6 +160,33 @@ export class NominatimAPIClient implements INominatimClient {
     }
 
     return url
+  }
+
+  /**
+   * Filter results by amenity type when requested.
+   */
+  private filterByAmenity(
+    places: NominatimPlace[],
+    amenity?: string
+  ): NominatimPlace[] {
+    if (!amenity) {
+      return places
+    }
+
+    const allowedTypes = new Set(
+      amenity
+        .split(',')
+        .map((value) => value.trim())
+        .filter(Boolean)
+    )
+
+    if (allowedTypes.size === 0) {
+      return places
+    }
+
+    return places.filter(
+      (place) => place.class === 'amenity' && allowedTypes.has(place.type)
+    )
   }
 }
 
