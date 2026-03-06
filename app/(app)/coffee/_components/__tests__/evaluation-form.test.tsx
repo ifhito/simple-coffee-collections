@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { CoffeeEvaluation } from '@/lib/types/coffee'
+import type { OcrExtractedData } from '@/lib/application/ocr'
 import { EvaluationForm } from '../evaluation-form'
 
 const mockCreateCoffeeEvaluation = jest.fn()
@@ -64,6 +65,31 @@ describe('EvaluationForm', () => {
     ])
 
     expect(screen.getByRole('button', { name: /保存/i })).toBeInTheDocument()
+  })
+
+  it('applies OCR prefill when props are updated after initial render', () => {
+    const { rerender } = render(<EvaluationForm />)
+
+    const ocrPreFill: OcrExtractedData = {
+      bean_name: 'ケニアAA',
+      bean_type: 'Kenya',
+      roast_level: 'medium',
+      shop_name: 'Onibus Coffee',
+      shop_address: 'Tokyo',
+      acidity: 8,
+      aroma: 7,
+      bitterness: 4,
+      overall_rating: 9,
+    }
+
+    rerender(<EvaluationForm ocrPreFill={ocrPreFill} />)
+
+    expect(screen.getByLabelText(/店名/i)).toHaveValue('Onibus Coffee')
+    expect(screen.getByLabelText(/豆の産地/i)).toHaveValue('Kenya')
+    expect(screen.getByLabelText(/豆の名前/i)).toHaveValue('ケニアAA')
+    expect(screen.getByLabelText(/焙煎度/i)).toHaveValue('medium')
+    expect(screen.getByRole('slider', { name: /総合評価/i })).toHaveValue('9')
+    expect(screen.getByRole('slider', { name: /酸味/i })).toHaveValue('8')
   })
 
   it('prefills values in edit mode and calls update action on submit', async () => {

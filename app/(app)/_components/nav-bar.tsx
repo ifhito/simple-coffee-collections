@@ -64,13 +64,24 @@ export function NavBar({ userEmail }: NavBarProps) {
               <Link
                 href="/profile"
                 className={`rounded-md px-3 py-2 text-sm font-medium transition ${
-                  pathname.startsWith('/profile')
+                  pathname === '/profile'
                     ? 'bg-amber-100 text-amber-800'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
-                aria-current={pathname.startsWith('/profile') ? 'page' : undefined}
+                aria-current={pathname === '/profile' ? 'page' : undefined}
               >
                 プロフィール
+              </Link>
+              <Link
+                href="/profile/llm-settings"
+                className={`rounded-md px-3 py-2 text-sm font-medium transition ${
+                  pathname.startsWith('/profile/llm-settings')
+                    ? 'bg-amber-100 text-amber-800'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                aria-current={pathname.startsWith('/profile/llm-settings') ? 'page' : undefined}
+              >
+                AI設定
               </Link>
               <LogoutButton variant="text" />
             </div>
@@ -136,13 +147,25 @@ export function NavBar({ userEmail }: NavBarProps) {
                 href="/profile"
                 onClick={closeMobileMenu}
                 className={`block rounded-md px-3 py-2 text-base font-medium transition ${
-                  pathname.startsWith('/profile')
+                  pathname === '/profile'
                     ? 'bg-amber-100 text-amber-800'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
-                aria-current={pathname.startsWith('/profile') ? 'page' : undefined}
+                aria-current={pathname === '/profile' ? 'page' : undefined}
               >
                 プロフィール
+              </Link>
+              <Link
+                href="/profile/llm-settings"
+                onClick={closeMobileMenu}
+                className={`block rounded-md px-3 py-2 text-base font-medium transition ${
+                  pathname.startsWith('/profile/llm-settings')
+                    ? 'bg-amber-100 text-amber-800'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                aria-current={pathname.startsWith('/profile/llm-settings') ? 'page' : undefined}
+              >
+                AI設定
               </Link>
               <div className="px-3 py-2">
                 <LogoutButton variant="text" />

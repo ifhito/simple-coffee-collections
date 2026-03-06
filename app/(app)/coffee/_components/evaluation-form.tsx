@@ -1,9 +1,10 @@
 'use client'
 
-import { useMemo, useRef, useState, useTransition } from 'react'
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import type { FormEvent } from 'react'
 import { createCoffeeEvaluation, updateCoffeeEvaluation } from '@/lib/actions/coffee'
 import type { CoffeeEvaluation } from '@/lib/types/coffee'
+import type { OcrExtractedData } from '@/lib/application/ocr'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { CoffeeSlider } from './shared/coffee-slider'
@@ -11,6 +12,7 @@ import { PublicToggle } from './shared/public-toggle'
 
 type EvaluationFormProps = {
   initialData?: CoffeeEvaluation
+  ocrPreFill?: OcrExtractedData
 }
 
 type FieldErrors = {
@@ -36,21 +38,36 @@ const ROAST_LEVELS = [
   { value: 'french', label: 'フレンチ（極深煎り）' },
 ]
 
-export function EvaluationForm({ initialData }: EvaluationFormProps) {
-  const [shopName, setShopName] = useState(initialData?.shop_name ?? '')
-  const [beanType, setBeanType] = useState(initialData?.bean_type ?? '')
-  const [beanName, setBeanName] = useState(initialData?.bean_name ?? '')
-  const [roastLevel, setRoastLevel] = useState(initialData?.roast_level ?? '')
+export function EvaluationForm({ initialData, ocrPreFill }: EvaluationFormProps) {
+  const [shopName, setShopName] = useState(ocrPreFill?.shop_name ?? initialData?.shop_name ?? '')
+  const [beanType, setBeanType] = useState(ocrPreFill?.bean_type ?? initialData?.bean_type ?? '')
+  const [beanName, setBeanName] = useState(ocrPreFill?.bean_name ?? initialData?.bean_name ?? '')
+  const [roastLevel, setRoastLevel] = useState(ocrPreFill?.roast_level ?? initialData?.roast_level ?? '')
   const [errors, setErrors] = useState<FieldErrors>({})
   const [isPending, startTransition] = useTransition()
   const formRef = useRef<HTMLFormElement | null>(null)
 
   const [ratings, setRatings] = useState(() => ({
-    overall_rating: initialData?.overall_rating ?? 5,
-    acidity: initialData?.acidity ?? 5,
-    bitterness: initialData?.bitterness ?? 5,
-    aroma: initialData?.aroma ?? 5,
+    overall_rating: ocrPreFill?.overall_rating ?? initialData?.overall_rating ?? 5,
+    acidity: ocrPreFill?.acidity ?? initialData?.acidity ?? 5,
+    bitterness: ocrPreFill?.bitterness ?? initialData?.bitterness ?? 5,
+    aroma: ocrPreFill?.aroma ?? initialData?.aroma ?? 5,
   }))
+
+  useEffect(() => {
+    if (!ocrPreFill) return
+
+    setShopName(ocrPreFill.shop_name ?? '')
+    setBeanType(ocrPreFill.bean_type ?? '')
+    setBeanName(ocrPreFill.bean_name ?? '')
+    setRoastLevel(ocrPreFill.roast_level ?? '')
+    setRatings({
+      overall_rating: ocrPreFill.overall_rating ?? 5,
+      acidity: ocrPreFill.acidity ?? 5,
+      bitterness: ocrPreFill.bitterness ?? 5,
+      aroma: ocrPreFill.aroma ?? 5,
+    })
+  }, [ocrPreFill])
 
   const isEditMode = Boolean(initialData)
   const buttonLabel = isPending ? '処理中...' : isEditMode ? '更新' : '保存'

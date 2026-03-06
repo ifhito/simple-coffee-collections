@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { EvaluationForm } from '../_components/evaluation-form'
+import { NewEvaluationContainer } from './_components/new-evaluation-container'
 
 export const metadata: Metadata = {
   title: '新規コーヒー評価',
@@ -17,7 +17,7 @@ export default function NewCoffeeEvaluationPage() {
         </p>
       </header>
 
-      <EvaluationForm />
+      <NewEvaluationContainer />
     </section>
   )
 }
