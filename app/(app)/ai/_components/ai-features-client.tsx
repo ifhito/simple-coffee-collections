@@ -1,184 +1,31 @@
 'use client'
 
-import { useState, useTransition, useCallback, useRef } from 'react'
-import { useRouter } from 'next/navigation'
 import { createPortal } from 'react-dom'
-import { saveLlmSettings, deleteLlmSettings } from '@/lib/actions/llm-settings'
+import { useRouter } from 'next/navigation'
 import { LlmSettingsPanel } from './llm-settings-panel'
-import { KNOWN_PROVIDERS } from '@/lib/constants/llm-providers'
 import type { LlmSettingsOutput } from '@/lib/application/llm-settings'
-import type { LlmProviderType } from '@/lib/domain/llm-settings'
-import type { OcrExtractedData } from '@/lib/application/ocr'
-
-type Mode = 'view' | 'edit' | 'new'
+import { getProviderLabel } from './ai-features-helpers'
+import { useAiSettingsController } from './use-ai-settings-controller'
+import { useAiOcrController } from './use-ai-ocr-controller'
 
 type Props = {
   initialSettings: LlmSettingsOutput | null
 }
 
-function getInitialTemplate(settings: LlmSettingsOutput | null): string {
-  return settings?.providerTemplate ?? 'gemini'
-}
-
-function getInitialProvider(settings: LlmSettingsOutput | null): LlmProviderType {
-  return settings?.provider ?? 'google'
-}
-
 export function AiFeaturesClient({ initialSettings }: Props) {
   const router = useRouter()
-  const [mode, setMode] = useState<Mode>(initialSettings ? 'view' : 'new')
-  const [currentSettings, setCurrentSettings] = useState<LlmSettingsOutput | null>(initialSettings)
 
-  // Form state
-  const [selectedTemplate, setSelectedTemplate] = useState(getInitialTemplate(initialSettings))
-  const [provider, setProvider] = useState<LlmProviderType>(getInitialProvider(initialSettings))
-  const [apiUrl, setApiUrl] = useState(initialSettings?.apiUrl ?? '')
-  const [apiKey, setApiKey] = useState('')
-  const [modelName, setModelName] = useState(initialSettings?.modelName ?? '')
-  // Action state
-  const [actionError, setActionError] = useState<string | null>(null)
-  const [isPending, startTransition] = useTransition()
-  const [showSaveConfirm, setShowSaveConfirm] = useState(false)
+  const settings = useAiSettingsController(initialSettings)
+  const ocr = useAiOcrController({
+    mode: settings.mode,
+    selectedTemplate: settings.selectedTemplate,
+    apiUrl: settings.apiUrl,
+    apiKey: settings.apiKey,
+    modelName: settings.modelName,
+    onNavigate: (url) => router.push(url),
+  })
 
-  // OCR state
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [ocrError, setOcrError] = useState<string | null>(null)
-  const cameraInputRef = useRef<HTMLInputElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  function handleProviderSelect(template: string) {
-    const p = KNOWN_PROVIDERS.find((p) => p.template === template)
-    if (!p) return
-    setSelectedTemplate(template)
-    setProvider(p.providerType)
-    setApiUrl(p.baseUrl ?? '')
-    setModelName(p.defaultModel)
-  }
-
-  function handleFileChange(file: File | null) {
-    setSelectedFile(file)
-    setOcrError(null)
-    if (previewUrl) URL.revokeObjectURL(previewUrl)
-    setPreviewUrl(file ? URL.createObjectURL(file) : null)
-  }
-
-  function openCameraPicker() {
-    if (isAnalyzing) return
-    cameraInputRef.current?.click()
-  }
-
-  function openFilePicker() {
-    if (isAnalyzing) return
-    fileInputRef.current?.click()
-  }
-
-  function handleEnterEdit() {
-    // Initialize edit form with current saved values
-    setSelectedTemplate(currentSettings?.providerTemplate ?? 'gemini')
-    setProvider(currentSettings?.provider ?? 'google')
-    setApiUrl(currentSettings?.apiUrl ?? '')
-    setApiKey('')
-    setModelName(currentSettings?.modelName ?? '')
-    setActionError(null)
-    setMode('edit')
-  }
-
-  function handleCancelEdit() {
-    setActionError(null)
-    setMode('view')
-  }
-
-  function handleSaveSettings() {
-    setActionError(null)
-    const formData = new FormData()
-    formData.set('provider', provider)
-    formData.set('provider_template', selectedTemplate)
-    formData.set('api_url', apiUrl)
-    formData.set('model_name', modelName)
-    if (apiKey.trim()) formData.set('api_key', apiKey.trim())
-
-    startTransition(async () => {
-      const result = await saveLlmSettings(formData)
-      if ('error' in result) {
-        setActionError(result.error)
-        return
-      }
-      // Update local settings snapshot and switch to view mode
-      setCurrentSettings({
-        provider,
-        providerTemplate: selectedTemplate,
-        apiUrl: apiUrl || null,
-        modelName,
-        hasApiKey: !!(apiKey.trim()) || (currentSettings?.hasApiKey ?? false),
-      })
-      setApiKey('')
-      setMode('view')
-    })
-  }
-
-  function handleDeleteSettings() {
-    if (!confirm('AI設定を削除してもよいですか？')) return
-    startTransition(async () => {
-      const result = await deleteLlmSettings()
-      if (result.error) {
-        setActionError(result.error)
-        return
-      }
-      setCurrentSettings(null)
-      setSelectedTemplate('gemini')
-      setProvider('google')
-      setApiUrl('')
-      setApiKey('')
-      setModelName('gemini-flash-latest')
-      setMode('new')
-    })
-  }
-
-  const handleAnalyze = useCallback(async () => {
-    if (!selectedFile) return
-    setOcrError(null)
-    setIsAnalyzing(true)
-
-    const formData = new FormData()
-    formData.append('image', selectedFile)
-
-    // Inline path: no DB settings → send form fields
-    if (mode === 'new') {
-      formData.append('inline_provider_template', selectedTemplate)
-      if (apiUrl) formData.append('inline_api_url', apiUrl)
-      if (apiKey) formData.append('inline_api_key', apiKey)
-      formData.append('inline_model_name', modelName)
-    }
-
-    try {
-      const res = await fetch('/api/agent/ocr', { method: 'POST', body: formData })
-      const json = await res.json()
-      if (!res.ok || json.error) {
-        setOcrError(json.error ?? '解析に失敗しました')
-        return
-      }
-      const data: OcrExtractedData = json.data
-      const params = new URLSearchParams()
-      if (data.bean_name) params.set('bean_name', data.bean_name)
-      if (data.bean_type) params.set('bean_type', data.bean_type)
-      if (data.roast_level) params.set('roast_level', data.roast_level)
-      if (data.shop_name) params.set('shop_name', data.shop_name)
-      if (data.shop_address) params.set('shop_address', data.shop_address)
-      router.push(`/coffee/new?${params.toString()}`)
-    } catch {
-      setOcrError('通信エラーが発生しました')
-    } finally {
-      setIsAnalyzing(false)
-    }
-  }, [selectedFile, mode, selectedTemplate, apiUrl, apiKey, modelName, router])
-
-  const isAnalyzeDisabled = !selectedFile || isAnalyzing
-
-  const providerLabel = KNOWN_PROVIDERS.find((p) => p.template === currentSettings?.providerTemplate)?.label
-    ?? currentSettings?.provider
-    ?? ''
+  const providerLabel = getProviderLabel(settings.currentSettings)
 
   return (
     <div className="space-y-8">
@@ -186,34 +33,33 @@ export function AiFeaturesClient({ initialSettings }: Props) {
       <section className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
         <h2 className="mb-4 text-lg font-semibold text-neutral-900">AI設定</h2>
 
-        {/* View mode */}
-        {mode === 'view' && currentSettings && (
+        {settings.mode === 'view' && settings.currentSettings && (
           <div className="space-y-4">
             <div className="rounded-md bg-neutral-50 px-4 py-3 text-sm text-neutral-700">
               <p>
                 <span className="font-medium">プロバイダー:</span> {providerLabel}
               </p>
               <p>
-                <span className="font-medium">モデル:</span> {currentSettings.modelName}
+                <span className="font-medium">モデル:</span> {settings.currentSettings.modelName}
               </p>
               <p>
                 <span className="font-medium">APIキー:</span>{' '}
-                {currentSettings.hasApiKey ? '設定済み' : '未設定'}
+                {settings.currentSettings.hasApiKey ? '設定済み' : '未設定'}
               </p>
             </div>
-            {actionError && <p className="text-sm text-red-600">{actionError}</p>}
+            {settings.actionError && <p className="text-sm text-red-600">{settings.actionError}</p>}
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={handleEnterEdit}
+                onClick={settings.handleEnterEdit}
                 className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
               >
                 変更する
               </button>
               <button
                 type="button"
-                onClick={handleDeleteSettings}
-                disabled={isPending}
+                onClick={settings.handleDeleteSettings}
+                disabled={settings.isPending}
                 className="rounded-md border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50"
               >
                 削除する
@@ -222,34 +68,33 @@ export function AiFeaturesClient({ initialSettings }: Props) {
           </div>
         )}
 
-        {/* Edit mode */}
-        {mode === 'edit' && (
+        {settings.mode === 'edit' && (
           <div className="space-y-5">
             <LlmSettingsPanel
-              selectedTemplate={selectedTemplate}
-              provider={provider}
-              apiUrl={apiUrl}
-              apiKey={apiKey}
-              modelName={modelName}
-              hasExistingKey={currentSettings?.hasApiKey ?? false}
-              onProviderSelect={handleProviderSelect}
-              onApiUrlChange={setApiUrl}
-              onApiKeyChange={setApiKey}
-              onModelNameChange={setModelName}
+              selectedTemplate={settings.selectedTemplate}
+              provider={settings.provider}
+              apiUrl={settings.apiUrl}
+              apiKey={settings.apiKey}
+              modelName={settings.modelName}
+              hasExistingKey={settings.currentSettings?.hasApiKey ?? false}
+              onProviderSelect={settings.handleProviderSelect}
+              onApiUrlChange={settings.setApiUrl}
+              onApiKeyChange={settings.setApiKey}
+              onModelNameChange={settings.setModelName}
             />
-            {actionError && <p className="text-sm text-red-600">{actionError}</p>}
+            {settings.actionError && <p className="text-sm text-red-600">{settings.actionError}</p>}
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={handleSaveSettings}
-                disabled={isPending}
+                onClick={settings.handleSaveSettings}
+                disabled={settings.isPending}
                 className="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:opacity-50"
               >
-                {isPending ? '保存中...' : '保存する'}
+                {settings.isPending ? '保存中...' : '保存する'}
               </button>
               <button
                 type="button"
-                onClick={handleCancelEdit}
+                onClick={settings.handleCancelEdit}
                 className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
               >
                 キャンセル
@@ -258,29 +103,28 @@ export function AiFeaturesClient({ initialSettings }: Props) {
           </div>
         )}
 
-        {/* New mode (no DB settings) */}
-        {mode === 'new' && (
+        {settings.mode === 'new' && (
           <div className="space-y-5">
             <LlmSettingsPanel
-              selectedTemplate={selectedTemplate}
-              provider={provider}
-              apiUrl={apiUrl}
-              apiKey={apiKey}
-              modelName={modelName}
+              selectedTemplate={settings.selectedTemplate}
+              provider={settings.provider}
+              apiUrl={settings.apiUrl}
+              apiKey={settings.apiKey}
+              modelName={settings.modelName}
               hasExistingKey={false}
-              onProviderSelect={handleProviderSelect}
-              onApiUrlChange={setApiUrl}
-              onApiKeyChange={setApiKey}
-              onModelNameChange={setModelName}
+              onProviderSelect={settings.handleProviderSelect}
+              onApiUrlChange={settings.setApiUrl}
+              onApiKeyChange={settings.setApiKey}
+              onModelNameChange={settings.setModelName}
             />
-            {actionError && <p className="text-sm text-red-600">{actionError}</p>}
+            {settings.actionError && <p className="text-sm text-red-600">{settings.actionError}</p>}
             <p className="text-sm text-neutral-500">
               設定を保存しなくても、このまま解析ボタンを押して一時利用できます。
             </p>
             <button
               type="button"
-              onClick={() => setShowSaveConfirm(true)}
-              disabled={isPending}
+              onClick={settings.openSaveConfirm}
+              disabled={settings.isPending}
               className="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:opacity-50"
             >
               この設定を保存する
@@ -296,35 +140,34 @@ export function AiFeaturesClient({ initialSettings }: Props) {
           コーヒーパッケージの画像を解析して、フォームへ自動入力します。
         </p>
 
-        {/* Drop zone */}
         <div
           className={`mb-4 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 p-8 transition ${
-            isAnalyzing
+            ocr.isAnalyzing
               ? 'cursor-not-allowed opacity-60'
               : 'cursor-pointer hover:border-amber-400 hover:bg-amber-50/40'
           }`}
           role="button"
-          tabIndex={isAnalyzing ? -1 : 0}
-          aria-disabled={isAnalyzing}
+          tabIndex={ocr.isAnalyzing ? -1 : 0}
+          aria-disabled={ocr.isAnalyzing}
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault()
-            if (isAnalyzing) return
+            if (ocr.isAnalyzing) return
             const file = e.dataTransfer.files[0] ?? null
-            handleFileChange(file)
+            ocr.handleFileChange(file)
           }}
-          onClick={openFilePicker}
+          onClick={ocr.openFilePicker}
           onKeyDown={(e) => {
-            if (isAnalyzing) return
+            if (ocr.isAnalyzing) return
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault()
-              openFilePicker()
+              ocr.openFilePicker()
             }
           }}
         >
-          {previewUrl ? (
+          {ocr.previewUrl ? (
             <img
-              src={previewUrl}
+              src={ocr.previewUrl}
               alt="プレビュー"
               className="max-h-48 max-w-full rounded-md object-contain"
             />
@@ -349,60 +192,59 @@ export function AiFeaturesClient({ initialSettings }: Props) {
             </>
           )}
           <input
-            ref={cameraInputRef}
+            ref={ocr.cameraInputRef}
             type="file"
             accept="image/*"
             capture="environment"
             className="hidden"
-            onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
-            disabled={isAnalyzing}
+            onChange={(e) => ocr.handleFileChange(e.target.files?.[0] ?? null)}
+            disabled={ocr.isAnalyzing}
           />
           <input
-            ref={fileInputRef}
+            ref={ocr.fileInputRef}
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
-            disabled={isAnalyzing}
+            onChange={(e) => ocr.handleFileChange(e.target.files?.[0] ?? null)}
+            disabled={ocr.isAnalyzing}
           />
         </div>
 
         <div className="flex flex-wrap gap-3">
           <button
             type="button"
-            onClick={openCameraPicker}
-            disabled={isAnalyzing}
+            onClick={ocr.openCameraPicker}
+            disabled={ocr.isAnalyzing}
             className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50"
           >
             カメラ起動
           </button>
           <button
             type="button"
-            onClick={openFilePicker}
-            disabled={isAnalyzing}
+            onClick={ocr.openFilePicker}
+            disabled={ocr.isAnalyzing}
             className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50"
           >
             ファイル選択
           </button>
           <button
             type="button"
-            onClick={handleAnalyze}
-            disabled={isAnalyzeDisabled}
+            onClick={ocr.handleAnalyze}
+            disabled={ocr.isAnalyzeDisabled}
             className="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:opacity-50"
           >
-            {isAnalyzing ? '解析中...' : '解析する'}
+            {ocr.isAnalyzing ? '解析中...' : '解析する'}
           </button>
         </div>
 
-        {ocrError && (
+        {ocr.ocrError && (
           <p className="mt-3 text-sm text-red-600" role="alert">
-            {ocrError}
+            {ocr.ocrError}
           </p>
         )}
       </section>
 
-      {/* 解析中ローディングモーダル */}
-      {isAnalyzing && typeof document !== 'undefined' && createPortal(
+      {ocr.isAnalyzing && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 z-[200] flex min-h-screen w-screen items-center justify-center bg-black/50 px-4">
           <div className="flex flex-col items-center gap-4 rounded-xl bg-white px-10 py-8 shadow-xl">
             <svg
@@ -430,8 +272,7 @@ export function AiFeaturesClient({ initialSettings }: Props) {
         document.body
       )}
 
-      {/* 保存確認モーダル */}
-      {showSaveConfirm && (
+      {settings.showSaveConfirm && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
           role="dialog"
@@ -460,7 +301,7 @@ export function AiFeaturesClient({ initialSettings }: Props) {
             <div className="flex justify-end gap-3">
               <button
                 type="button"
-                onClick={() => setShowSaveConfirm(false)}
+                onClick={settings.closeSaveConfirm}
                 className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
               >
                 キャンセル（保存しない）
@@ -468,13 +309,13 @@ export function AiFeaturesClient({ initialSettings }: Props) {
               <button
                 type="button"
                 onClick={() => {
-                  setShowSaveConfirm(false)
-                  handleSaveSettings()
+                  settings.closeSaveConfirm()
+                  settings.handleSaveSettings()
                 }}
-                disabled={isPending}
+                disabled={settings.isPending}
                 className="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:opacity-50"
               >
-                {isPending ? '保存中...' : '同意して保存する'}
+                {settings.isPending ? '保存中...' : '同意して保存する'}
               </button>
             </div>
           </div>

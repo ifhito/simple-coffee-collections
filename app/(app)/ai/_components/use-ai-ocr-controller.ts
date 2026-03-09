@@ -1,0 +1,94 @@
+import { useCallback, useRef, useState } from 'react'
+import type { OcrExtractedData } from '@/lib/application/ocr'
+import type { AiSettingsMode } from './ai-features-helpers'
+import { buildOcrPrefillSearchParams } from './ai-features-helpers'
+
+type Input = {
+  mode: AiSettingsMode
+  selectedTemplate: string
+  apiUrl: string
+  apiKey: string
+  modelName: string
+  onNavigate: (url: string) => void
+}
+
+export function useAiOcrController({
+  mode,
+  selectedTemplate,
+  apiUrl,
+  apiKey,
+  modelName,
+  onNavigate,
+}: Input) {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [ocrError, setOcrError] = useState<string | null>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  function handleFileChange(file: File | null) {
+    setSelectedFile(file)
+    setOcrError(null)
+    if (previewUrl) URL.revokeObjectURL(previewUrl)
+    setPreviewUrl(file ? URL.createObjectURL(file) : null)
+  }
+
+  function openCameraPicker() {
+    if (isAnalyzing) return
+    cameraInputRef.current?.click()
+  }
+
+  function openFilePicker() {
+    if (isAnalyzing) return
+    fileInputRef.current?.click()
+  }
+
+  const handleAnalyze = useCallback(async () => {
+    if (!selectedFile) return
+
+    setOcrError(null)
+    setIsAnalyzing(true)
+
+    const formData = new FormData()
+    formData.append('image', selectedFile)
+
+    if (mode === 'new') {
+      formData.append('inline_provider_template', selectedTemplate)
+      if (apiUrl) formData.append('inline_api_url', apiUrl)
+      if (apiKey) formData.append('inline_api_key', apiKey)
+      formData.append('inline_model_name', modelName)
+    }
+
+    try {
+      const response = await fetch('/api/agent/ocr', { method: 'POST', body: formData })
+      const json = await response.json()
+      if (!response.ok || json.error) {
+        setOcrError(json.error ?? '解析に失敗しました')
+        return
+      }
+
+      const data: OcrExtractedData = json.data
+      const params = buildOcrPrefillSearchParams(data)
+      onNavigate(`/coffee/new?${params.toString()}`)
+    } catch {
+      setOcrError('通信エラーが発生しました')
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }, [selectedFile, mode, selectedTemplate, apiUrl, apiKey, modelName, onNavigate])
+
+  return {
+    selectedFile,
+    previewUrl,
+    isAnalyzing,
+    ocrError,
+    cameraInputRef,
+    fileInputRef,
+    handleFileChange,
+    openCameraPicker,
+    openFilePicker,
+    handleAnalyze,
+    isAnalyzeDisabled: !selectedFile || isAnalyzing,
+  }
+}
