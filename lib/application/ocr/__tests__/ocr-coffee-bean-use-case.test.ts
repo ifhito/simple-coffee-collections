@@ -21,10 +21,6 @@ jest.mock('@/lib/mastra/agents/coffee-ocr-agent', () => ({
     roast_level: require('zod').z.string().nullable(),
     shop_name: require('zod').z.string().nullable(),
     shop_address: require('zod').z.string().nullable(),
-    acidity: require('zod').z.number().nullable(),
-    aroma: require('zod').z.number().nullable(),
-    bitterness: require('zod').z.number().nullable(),
-    overall_rating: require('zod').z.number().nullable(),
   }),
 }))
 
@@ -48,6 +44,21 @@ function makeEntity(hasApiKey = true): UserLlmSettings {
     userId: 'user-1',
     settings,
     encryptedApiKey: hasApiKey ? 'iv:tag:enc' : null,
+  })
+}
+
+function makeGoogleEntity(): UserLlmSettings {
+  const settings = LlmSettings.fromPrimitive(
+    'google',
+    'gemini',
+    null,
+    'gemini-2.0-flash'
+  )
+  return UserLlmSettings.reconstruct({
+    id: 'uuid-2',
+    userId: 'user-1',
+    settings,
+    encryptedApiKey: 'iv:tag:google-enc',
   })
 }
 
@@ -79,7 +90,7 @@ describe('OcrCoffeeBeanUseCase', () => {
     }
   })
 
-  it('returns OCR extracted data on success with 1-10 scale ratings', async () => {
+  it('returns OCR extracted data on success', async () => {
     ;(mockRepo.findByUserId as jest.Mock).mockResolvedValue(ok(makeEntity()))
     ;(mockEncryptor.decrypt as jest.Mock).mockReturnValue('sk-test-key')
 
@@ -89,10 +100,6 @@ describe('OcrCoffeeBeanUseCase', () => {
       roast_level: 'light',
       shop_name: 'テストロースタリー',
       shop_address: null,
-      acidity: 8,
-      aroma: 7,
-      bitterness: 3,
-      overall_rating: 9,
     }
 
     mockGenerateObject.mockResolvedValue({ object: ocrData } as any)
@@ -110,10 +117,27 @@ describe('OcrCoffeeBeanUseCase', () => {
     }
     if ('success' in result) {
       expect(result.data.bean_name).toBe('エチオピア イルガチェフェ')
-      // Ratings are 1-10 (no conversion needed)
-      expect(result.data.acidity).toBe(8)
-      expect(result.data.overall_rating).toBe(9)
       expect(result.data.roast_level).toBe('light')
+    }
+  })
+
+  it('uses google provider when settings have google type', async () => {
+    ;(mockRepo.findByUserId as jest.Mock).mockResolvedValue(ok(makeGoogleEntity()))
+    ;(mockEncryptor.decrypt as jest.Mock).mockReturnValue('AIza-test-key')
+
+    const ocrData = {
+      bean_name: 'エチオピア イルガチェフェ',
+      bean_type: 'ウォッシュド',
+      roast_level: 'light',
+      shop_name: null,
+      shop_address: null,
+    }
+    mockGenerateObject.mockResolvedValue({ object: ocrData } as any)
+
+    const result = await useCase.execute('user-1', Buffer.from('img'), 'image/jpeg')
+    expect('success' in result).toBe(true)
+    if ('success' in result) {
+      expect(result.data.bean_name).toBe('エチオピア イルガチェフェ')
     }
   })
 

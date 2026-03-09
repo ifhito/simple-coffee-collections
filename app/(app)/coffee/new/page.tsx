@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import type { RoastLevelValue } from '@/lib/mastra/tools/coffee-ocr-tool'
+import type { OcrExtractedData } from '@/lib/application/ocr'
 import { NewEvaluationContainer } from './_components/new-evaluation-container'
 
 export const metadata: Metadata = {
@@ -6,7 +8,29 @@ export const metadata: Metadata = {
   description: 'コーヒーの評価を新規作成します。',
 }
 
-export default function NewCoffeeEvaluationPage() {
+export default async function NewCoffeeEvaluationPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    bean_name?: string
+    bean_type?: string
+    roast_level?: string
+    shop_name?: string
+    shop_address?: string
+  }>
+}) {
+  const params = await searchParams
+  const ocrPreFill: OcrExtractedData | undefined =
+    params.bean_name || params.roast_level || params.shop_name
+      ? {
+          bean_name: params.bean_name ?? null,
+          bean_type: params.bean_type ?? null,
+          roast_level: (params.roast_level as RoastLevelValue) ?? null,
+          shop_name: params.shop_name ?? null,
+          shop_address: params.shop_address ?? null,
+        }
+      : undefined
+
   return (
     <section className="mx-auto w-full max-w-4xl px-4 py-6 sm:py-10">
       <header className="mb-6 space-y-1">
@@ -17,7 +41,7 @@ export default function NewCoffeeEvaluationPage() {
         </p>
       </header>
 
-      <NewEvaluationContainer />
+      <NewEvaluationContainer ocrPreFill={ocrPreFill} />
     </section>
   )
 }

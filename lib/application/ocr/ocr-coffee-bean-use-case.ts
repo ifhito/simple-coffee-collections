@@ -1,9 +1,8 @@
-import { generateObject } from 'ai'
-import { createCoffeeOcrAgent, CoffeeOcrOutputSchema } from '@/lib/mastra/agents/coffee-ocr-agent'
 import { createLlmModel } from '@/lib/infrastructure/llm/llm-provider-factory'
 import type { UserLlmSettingsRepository } from '@/lib/domain/llm-settings'
 import type { ApiKeyEncryptor } from '@/lib/infrastructure/crypto/api-key-encryptor.interface'
 import type { OcrExtractedData } from './dto'
+import { runCoffeeOcr } from './run-ocr'
 
 export type OcrCoffeeBeanResult =
   | { success: true; data: OcrExtractedData }
@@ -44,49 +43,8 @@ export class OcrCoffeeBeanUseCase {
       }
     }
 
-    // 3. Create LLM model + agent
+    // 3. Create LLM model + run OCR
     const model = createLlmModel(entity, decryptedApiKey)
-    const agent = createCoffeeOcrAgent(model)
-
-    // 4. Run OCR via structured output
-    try {
-      const instructions = await agent.getInstructions()
-
-      const result = await generateObject({
-        // Bridge Mastra model type to Vercel AI SDK LanguageModel at runtime
-        model: agent.model as Parameters<typeof generateObject>[0]['model'],
-        schema: CoffeeOcrOutputSchema,
-        messages: [
-          {
-            role: 'system' as const,
-            content: typeof instructions === 'string' ? instructions : '',
-          },
-          {
-            role: 'user' as const,
-            content: [
-              {
-                type: 'image' as const,
-                // Pass binary data directly and include mediaType for model-side decoding.
-                image: new Uint8Array(imageBuffer),
-                mediaType: mimeType,
-              },
-              {
-                type: 'text' as const,
-                text: 'このコーヒーパッケージの画像から情報を抽出してください。',
-              },
-            ],
-          },
-        ],
-      })
-
-      return {
-        success: true,
-        data: result.object as OcrExtractedData,
-      }
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'OCR処理中にエラーが発生しました'
-      return { error: `OCR解析に失敗しました: ${message}` }
-    }
+    return runCoffeeOcr(model, imageBuffer, mimeType)
   }
 }

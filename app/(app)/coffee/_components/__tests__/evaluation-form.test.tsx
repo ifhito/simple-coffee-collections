@@ -76,10 +76,6 @@ describe('EvaluationForm', () => {
       roast_level: 'medium',
       shop_name: 'Onibus Coffee',
       shop_address: 'Tokyo',
-      acidity: 8,
-      aroma: 7,
-      bitterness: 4,
-      overall_rating: 9,
     }
 
     rerender(<EvaluationForm ocrPreFill={ocrPreFill} />)
@@ -88,6 +84,26 @@ describe('EvaluationForm', () => {
     expect(screen.getByLabelText(/豆の産地/i)).toHaveValue('Kenya')
     expect(screen.getByLabelText(/豆の名前/i)).toHaveValue('ケニアAA')
     expect(screen.getByLabelText(/焙煎度/i)).toHaveValue('medium')
+    expect(screen.getByRole('slider', { name: /総合評価/i })).toHaveValue('5')
+    expect(screen.getByRole('slider', { name: /酸味/i })).toHaveValue('5')
+  })
+
+  it('keeps existing rating values when OCR prefill is applied', () => {
+    const { rerender } = render(<EvaluationForm />)
+
+    setSliderValue(/総合評価/i, 9)
+    setSliderValue(/酸味/i, 8)
+
+    const ocrPreFill: OcrExtractedData = {
+      bean_name: 'ケニアAA',
+      bean_type: 'Kenya',
+      roast_level: 'medium',
+      shop_name: 'Onibus Coffee',
+      shop_address: 'Tokyo',
+    }
+
+    rerender(<EvaluationForm ocrPreFill={ocrPreFill} />)
+
     expect(screen.getByRole('slider', { name: /総合評価/i })).toHaveValue('9')
     expect(screen.getByRole('slider', { name: /酸味/i })).toHaveValue('8')
   })

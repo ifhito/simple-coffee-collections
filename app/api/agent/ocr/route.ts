@@ -12,6 +12,9 @@ import sharp from 'sharp'
 import { createClient } from '@/lib/supabase/server'
 import { getUserLlmSettingsRepository, getApiKeyEncryptor } from '@/lib/di/container'
 import { OcrCoffeeBeanUseCase } from '@/lib/application/ocr'
+import { runCoffeeOcr } from '@/lib/application/ocr/run-ocr'
+import { createLlmModelFromPrimitives } from '@/lib/infrastructure/llm/llm-provider-factory'
+import { getProviderTypeByTemplate } from '@/lib/constants/llm-providers'
 
 const MIME_ALIASES: Record<string, string> = {
   'image/jpg': 'image/jpeg',
@@ -76,6 +79,10 @@ export async function POST(request: Request) {
   // Parse multipart form data
   let imageBuffer: Buffer
   let mimeType: string
+  let inlineProviderTemplate: string | null = null
+  let inlineApiUrl: string | null = null
+  let inlineApiKey = ''
+  let inlineModelName = ''
   try {
     const formData = await request.formData()
     const file = formData.get('image') as File | null
@@ -105,16 +112,34 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
+
+    inlineProviderTemplate = formData.get('inline_provider_template') as string | null
+    inlineApiUrl = formData.get('inline_api_url') as string | null
+    inlineApiKey = (formData.get('inline_api_key') as string) ?? ''
+    inlineModelName = (formData.get('inline_model_name') as string) ?? ''
   } catch {
     return NextResponse.json({ error: 'ファイルの読み込みに失敗しました' }, { status: 400 })
   }
 
-  // Run OCR
-  const useCase = new OcrCoffeeBeanUseCase(
-    getUserLlmSettingsRepository(),
-    getApiKeyEncryptor()
-  )
-  const result = await useCase.execute(user.id, imageBuffer, mimeType)
+  // Run OCR — inline path (no DB) or DB path
+  let result
+  if (inlineProviderTemplate) {
+    const providerType = getProviderTypeByTemplate(inlineProviderTemplate)
+    const model = createLlmModelFromPrimitives(
+      providerType,
+      inlineApiUrl,
+      inlineModelName,
+      inlineProviderTemplate,
+      inlineApiKey
+    )
+    result = await runCoffeeOcr(model, imageBuffer, mimeType)
+  } else {
+    const useCase = new OcrCoffeeBeanUseCase(
+      getUserLlmSettingsRepository(),
+      getApiKeyEncryptor()
+    )
+    result = await useCase.execute(user.id, imageBuffer, mimeType)
+  }
 
   if ('error' in result) {
     return NextResponse.json({ error: result.error }, { status: 422 })

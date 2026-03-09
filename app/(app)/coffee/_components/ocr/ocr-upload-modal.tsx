@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { OcrExtractedData } from '@/lib/application/ocr'
 
 const SUPPORTED_IMAGE_MIME_TYPES = new Set([
@@ -105,9 +106,9 @@ export function OcrUploadModal({ state, onAnalyzeStateChange, onComplete, onClos
   }
 
   if (isAnalyzing) {
-    return (
+    const analyzingDialog = (
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+        className="fixed inset-0 z-[200] flex min-h-screen w-screen items-center justify-center bg-black/60"
         role="dialog"
         aria-modal="true"
         aria-label="OCR解析中"
@@ -119,11 +120,14 @@ export function OcrUploadModal({ state, onAnalyzeStateChange, onComplete, onClos
         </div>
       </div>
     )
+
+    if (typeof document === 'undefined') return analyzingDialog
+    return createPortal(analyzingDialog, document.body)
   }
 
-  return (
+  const uploadDialog = (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      className="fixed inset-0 z-[200] flex min-h-screen w-screen items-center justify-center bg-black/50"
       role="dialog"
       aria-modal="true"
       aria-label="画像からコーヒー情報を入力"
@@ -230,4 +234,7 @@ export function OcrUploadModal({ state, onAnalyzeStateChange, onComplete, onClos
       </div>
     </div>
   )
+
+  if (typeof document === 'undefined') return uploadDialog
+  return createPortal(uploadDialog, document.body)
 }

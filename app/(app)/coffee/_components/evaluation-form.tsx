@@ -48,10 +48,10 @@ export function EvaluationForm({ initialData, ocrPreFill }: EvaluationFormProps)
   const formRef = useRef<HTMLFormElement | null>(null)
 
   const [ratings, setRatings] = useState(() => ({
-    overall_rating: ocrPreFill?.overall_rating ?? initialData?.overall_rating ?? 5,
-    acidity: ocrPreFill?.acidity ?? initialData?.acidity ?? 5,
-    bitterness: ocrPreFill?.bitterness ?? initialData?.bitterness ?? 5,
-    aroma: ocrPreFill?.aroma ?? initialData?.aroma ?? 5,
+    overall_rating: initialData?.overall_rating ?? 5,
+    acidity: initialData?.acidity ?? 5,
+    bitterness: initialData?.bitterness ?? 5,
+    aroma: initialData?.aroma ?? 5,
   }))
 
   useEffect(() => {
@@ -61,12 +61,6 @@ export function EvaluationForm({ initialData, ocrPreFill }: EvaluationFormProps)
     setBeanType(ocrPreFill.bean_type ?? '')
     setBeanName(ocrPreFill.bean_name ?? '')
     setRoastLevel(ocrPreFill.roast_level ?? '')
-    setRatings({
-      overall_rating: ocrPreFill.overall_rating ?? 5,
-      acidity: ocrPreFill.acidity ?? 5,
-      bitterness: ocrPreFill.bitterness ?? 5,
-      aroma: ocrPreFill.aroma ?? 5,
-    })
   }, [ocrPreFill])
 
   const isEditMode = Boolean(initialData)
