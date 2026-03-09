@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { getUserLlmSettingsRepository, getApiKeyEncryptor } from '@/lib/di/container'
-import { GetLlmSettingsUseCase, SaveLlmSettingsUseCase } from '@/lib/application/llm-settings'
+import { GetLlmSettingsUseCase, SaveLlmSettingsUseCase, DeleteLlmSettingsUseCase } from '@/lib/application/llm-settings'
 import type { LlmSettingsOutput } from '@/lib/application/llm-settings'
 import type { LlmProviderType } from '@/lib/domain/llm-settings'
 
@@ -44,4 +44,15 @@ export async function saveLlmSettings(formData: FormData): Promise<ActionResult>
 
   if ('error' in result) return { error: result.error }
   return { success: true }
+}
+
+export async function deleteLlmSettings(): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: '認証が必要です' }
+
+  const useCase = new DeleteLlmSettingsUseCase(getUserLlmSettingsRepository())
+  return useCase.execute(user.id)
 }

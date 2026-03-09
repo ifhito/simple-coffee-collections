@@ -12,22 +12,21 @@ type Props = {
 
 export function LlmSettingsForm({ initialSettings }: Props) {
   const [selectedTemplate, setSelectedTemplate] = useState<string>(
-    initialSettings?.providerTemplate ?? 'together'
+    initialSettings?.providerTemplate ?? 'gemini'
   )
   const [provider, setProvider] = useState<LlmProviderType>(
-    initialSettings?.provider ?? 'openai_compatible'
+    initialSettings?.provider ?? 'google'
   )
   const [apiUrl, setApiUrl] = useState(initialSettings?.apiUrl ?? '')
   const [apiKey, setApiKey] = useState('')
   const [modelName, setModelName] = useState(initialSettings?.modelName ?? '')
-  const [modelOptions, setModelOptions] = useState<string[]>([])
-  const [isSearchingModels, setIsSearchingModels] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [isPending, startTransition] = useTransition()
 
   const selectedProvider = KNOWN_PROVIDERS.find((p) => p.template === selectedTemplate)
-  const showApiUrl = provider === 'openai_compatible' || provider === 'ollama'
+  const showApiUrl = provider === 'openai_compatible'
+  // google and anthropic use SDK-native auth, no URL needed
   const showApiKey = selectedProvider?.requiresApiKey ?? true
   const hasExistingKey = initialSettings?.hasApiKey ?? false
 
@@ -38,27 +37,7 @@ export function LlmSettingsForm({ initialSettings }: Props) {
     setProvider(p.providerType)
     setApiUrl(p.baseUrl ?? '')
     setModelName(p.defaultModel)
-    setModelOptions([])
     setError(null)
-  }
-
-  async function handleSearchModels() {
-    setIsSearchingModels(true)
-    setError(null)
-    try {
-      const res = await fetch('/api/agent/models')
-      if (!res.ok) {
-        const json = await res.json()
-        setError(json.error ?? 'モデル一覧の取得に失敗しました')
-        return
-      }
-      const json = await res.json()
-      setModelOptions(json.models ?? [])
-    } catch {
-      setError('モデル一覧の取得に失敗しました')
-    } finally {
-      setIsSearchingModels(false)
-    }
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -121,8 +100,12 @@ export function LlmSettingsForm({ initialSettings }: Props) {
             type="url"
             value={apiUrl}
             onChange={(e) => setApiUrl(e.target.value)}
-            placeholder="https://api.example.com/v1"
-            className="rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+            placeholder={
+              selectedTemplate === 'custom'
+                ? 'http://localhost:11434/v1（Ollama）または https://api.example.com/v1'
+                : 'https://api.example.com/v1'
+            }
+            className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
           />
         </div>
       )}
@@ -138,50 +121,28 @@ export function LlmSettingsForm({ initialSettings }: Props) {
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
             placeholder={hasExistingKey ? '設定済み（変更する場合のみ入力）' : 'sk-...'}
-            className="rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+            className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
           />
           <p className="text-xs text-neutral-500">
-            APIキーはAES-256-GCMで暗号化して保存されます
+            {selectedTemplate === 'custom'
+              ? 'Ollama等APIキー不要のサービスは入力不要。クラウドAPIの場合は入力してください。'
+              : 'APIキーはAES-256-GCMで暗号化して保存されます'}
           </p>
         </div>
       )}
 
-      {/* Model name + search */}
+      {/* Model name */}
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium text-neutral-800">
           モデル名
         </label>
-        <div className="flex gap-2">
-          {modelOptions.length > 0 ? (
-            <select
-              value={modelName}
-              onChange={(e) => setModelName(e.target.value)}
-              className="flex-1 rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
-            >
-              {modelOptions.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              type="text"
-              value={modelName}
-              onChange={(e) => setModelName(e.target.value)}
-              placeholder="例: meta-llama/Llama-Vision-Free"
-              className="flex-1 rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
-            />
-          )}
-          <button
-            type="button"
-            onClick={handleSearchModels}
-            disabled={isSearchingModels}
-            className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50"
-          >
-            {isSearchingModels ? '検索中...' : 'モデルを検索'}
-          </button>
-        </div>
+        <input
+          type="text"
+          value={modelName}
+          onChange={(e) => setModelName(e.target.value)}
+          placeholder="例: meta-llama/Llama-Vision-Free"
+          className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+        />
       </div>
 
       {error && (

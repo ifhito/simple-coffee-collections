@@ -2,7 +2,7 @@ export const KNOWN_PROVIDERS = [
   {
     template: 'together',
     label: 'Together AI（無料Vision）',
-    description: 'Llama-Vision-Free が完全無料。初めての方におすすめ',
+    description: 'Llama-Vision-Free が完全無料',
     baseUrl: 'https://api.together.xyz/v1',
     defaultModel: 'meta-llama/Llama-Vision-Free',
     requiresApiKey: true,
@@ -38,11 +38,11 @@ export const KNOWN_PROVIDERS = [
   {
     template: 'gemini',
     label: 'Google Gemini（無料枠あり）',
-    description: 'Gemini 2.0 Flash 等',
-    baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai/',
-    defaultModel: 'gemini-2.0-flash',
+    description: 'Gemini Flash Latest。15RPM無料。初めての方におすすめ',
+    baseUrl: null,
+    defaultModel: 'gemini-flash-latest',
     requiresApiKey: true,
-    providerType: 'openai_compatible' as const,
+    providerType: 'google' as const,
   },
   {
     template: 'anthropic',
@@ -54,21 +54,18 @@ export const KNOWN_PROVIDERS = [
     providerType: 'anthropic' as const,
   },
   {
-    template: 'ollama',
-    label: 'Ollama（ローカル無料）',
-    description: 'ローカルLLMサーバー。完全無料',
-    baseUrl: 'http://localhost:11434',
-    defaultModel: 'llava',
-    requiresApiKey: false,
-    providerType: 'ollama' as const,
-  },
-  {
     template: 'custom',
-    label: 'カスタム',
-    description: 'OpenAI互換APIのURLを直接入力',
+    label: 'カスタム / Ollama',
+    description: 'OpenAI互換URL直接入力。Ollamaローカルサーバーも対応',
     baseUrl: '',
     defaultModel: '',
     requiresApiKey: true,
     providerType: 'openai_compatible' as const,
   },
 ] as const
+
+import type { LlmProviderType } from '@/lib/domain/llm-settings/value-objects/llm-provider'
+
+export function getProviderTypeByTemplate(template: string): LlmProviderType {
+  return KNOWN_PROVIDERS.find((p) => p.template === template)?.providerType ?? 'openai_compatible'
+}

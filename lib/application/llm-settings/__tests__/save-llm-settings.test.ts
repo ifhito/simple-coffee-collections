@@ -102,4 +102,20 @@ describe('SaveLlmSettingsUseCase', () => {
 
     expect('error' in result).toBe(true)
   })
+
+  it('saves google provider settings without apiUrl', async () => {
+    const entity = makeEntity()
+    ;(mockRepo.findByUserId as jest.Mock).mockResolvedValue(ok(null))
+    ;(mockRepo.save as jest.Mock).mockResolvedValue(ok(entity))
+
+    const result = await useCase.execute('user-1', {
+      provider: 'google',
+      providerTemplate: 'gemini',
+      modelName: 'gemini-2.0-flash',
+      apiKey: 'AIza-test-key',
+    })
+
+    expect('error' in result).toBe(false)
+    expect(mockEncryptor.encrypt).toHaveBeenCalledWith('AIza-test-key')
+  })
 })

@@ -46,7 +46,7 @@ export class LlmSettings {
       )
     }
 
-    // anthropic: no apiUrl needed
+    // anthropic / google: no apiUrl needed
     return ok(new LlmSettings(provider, input.providerTemplate ?? null, null, modelName))
   }
 

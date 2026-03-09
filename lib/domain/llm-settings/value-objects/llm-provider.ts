@@ -1,4 +1,4 @@
-export type LlmProviderType = 'openai_compatible' | 'anthropic' | 'ollama'
+export type LlmProviderType = 'openai_compatible' | 'anthropic' | 'ollama' | 'google'
 
 export class LlmProvider {
   private constructor(private readonly _type: LlmProviderType) {
@@ -6,7 +6,12 @@ export class LlmProvider {
   }
 
   static create(type: string): LlmProvider | null {
-    if (type === 'openai_compatible' || type === 'anthropic' || type === 'ollama') {
+    if (
+      type === 'openai_compatible' ||
+      type === 'anthropic' ||
+      type === 'ollama' ||
+      type === 'google'
+    ) {
       return new LlmProvider(type as LlmProviderType)
     }
     return null
