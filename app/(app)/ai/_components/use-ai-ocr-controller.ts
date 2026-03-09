@@ -21,11 +21,17 @@ function isHeicLikeFile(file: File): boolean {
   return HEIC_EXTENSION_PATTERN.test(file.name)
 }
 
-function toJpegFileName(fileName: string): string {
+function toConvertedFileName(fileName: string, mimeType: string): string {
+  const ext = mimeType === 'image/png' ? '.png' : '.jpg'
   if (HEIC_EXTENSION_PATTERN.test(fileName)) {
-    return fileName.replace(HEIC_EXTENSION_PATTERN, '.jpg')
+    return fileName.replace(HEIC_EXTENSION_PATTERN, ext)
   }
-  return `${fileName}.jpg`
+  return `${fileName}${ext}`
+}
+
+function toBlob(data: Blob | ArrayBuffer, mimeType: string): Blob {
+  if (data instanceof Blob) return data
+  return new Blob([data], { type: mimeType })
 }
 
 async function convertHeicBlob(file: File): Promise<Blob | null> {
@@ -37,9 +43,11 @@ async function convertHeicBlob(file: File): Promise<Blob | null> {
       quality: 0.9,
     })
     if (Array.isArray(convertedJpeg)) {
-      return convertedJpeg[0] instanceof Blob ? convertedJpeg[0] : null
+      const first = convertedJpeg[0]
+      if (!first) return null
+      return toBlob(first as Blob | ArrayBuffer, 'image/jpeg')
     }
-    if (convertedJpeg instanceof Blob) return convertedJpeg
+    return toBlob(convertedJpeg as Blob | ArrayBuffer, 'image/jpeg')
   } catch {
     // Fall through to PNG attempt.
   }
@@ -52,9 +60,11 @@ async function convertHeicBlob(file: File): Promise<Blob | null> {
       quality: 0.9,
     })
     if (Array.isArray(convertedPng)) {
-      return convertedPng[0] instanceof Blob ? convertedPng[0] : null
+      const first = convertedPng[0]
+      if (!first) return null
+      return toBlob(first as Blob | ArrayBuffer, 'image/png')
     }
-    return convertedPng instanceof Blob ? convertedPng : null
+    return toBlob(convertedPng as Blob | ArrayBuffer, 'image/png')
   } catch {
     return null
   }
@@ -74,33 +84,19 @@ export function useAiOcrController({
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [ocrError, setOcrError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const previewRequestIdRef = useRef(0)
 
   function handleFileChange(file: File | null) {
     setSelectedFile(file)
     setOcrError(null)
     setPreviewLoadFailed(false)
 
-    previewRequestIdRef.current += 1
-    const requestId = previewRequestIdRef.current
-
     if (previewUrl) URL.revokeObjectURL(previewUrl)
     setPreviewUrl(null)
 
     if (!file) return
 
-    void (async () => {
-      const previewBlob = isHeicLikeFile(file)
-        ? (await convertHeicBlob(file)) ?? file
-        : file
-      const nextPreviewUrl = URL.createObjectURL(previewBlob)
-
-      if (previewRequestIdRef.current !== requestId) {
-        URL.revokeObjectURL(nextPreviewUrl)
-        return
-      }
-      setPreviewUrl(nextPreviewUrl)
-    })()
+    const nextPreviewUrl = URL.createObjectURL(file)
+    setPreviewUrl(nextPreviewUrl)
   }
 
   function openFilePicker() {
@@ -118,7 +114,8 @@ export function useAiOcrController({
     if (isHeicLikeFile(selectedFile)) {
       const converted = await convertHeicBlob(selectedFile)
       if (converted) {
-        formData.append('image', converted, toJpegFileName(selectedFile.name))
+        const fileName = toConvertedFileName(selectedFile.name, converted.type)
+        formData.append('image', converted, fileName)
       } else {
         formData.append('image', selectedFile)
       }
