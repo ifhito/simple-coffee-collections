@@ -8,6 +8,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { promisify } from 'node:util'
 import { NextResponse } from 'next/server'
+import heicConvert from 'heic-convert'
 import sharp from 'sharp'
 import { createClient } from '@/lib/supabase/server'
 import { getUserLlmSettingsRepository, getApiKeyEncryptor } from '@/lib/di/container'
@@ -34,10 +35,29 @@ function isHeicLikeMimeType(mimeType: string) {
   return HEIC_MIME_PATTERN.test(mimeType)
 }
 
+function toBuffer(data: Buffer | Uint8Array | ArrayBuffer): Buffer {
+  if (Buffer.isBuffer(data)) return data
+  if (data instanceof ArrayBuffer) return Buffer.from(data)
+  return Buffer.from(data)
+}
+
 async function convertHeicToJpeg(imageBuffer: Buffer): Promise<Buffer | null> {
   // First try sharp (works when libvips has HEIC/HEIF decoder support)
   try {
     return await sharp(imageBuffer).jpeg({ quality: 90 }).toBuffer()
+  } catch {
+    // Fall through to cross-platform converter.
+  }
+
+  // Cross-platform fallback via heic-convert (WASM-based decoder)
+  try {
+    const converted = await heicConvert({
+      buffer: imageBuffer,
+      format: 'JPEG',
+      quality: 0.9,
+    })
+    const convertedBuffer = toBuffer(converted)
+    if (convertedBuffer.length > 0) return convertedBuffer
   } catch {
     // Fall through to platform-specific converter.
   }
