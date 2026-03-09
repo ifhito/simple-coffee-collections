@@ -165,12 +165,21 @@ export function AiFeaturesClient({ initialSettings }: Props) {
             }
           }}
         >
-          {ocr.previewUrl ? (
+          {ocr.previewUrl && !ocr.previewLoadFailed ? (
             <img
               src={ocr.previewUrl}
               alt="プレビュー"
               className="max-h-48 max-w-full rounded-md object-contain"
+              onError={ocr.handlePreviewError}
             />
+          ) : ocr.selectedFile ? (
+            <div className="flex flex-col items-center gap-2 text-center">
+              <p className="text-sm font-medium text-neutral-700">画像を選択しました</p>
+              <p className="max-w-full break-all text-xs text-neutral-500">{ocr.selectedFile.name}</p>
+              <p className="text-xs text-neutral-400">
+                このブラウザではプレビューできない形式ですが、解析は実行できます。
+              </p>
+            </div>
           ) : (
             <>
               <svg

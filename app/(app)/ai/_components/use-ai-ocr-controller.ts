@@ -12,6 +12,34 @@ type Input = {
   onNavigate: (url: string) => void
 }
 
+const HEIC_MIME_PATTERN = /^image\/(heic|heif)(?:[-+.\w]*)?$/i
+const HEIC_EXTENSION_PATTERN = /\.(heic|heif)$/i
+
+function isHeicLikeFile(file: File): boolean {
+  const mimeType = file.type.toLowerCase()
+  if (mimeType && HEIC_MIME_PATTERN.test(mimeType)) return true
+  return HEIC_EXTENSION_PATTERN.test(file.name)
+}
+
+async function convertHeicPreviewBlob(file: File): Promise<Blob | null> {
+  if (process.env.NODE_ENV === 'test') return null
+
+  try {
+    const { default: heic2any } = await import('heic2any')
+    const converted = await heic2any({
+      blob: file,
+      toType: 'image/jpeg',
+      quality: 0.9,
+    })
+    if (Array.isArray(converted)) {
+      return converted[0] instanceof Blob ? converted[0] : null
+    }
+    return converted instanceof Blob ? converted : null
+  } catch {
+    return null
+  }
+}
+
 export function useAiOcrController({
   mode,
   selectedTemplate,
@@ -22,15 +50,37 @@ export function useAiOcrController({
 }: Input) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [previewLoadFailed, setPreviewLoadFailed] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [ocrError, setOcrError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const previewRequestIdRef = useRef(0)
 
   function handleFileChange(file: File | null) {
     setSelectedFile(file)
     setOcrError(null)
+    setPreviewLoadFailed(false)
+
+    previewRequestIdRef.current += 1
+    const requestId = previewRequestIdRef.current
+
     if (previewUrl) URL.revokeObjectURL(previewUrl)
-    setPreviewUrl(file ? URL.createObjectURL(file) : null)
+    setPreviewUrl(null)
+
+    if (!file) return
+
+    void (async () => {
+      const previewBlob = isHeicLikeFile(file)
+        ? (await convertHeicPreviewBlob(file)) ?? file
+        : file
+      const nextPreviewUrl = URL.createObjectURL(previewBlob)
+
+      if (previewRequestIdRef.current !== requestId) {
+        URL.revokeObjectURL(nextPreviewUrl)
+        return
+      }
+      setPreviewUrl(nextPreviewUrl)
+    })()
   }
 
   function openFilePicker() {
@@ -75,10 +125,12 @@ export function useAiOcrController({
   return {
     selectedFile,
     previewUrl,
+    previewLoadFailed,
     isAnalyzing,
     ocrError,
     fileInputRef,
     handleFileChange,
+    handlePreviewError: () => setPreviewLoadFailed(true),
     openFilePicker,
     handleAnalyze,
     isAnalyzeDisabled: !selectedFile || isAnalyzing,

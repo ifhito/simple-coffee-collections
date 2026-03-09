@@ -46,6 +46,10 @@ describe('AiFeaturesClient', () => {
     })
   })
 
+  afterEach(() => {
+    jest.resetModules()
+  })
+
   it('does not render camera/file selection buttons', () => {
     render(<AiFeaturesClient initialSettings={null} />)
 
@@ -109,5 +113,23 @@ describe('AiFeaturesClient', () => {
     await waitFor(() =>
       expect(mockPush).toHaveBeenCalledWith('/coffee/new?bean_name=Kenya+Blend')
     )
+  })
+
+  it('shows fallback message when preview rendering fails', async () => {
+    const { container } = render(<AiFeaturesClient initialSettings={null} />)
+    const { fileInput } = getInputs(container)
+
+    fireEvent.change(fileInput, {
+      target: { files: [new File(['heic'], 'sample.heic', { type: 'image/heic' })] },
+    })
+
+    const previewImage = await screen.findByAltText('プレビュー')
+    fireEvent.error(previewImage)
+
+    expect(await screen.findByText('画像を選択しました')).toBeInTheDocument()
+    expect(screen.getByText('sample.heic')).toBeInTheDocument()
+    expect(
+      screen.getByText('このブラウザではプレビューできない形式ですが、解析は実行できます。')
+    ).toBeInTheDocument()
   })
 })
