@@ -23,6 +23,11 @@ jest.mock('../llm-settings-panel', () => ({
   LlmSettingsPanel: () => <div data-testid="llm-settings-panel" />,
 }))
 
+jest.mock('heic2any', () => ({
+  __esModule: true,
+  default: jest.fn(async () => new Blob(['jpeg-preview'], { type: 'image/jpeg' })),
+}))
+
 function getInputs(container: HTMLElement) {
   const inputs = Array.from(container.querySelectorAll<HTMLInputElement>('input[type="file"]'))
   const fileInput = inputs[0]

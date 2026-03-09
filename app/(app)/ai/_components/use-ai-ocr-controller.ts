@@ -22,8 +22,6 @@ function isHeicLikeFile(file: File): boolean {
 }
 
 async function convertHeicPreviewBlob(file: File): Promise<Blob | null> {
-  if (process.env.NODE_ENV === 'test') return null
-
   try {
     const { default: heic2any } = await import('heic2any')
     const converted = await heic2any({
