@@ -137,4 +137,32 @@ describe('AiFeaturesClient', () => {
       screen.getByText('このブラウザではプレビューできない形式ですが、解析は実行できます。')
     ).toBeInTheDocument()
   })
+
+  it('uploads HEIC as converted JPEG when conversion succeeds', async () => {
+    const user = userEvent.setup()
+    ;(global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => ({ data: { bean_name: 'Converted Bean' } }),
+    } as Response)
+
+    const { container } = render(<AiFeaturesClient initialSettings={null} />)
+    const { fileInput } = getInputs(container)
+
+    fireEvent.change(fileInput, {
+      target: { files: [new File(['heic-data'], 'from-phone.heic', { type: 'image/heic' })] },
+    })
+
+    await user.click(screen.getByRole('button', { name: '解析する' }))
+
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled())
+
+    const [, requestInit] = (global.fetch as jest.Mock).mock.calls[0]
+    const body = requestInit.body as FormData
+    const uploaded = body.get('image')
+
+    expect(uploaded).toBeInstanceOf(File)
+    const uploadedFile = uploaded as File
+    expect(uploadedFile.name).toBe('from-phone.jpg')
+    expect(uploadedFile.type).toBe('image/jpeg')
+  })
 })

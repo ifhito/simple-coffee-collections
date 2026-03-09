@@ -21,18 +21,40 @@ function isHeicLikeFile(file: File): boolean {
   return HEIC_EXTENSION_PATTERN.test(file.name)
 }
 
-async function convertHeicPreviewBlob(file: File): Promise<Blob | null> {
+function toJpegFileName(fileName: string): string {
+  if (HEIC_EXTENSION_PATTERN.test(fileName)) {
+    return fileName.replace(HEIC_EXTENSION_PATTERN, '.jpg')
+  }
+  return `${fileName}.jpg`
+}
+
+async function convertHeicBlob(file: File): Promise<Blob | null> {
   try {
     const { default: heic2any } = await import('heic2any')
-    const converted = await heic2any({
+    const convertedJpeg = await heic2any({
       blob: file,
       toType: 'image/jpeg',
       quality: 0.9,
     })
-    if (Array.isArray(converted)) {
-      return converted[0] instanceof Blob ? converted[0] : null
+    if (Array.isArray(convertedJpeg)) {
+      return convertedJpeg[0] instanceof Blob ? convertedJpeg[0] : null
     }
-    return converted instanceof Blob ? converted : null
+    if (convertedJpeg instanceof Blob) return convertedJpeg
+  } catch {
+    // Fall through to PNG attempt.
+  }
+
+  try {
+    const { default: heic2any } = await import('heic2any')
+    const convertedPng = await heic2any({
+      blob: file,
+      toType: 'image/png',
+      quality: 0.9,
+    })
+    if (Array.isArray(convertedPng)) {
+      return convertedPng[0] instanceof Blob ? convertedPng[0] : null
+    }
+    return convertedPng instanceof Blob ? convertedPng : null
   } catch {
     return null
   }
@@ -69,7 +91,7 @@ export function useAiOcrController({
 
     void (async () => {
       const previewBlob = isHeicLikeFile(file)
-        ? (await convertHeicPreviewBlob(file)) ?? file
+        ? (await convertHeicBlob(file)) ?? file
         : file
       const nextPreviewUrl = URL.createObjectURL(previewBlob)
 
@@ -93,7 +115,16 @@ export function useAiOcrController({
     setIsAnalyzing(true)
 
     const formData = new FormData()
-    formData.append('image', selectedFile)
+    if (isHeicLikeFile(selectedFile)) {
+      const converted = await convertHeicBlob(selectedFile)
+      if (converted) {
+        formData.append('image', converted, toJpegFileName(selectedFile.name))
+      } else {
+        formData.append('image', selectedFile)
+      }
+    } else {
+      formData.append('image', selectedFile)
+    }
 
     if (mode === 'new') {
       formData.append('inline_provider_template', selectedTemplate)
