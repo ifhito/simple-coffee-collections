@@ -25,14 +25,9 @@ jest.mock('../llm-settings-panel', () => ({
 
 function getInputs(container: HTMLElement) {
   const inputs = Array.from(container.querySelectorAll<HTMLInputElement>('input[type="file"]'))
-  const cameraInput = inputs.find((input) => input.getAttribute('capture') === 'environment')
-  const fileInput = inputs.find((input) => !input.hasAttribute('capture'))
-
-  if (!cameraInput || !fileInput) {
-    throw new Error('camera/file input not found')
-  }
-
-  return { cameraInput, fileInput }
+  const fileInput = inputs[0]
+  if (!fileInput) throw new Error('file input not found')
+  return { fileInput, inputCount: inputs.length }
 }
 
 describe('AiFeaturesClient', () => {
@@ -51,28 +46,18 @@ describe('AiFeaturesClient', () => {
     })
   })
 
-  it('renders both camera and file selection buttons', () => {
+  it('does not render camera/file selection buttons', () => {
     render(<AiFeaturesClient initialSettings={null} />)
 
-    expect(screen.getByRole('button', { name: 'カメラ起動' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'ファイル選択' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'カメラ起動' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'ファイル選択' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'ファイルを選択' })).not.toBeInTheDocument()
   })
 
-  it('opens the expected picker from each button', async () => {
-    const user = userEvent.setup()
+  it('renders only one file input', () => {
     const { container } = render(<AiFeaturesClient initialSettings={null} />)
-    const { cameraInput, fileInput } = getInputs(container)
-    const cameraClick = jest.fn()
-    const fileClick = jest.fn()
-    Object.defineProperty(cameraInput, 'click', { value: cameraClick })
-    Object.defineProperty(fileInput, 'click', { value: fileClick })
-
-    await user.click(screen.getByRole('button', { name: 'カメラ起動' }))
-    await user.click(screen.getByRole('button', { name: 'ファイル選択' }))
-
-    expect(cameraClick).toHaveBeenCalledTimes(1)
-    expect(fileClick).toHaveBeenCalledTimes(1)
+    const { inputCount } = getInputs(container)
+    expect(inputCount).toBe(1)
   })
 
   it('opens file picker when drop area is clicked', async () => {
@@ -109,8 +94,6 @@ describe('AiFeaturesClient', () => {
 
     await waitFor(() => {
       const dropZone = container.querySelector('div[role="button"]')
-      expect(screen.getByRole('button', { name: 'カメラ起動' })).toBeDisabled()
-      expect(screen.getByRole('button', { name: 'ファイル選択' })).toBeDisabled()
       expect(dropZone).toHaveAttribute('aria-disabled', 'true')
       expect(screen.getByText('画像を解析中...')).toBeInTheDocument()
     })

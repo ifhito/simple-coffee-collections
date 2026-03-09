@@ -192,15 +192,6 @@ export function AiFeaturesClient({ initialSettings }: Props) {
             </>
           )}
           <input
-            ref={ocr.cameraInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="hidden"
-            onChange={(e) => ocr.handleFileChange(e.target.files?.[0] ?? null)}
-            disabled={ocr.isAnalyzing}
-          />
-          <input
             ref={ocr.fileInputRef}
             type="file"
             accept="image/*"
@@ -211,22 +202,6 @@ export function AiFeaturesClient({ initialSettings }: Props) {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={ocr.openCameraPicker}
-            disabled={ocr.isAnalyzing}
-            className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50"
-          >
-            カメラ起動
-          </button>
-          <button
-            type="button"
-            onClick={ocr.openFilePicker}
-            disabled={ocr.isAnalyzing}
-            className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50"
-          >
-            ファイル選択
-          </button>
           <button
             type="button"
             onClick={ocr.handleAnalyze}

@@ -24,7 +24,6 @@ export function useAiOcrController({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [ocrError, setOcrError] = useState<string | null>(null)
-  const cameraInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   function handleFileChange(file: File | null) {
@@ -32,11 +31,6 @@ export function useAiOcrController({
     setOcrError(null)
     if (previewUrl) URL.revokeObjectURL(previewUrl)
     setPreviewUrl(file ? URL.createObjectURL(file) : null)
-  }
-
-  function openCameraPicker() {
-    if (isAnalyzing) return
-    cameraInputRef.current?.click()
   }
 
   function openFilePicker() {
@@ -83,10 +77,8 @@ export function useAiOcrController({
     previewUrl,
     isAnalyzing,
     ocrError,
-    cameraInputRef,
     fileInputRef,
     handleFileChange,
-    openCameraPicker,
     openFilePicker,
     handleAnalyze,
     isAnalyzeDisabled: !selectedFile || isAnalyzing,
