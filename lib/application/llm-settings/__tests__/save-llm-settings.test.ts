@@ -1,6 +1,6 @@
 import { SaveLlmSettingsUseCase } from '../save-llm-settings'
 import type { UserLlmSettingsRepository } from '@/lib/domain/llm-settings'
-import type { ApiKeyEncryptor } from '@/lib/infrastructure/crypto/api-key-encryptor.interface'
+import type { ApiKeyEncryptor } from '@/lib/application/ports'
 import { UserLlmSettings } from '@/lib/domain/llm-settings/entity'
 import { LlmSettings } from '@/lib/domain/llm-settings/value-objects/llm-settings'
 import { ok, fail } from '@/lib/domain/shared/result'

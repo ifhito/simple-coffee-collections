@@ -15,8 +15,10 @@ import type { CoffeeEvaluationRepository } from '@/lib/domain'
 import { SupabaseCoffeeEvaluationRepository } from '@/lib/infrastructure'
 import type { UserLlmSettingsRepository } from '@/lib/domain/llm-settings'
 import { SupabaseUserLlmSettingsRepository } from '@/lib/infrastructure/repositories/supabase-user-llm-settings-repository'
-import type { ApiKeyEncryptor } from '@/lib/infrastructure/crypto/api-key-encryptor.interface'
+import type { ApiKeyEncryptor, LlmModelFactory, OcrExecutor } from '@/lib/application/ports'
 import { Aes256GcmEncryptor } from '@/lib/infrastructure/crypto/aes-256-gcm-encryptor'
+import { DefaultLlmModelFactory } from '@/lib/infrastructure/llm/default-llm-model-factory'
+import { MastraOcrExecutor } from '@/lib/infrastructure/ocr/mastra-ocr-executor'
 
 /**
  * Singleton instance of CoffeeEvaluationRepository
@@ -69,6 +71,8 @@ export function resetRepositories(): void {
   coffeeEvaluationRepositoryInstance = null
   userLlmSettingsRepositoryInstance = null
   apiKeyEncryptorInstance = null
+  llmModelFactoryInstance = null
+  ocrExecutorInstance = null
 }
 
 /**
@@ -112,4 +116,38 @@ export function getApiKeyEncryptor(): ApiKeyEncryptor {
 
 export function setApiKeyEncryptor(encryptor: ApiKeyEncryptor): void {
   apiKeyEncryptorInstance = encryptor
+}
+
+// =============================================================================
+// LlmModelFactory
+// =============================================================================
+
+let llmModelFactoryInstance: LlmModelFactory | null = null
+
+export function getLlmModelFactory(): LlmModelFactory {
+  if (!llmModelFactoryInstance) {
+    llmModelFactoryInstance = new DefaultLlmModelFactory()
+  }
+  return llmModelFactoryInstance
+}
+
+export function setLlmModelFactory(factory: LlmModelFactory): void {
+  llmModelFactoryInstance = factory
+}
+
+// =============================================================================
+// OcrExecutor
+// =============================================================================
+
+let ocrExecutorInstance: OcrExecutor | null = null
+
+export function getOcrExecutor(): OcrExecutor {
+  if (!ocrExecutorInstance) {
+    ocrExecutorInstance = new MastraOcrExecutor()
+  }
+  return ocrExecutorInstance
+}
+
+export function setOcrExecutor(executor: OcrExecutor): void {
+  ocrExecutorInstance = executor
 }

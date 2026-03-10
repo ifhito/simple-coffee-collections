@@ -4,7 +4,7 @@ import {
   createDecipheriv,
   type CipherGCMTypes,
 } from 'crypto'
-import type { ApiKeyEncryptor } from './api-key-encryptor.interface'
+import type { ApiKeyEncryptor } from '@/lib/application/ports'
 
 const ALGORITHM: CipherGCMTypes = 'aes-256-gcm'
 const IV_LENGTH = 12 // 96-bit IV (recommended for GCM)

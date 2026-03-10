@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react'
 import type { OcrExtractedData } from '@/lib/application/ocr'
 import type { AiSettingsMode } from './ai-features-helpers'
 import { buildOcrPrefillSearchParams } from './ai-features-helpers'
+import { isHeicMimeType, isHeicExtension, HEIC_EXTENSION_PATTERN } from '@/lib/constants/image-formats'
 
 type Input = {
   mode: AiSettingsMode
@@ -12,18 +13,15 @@ type Input = {
   onNavigate: (url: string) => void
 }
 
-const HEIC_MIME_PATTERN = /^image\/(heic|heif)(?:[-+.\w]*)?$/i
-const HEIC_EXTENSION_PATTERN = /\.(heic|heif)$/i
-
 function isHeicLikeFile(file: File): boolean {
   const mimeType = file.type.toLowerCase()
-  if (mimeType && HEIC_MIME_PATTERN.test(mimeType)) return true
-  return HEIC_EXTENSION_PATTERN.test(file.name)
+  if (mimeType && isHeicMimeType(mimeType)) return true
+  return isHeicExtension(file.name)
 }
 
 function toConvertedFileName(fileName: string, mimeType: string): string {
   const ext = mimeType === 'image/png' ? '.png' : '.jpg'
-  if (HEIC_EXTENSION_PATTERN.test(fileName)) {
+  if (isHeicExtension(fileName)) {
     return fileName.replace(HEIC_EXTENSION_PATTERN, ext)
   }
   return `${fileName}${ext}`

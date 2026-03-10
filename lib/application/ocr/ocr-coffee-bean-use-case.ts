@@ -1,8 +1,6 @@
-import { createLlmModel } from '@/lib/infrastructure/llm/llm-provider-factory'
 import type { UserLlmSettingsRepository } from '@/lib/domain/llm-settings'
-import type { ApiKeyEncryptor } from '@/lib/infrastructure/crypto/api-key-encryptor.interface'
+import type { ApiKeyEncryptor, LlmModelFactory, OcrExecutor } from '@/lib/application/ports'
 import type { OcrExtractedData } from './dto'
-import { runCoffeeOcr } from './run-ocr'
 
 export type OcrCoffeeBeanResult =
   | { success: true; data: OcrExtractedData }
@@ -11,7 +9,9 @@ export type OcrCoffeeBeanResult =
 export class OcrCoffeeBeanUseCase {
   constructor(
     private readonly repo: UserLlmSettingsRepository,
-    private readonly encryptor: ApiKeyEncryptor
+    private readonly encryptor: ApiKeyEncryptor,
+    private readonly llmModelFactory: LlmModelFactory,
+    private readonly ocrExecutor: OcrExecutor
   ) {}
 
   async execute(
@@ -44,7 +44,7 @@ export class OcrCoffeeBeanUseCase {
     }
 
     // 3. Create LLM model + run OCR
-    const model = createLlmModel(entity, decryptedApiKey)
-    return runCoffeeOcr(model, imageBuffer, mimeType)
+    const model = this.llmModelFactory.createFromUserSettings(entity, decryptedApiKey)
+    return this.ocrExecutor.execute(model, imageBuffer, mimeType)
   }
 }

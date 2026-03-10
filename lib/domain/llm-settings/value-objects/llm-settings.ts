@@ -1,7 +1,7 @@
 import { Result, ok, fail } from '../../shared/result'
 import { LlmProvider, LlmProviderType } from './llm-provider'
 
-export interface LlmSettingsInput {
+export interface LlmSettingsConfig {
   provider: LlmProviderType
   providerTemplate?: string | null
   apiUrl?: string | null
@@ -18,7 +18,7 @@ export class LlmSettings {
     Object.freeze(this)
   }
 
-  static create(input: LlmSettingsInput): Result<LlmSettings, string> {
+  static create(input: LlmSettingsConfig): Result<LlmSettings, string> {
     const provider = LlmProvider.create(input.provider)
     if (!provider) {
       return fail(`不正なプロバイダーです: ${input.provider}`)
