@@ -69,7 +69,13 @@
       "Bash(openssl rand:*)",
       "Bash(npm run:*)",
       "mcp__plugin_serena_serena__write_memory",
-      "Bash(pnpm:*)"
+      "Bash(pnpm:*)",
+      "Bash(npx jest:*)",
+      "Bash(npx next:*)",
+      "Skill(commit-commands:commit-push-pr)",
+      "Bash(gh pr:*)",
+      "Bash(gh api:*)",
+      "Skill(commit-commands:commit)"
     ]
   },
   "enableAllProjectMcpServers": true,
