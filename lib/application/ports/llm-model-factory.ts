@@ -1,7 +1,8 @@
 import type { UserLlmSettings } from '@/lib/domain/llm-settings/entity'
 import type { LlmProviderType } from '@/lib/domain/llm-settings/value-objects/llm-provider'
+import type { AgentConfig } from '@mastra/core/agent'
 
-export type OcrModel = unknown
+export type OcrModel = AgentConfig['model']
 
 export type InlineLlmModelInput = {
   providerType: LlmProviderType

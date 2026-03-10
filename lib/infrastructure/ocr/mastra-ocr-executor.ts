@@ -1,9 +1,8 @@
 import { generateObject } from 'ai'
-import type { AgentConfig } from '@mastra/core/agent'
 import type { OcrExecutor, OcrExecutionResult, OcrModel } from '@/lib/application/ports'
 import { createCoffeeOcrAgent, CoffeeOcrOutputSchema } from '@/lib/mastra/agents/coffee-ocr-agent'
 
-type MastraModel = AgentConfig['model']
+type MastraGenerateModel = Parameters<typeof generateObject>[0]['model']
 
 export class MastraOcrExecutor implements OcrExecutor {
   async execute(
@@ -11,13 +10,13 @@ export class MastraOcrExecutor implements OcrExecutor {
     imageBuffer: Buffer,
     mimeType: string
   ): Promise<OcrExecutionResult> {
-    const agent = createCoffeeOcrAgent(model as MastraModel)
+    const agent = createCoffeeOcrAgent(model)
 
     try {
       const instructions = await agent.getInstructions()
 
       const result = await generateObject({
-        model: agent.model as Parameters<typeof generateObject>[0]['model'],
+        model: agent.model as MastraGenerateModel,
         schema: CoffeeOcrOutputSchema,
         messages: [
           {

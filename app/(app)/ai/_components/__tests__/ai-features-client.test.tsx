@@ -5,7 +5,6 @@ import { AiFeaturesClient } from '../ai-features-client'
 const mockPush = jest.fn()
 const mockSaveLlmSettings = jest.fn()
 const mockDeleteLlmSettings = jest.fn()
-const mockHeic2any = jest.fn(async () => new Blob(['jpeg-preview'], { type: 'image/jpeg' }))
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
@@ -24,11 +23,6 @@ jest.mock('../llm-settings-panel', () => ({
   LlmSettingsPanel: () => <div data-testid="llm-settings-panel" />,
 }))
 
-jest.mock('heic2any', () => ({
-  __esModule: true,
-  default: (...args: unknown[]) => mockHeic2any(...args),
-}))
-
 function getInputs(container: HTMLElement) {
   const inputs = Array.from(container.querySelectorAll<HTMLInputElement>('input[type="file"]'))
   const fileInput = inputs[0]
@@ -41,8 +35,6 @@ describe('AiFeaturesClient', () => {
     mockPush.mockReset()
     mockSaveLlmSettings.mockReset()
     mockDeleteLlmSettings.mockReset()
-    mockHeic2any.mockReset()
-    mockHeic2any.mockResolvedValue(new Blob(['jpeg-preview'], { type: 'image/jpeg' }))
     global.fetch = jest.fn() as unknown as typeof fetch
     Object.defineProperty(URL, 'createObjectURL', {
       writable: true,
@@ -141,11 +133,11 @@ describe('AiFeaturesClient', () => {
     ).toBeInTheDocument()
   })
 
-  it('uploads HEIC as converted JPEG when conversion succeeds', async () => {
+  it('uploads HEIC file as-is for server-side conversion', async () => {
     const user = userEvent.setup()
     ;(global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: async () => ({ data: { bean_name: 'Converted Bean' } }),
+      json: async () => ({ data: { bean_name: 'Server Converted Bean' } }),
     } as Response)
 
     const { container } = render(<AiFeaturesClient initialSettings={null} />)
@@ -165,38 +157,7 @@ describe('AiFeaturesClient', () => {
 
     expect(uploaded).toBeInstanceOf(File)
     const uploadedFile = uploaded as File
-    expect(uploadedFile.name).toBe('from-phone.jpg')
-    expect(uploadedFile.type).toBe('image/jpeg')
-  })
-
-  it('uploads HEIC as converted PNG when JPEG conversion falls back to PNG', async () => {
-    const user = userEvent.setup()
-    mockHeic2any.mockImplementation(async (options: { toType?: string }) => {
-      if (options.toType === 'image/jpeg') {
-        throw new Error('jpeg conversion failed')
-      }
-      return new Blob(['png-preview'], { type: 'image/png' })
-    })
-    ;(global.fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: async () => ({ data: { bean_name: 'Converted Bean' } }),
-    } as Response)
-
-    const { container } = render(<AiFeaturesClient initialSettings={null} />)
-    const { fileInput } = getInputs(container)
-
-    fireEvent.change(fileInput, {
-      target: { files: [new File(['heic-data'], 'fallback.heif', { type: 'image/heif' })] },
-    })
-
-    await user.click(screen.getByRole('button', { name: '解析する' }))
-
-    await waitFor(() => expect(global.fetch).toHaveBeenCalled())
-    const [, requestInit] = (global.fetch as jest.Mock).mock.calls[0]
-    const body = requestInit.body as FormData
-    const uploadedFile = body.get('image') as File
-
-    expect(uploadedFile.name).toBe('fallback.png')
-    expect(uploadedFile.type).toBe('image/png')
+    expect(uploadedFile.name).toBe('from-phone.heic')
+    expect(uploadedFile.type).toBe('image/heic')
   })
 })

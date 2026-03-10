@@ -11,19 +11,7 @@ import {
 } from '@/lib/di/container'
 import { OcrCoffeeBeanUseCase, OcrInlineCoffeeBeanUseCase } from '@/lib/application/ocr'
 import { getProviderTypeByTemplate } from '@/lib/constants/llm-providers'
-import { isHeicMimeType, isHeicExtension } from '@/lib/constants/image-formats'
-import { convertHeicToJpeg } from '@/lib/infrastructure/ocr/heic-converter'
-
-const MIME_ALIASES: Record<string, string> = {
-  'image/jpg': 'image/jpeg',
-  'image/pjpeg': 'image/jpeg',
-}
-
-const SUPPORTED_MIME_TYPES = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-])
+import { parseOcrUpload } from '@/lib/infrastructure/ocr/ocr-upload-parser'
 
 export async function POST(request: Request) {
   // Auth check
@@ -36,49 +24,24 @@ export async function POST(request: Request) {
   }
 
   // Parse multipart form data
-  let imageBuffer: Buffer
-  let mimeType: string
-  let inlineProviderTemplate: string | null = null
-  let inlineApiUrl: string | null = null
-  let inlineApiKey = ''
-  let inlineModelName = ''
+  let parsed
   try {
-    const formData = await request.formData()
-    const file = formData.get('image') as File | null
-    if (!file) {
-      return NextResponse.json({ error: '画像ファイルが必要です' }, { status: 400 })
-    }
-    const arrayBuffer = await file.arrayBuffer()
-    imageBuffer = Buffer.from(arrayBuffer)
-    const fallbackType = isHeicExtension(file.name) ? 'image/heic' : 'image/jpeg'
-    mimeType = MIME_ALIASES[file.type.toLowerCase()] ?? (file.type.toLowerCase() || fallbackType)
-
-    if (isHeicMimeType(mimeType)) {
-      const converted = await convertHeicToJpeg(imageBuffer)
-      if (!converted) {
-        return NextResponse.json(
-          { error: 'HEIC/HEIF画像の変換に失敗しました。JPEG/PNG/WEBP形式で再試行してください。' },
-          { status: 400 }
-        )
-      }
-      imageBuffer = converted
-      mimeType = 'image/jpeg'
-    }
-
-    if (!SUPPORTED_MIME_TYPES.has(mimeType)) {
-      return NextResponse.json(
-        { error: '未対応の画像形式です。JPEG/PNG/WEBP/HEIC/HEIF形式を使用してください。' },
-        { status: 400 }
-      )
-    }
-
-    inlineProviderTemplate = formData.get('inline_provider_template') as string | null
-    inlineApiUrl = formData.get('inline_api_url') as string | null
-    inlineApiKey = (formData.get('inline_api_key') as string) ?? ''
-    inlineModelName = (formData.get('inline_model_name') as string) ?? ''
+    parsed = await parseOcrUpload(await request.formData())
   } catch {
     return NextResponse.json({ error: 'ファイルの読み込みに失敗しました' }, { status: 400 })
   }
+  if (!parsed.ok) {
+    return NextResponse.json({ error: parsed.error }, { status: parsed.status })
+  }
+
+  const {
+    imageBuffer,
+    mimeType,
+    inlineProviderTemplate,
+    inlineApiUrl,
+    inlineApiKey,
+    inlineModelName,
+  } = parsed.value
 
   // Run OCR — inline path (no DB) or DB path
   let result

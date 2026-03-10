@@ -2,7 +2,6 @@ import { useCallback, useRef, useState } from 'react'
 import type { OcrExtractedData } from '@/lib/application/ocr'
 import type { AiSettingsMode } from './ai-features-helpers'
 import { buildOcrPrefillSearchParams } from './ai-features-helpers'
-import { isHeicMimeType, isHeicExtension, HEIC_EXTENSION_PATTERN } from '@/lib/constants/image-formats'
 
 type Input = {
   mode: AiSettingsMode
@@ -11,61 +10,6 @@ type Input = {
   apiKey: string
   modelName: string
   onNavigate: (url: string) => void
-}
-
-function isHeicLikeFile(file: File): boolean {
-  const mimeType = file.type.toLowerCase()
-  if (mimeType && isHeicMimeType(mimeType)) return true
-  return isHeicExtension(file.name)
-}
-
-function toConvertedFileName(fileName: string, mimeType: string): string {
-  const ext = mimeType === 'image/png' ? '.png' : '.jpg'
-  if (isHeicExtension(fileName)) {
-    return fileName.replace(HEIC_EXTENSION_PATTERN, ext)
-  }
-  return `${fileName}${ext}`
-}
-
-function toBlob(data: Blob | ArrayBuffer, mimeType: string): Blob {
-  if (data instanceof Blob) return data
-  return new Blob([data], { type: mimeType })
-}
-
-async function convertHeicBlob(file: File): Promise<Blob | null> {
-  try {
-    const { default: heic2any } = await import('heic2any')
-    const convertedJpeg = await heic2any({
-      blob: file,
-      toType: 'image/jpeg',
-      quality: 0.9,
-    })
-    if (Array.isArray(convertedJpeg)) {
-      const first = convertedJpeg[0]
-      if (!first) return null
-      return toBlob(first as Blob | ArrayBuffer, 'image/jpeg')
-    }
-    return toBlob(convertedJpeg as Blob | ArrayBuffer, 'image/jpeg')
-  } catch {
-    // Fall through to PNG attempt.
-  }
-
-  try {
-    const { default: heic2any } = await import('heic2any')
-    const convertedPng = await heic2any({
-      blob: file,
-      toType: 'image/png',
-      quality: 0.9,
-    })
-    if (Array.isArray(convertedPng)) {
-      const first = convertedPng[0]
-      if (!first) return null
-      return toBlob(first as Blob | ArrayBuffer, 'image/png')
-    }
-    return toBlob(convertedPng as Blob | ArrayBuffer, 'image/png')
-  } catch {
-    return null
-  }
 }
 
 export function useAiOcrController({
@@ -109,17 +53,7 @@ export function useAiOcrController({
     setIsAnalyzing(true)
 
     const formData = new FormData()
-    if (isHeicLikeFile(selectedFile)) {
-      const converted = await convertHeicBlob(selectedFile)
-      if (converted) {
-        const fileName = toConvertedFileName(selectedFile.name, converted.type)
-        formData.append('image', converted, fileName)
-      } else {
-        formData.append('image', selectedFile)
-      }
-    } else {
-      formData.append('image', selectedFile)
-    }
+    formData.append('image', selectedFile)
 
     if (mode === 'new') {
       formData.append('inline_provider_template', selectedTemplate)
