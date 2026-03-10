@@ -3,14 +3,26 @@
 import { useMemo, useRef, useState, useTransition } from 'react'
 import type { FormEvent } from 'react'
 import { createCoffeeEvaluation, updateCoffeeEvaluation } from '@/lib/actions/coffee'
-import type { CoffeeEvaluation } from '@/lib/types/coffee'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { CoffeeSlider } from './shared/coffee-slider'
 import { PublicToggle } from './shared/public-toggle'
 
+export type EvaluationFormDefaultValues = {
+  shop_name?: string | null
+  bean_type?: string | null
+  bean_name?: string | null
+  roast_level?: string | null
+  overall_rating?: number
+  acidity?: number
+  bitterness?: number
+  aroma?: number
+  is_public?: boolean
+}
+
 type EvaluationFormProps = {
-  initialData?: CoffeeEvaluation
+  id?: string
+  defaultValues?: EvaluationFormDefaultValues
 }
 
 type FieldErrors = {
@@ -36,23 +48,23 @@ const ROAST_LEVELS = [
   { value: 'french', label: 'フレンチ（極深煎り）' },
 ]
 
-export function EvaluationForm({ initialData }: EvaluationFormProps) {
-  const [shopName, setShopName] = useState(initialData?.shop_name ?? '')
-  const [beanType, setBeanType] = useState(initialData?.bean_type ?? '')
-  const [beanName, setBeanName] = useState(initialData?.bean_name ?? '')
-  const [roastLevel, setRoastLevel] = useState(initialData?.roast_level ?? '')
+export function EvaluationForm({ id, defaultValues }: EvaluationFormProps) {
+  const [shopName, setShopName] = useState(defaultValues?.shop_name ?? '')
+  const [beanType, setBeanType] = useState(defaultValues?.bean_type ?? '')
+  const [beanName, setBeanName] = useState(defaultValues?.bean_name ?? '')
+  const [roastLevel, setRoastLevel] = useState(defaultValues?.roast_level ?? '')
   const [errors, setErrors] = useState<FieldErrors>({})
   const [isPending, startTransition] = useTransition()
   const formRef = useRef<HTMLFormElement | null>(null)
 
   const [ratings, setRatings] = useState(() => ({
-    overall_rating: initialData?.overall_rating ?? 5,
-    acidity: initialData?.acidity ?? 5,
-    bitterness: initialData?.bitterness ?? 5,
-    aroma: initialData?.aroma ?? 5,
+    overall_rating: defaultValues?.overall_rating ?? 5,
+    acidity: defaultValues?.acidity ?? 5,
+    bitterness: defaultValues?.bitterness ?? 5,
+    aroma: defaultValues?.aroma ?? 5,
   }))
 
-  const isEditMode = Boolean(initialData)
+  const isEditMode = Boolean(id)
   const buttonLabel = isPending ? '処理中...' : isEditMode ? '更新' : '保存'
 
   const handleValidation = () => {
@@ -98,7 +110,7 @@ export function EvaluationForm({ initialData }: EvaluationFormProps) {
 
     startTransition(async () => {
       const response = isEditMode
-        ? await updateCoffeeEvaluation(initialData!.id, formData)
+        ? await updateCoffeeEvaluation(id!, formData)
         : await createCoffeeEvaluation(formData)
 
       if (response && 'error' in response) {
@@ -177,7 +189,7 @@ export function EvaluationForm({ initialData }: EvaluationFormProps) {
         スライダーは1〜10の範囲で入力できます（初期値は5）。後からいつでも編集できます。
       </p>
 
-      <PublicToggle defaultChecked={initialData?.is_public ?? false} name="is_public" />
+      <PublicToggle defaultChecked={defaultValues?.is_public ?? false} name="is_public" />
 
       {errors._form && (
         <p className="text-sm text-red-600" role="alert" aria-live="assertive">

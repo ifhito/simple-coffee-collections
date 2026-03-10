@@ -1,5 +1,7 @@
 {
   "enabledPlugins": {
-    "supabase@claude-plugins-official": true
-  }
+    "supabase@claude-plugins-official": true,
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": true
+  },
+  "plansDirectory": "./plans"
 }

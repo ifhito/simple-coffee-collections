@@ -18,11 +18,20 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.58",
+    "@ai-sdk/google": "^3.0.43",
+    "@ai-sdk/openai-compatible": "^2.0.35",
+    "@mastra/core": "^1.10.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
+    "ai": "^6.0.116",
+    "heic-convert": "^2.1.0",
+    "heic2any": "^0.0.4",
     "next": "^15.1.3",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "sharp": "^0.34.5",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",

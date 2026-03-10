@@ -13,6 +13,12 @@
 
 import type { CoffeeEvaluationRepository } from '@/lib/domain'
 import { SupabaseCoffeeEvaluationRepository } from '@/lib/infrastructure'
+import type { UserLlmSettingsRepository } from '@/lib/domain/llm-settings'
+import { SupabaseUserLlmSettingsRepository } from '@/lib/infrastructure/repositories/supabase-user-llm-settings-repository'
+import type { ApiKeyEncryptor, LlmModelFactory, OcrExecutor } from '@/lib/application/ports'
+import { Aes256GcmEncryptor } from '@/lib/infrastructure/crypto/aes-256-gcm-encryptor'
+import { DefaultLlmModelFactory } from '@/lib/infrastructure/llm/default-llm-model-factory'
+import { MastraOcrExecutor } from '@/lib/infrastructure/ocr/mastra-ocr-executor'
 
 /**
  * Singleton instance of CoffeeEvaluationRepository
@@ -63,6 +69,10 @@ export function createCoffeeEvaluationRepository(
  */
 export function resetRepositories(): void {
   coffeeEvaluationRepositoryInstance = null
+  userLlmSettingsRepositoryInstance = null
+  apiKeyEncryptorInstance = null
+  llmModelFactoryInstance = null
+  ocrExecutorInstance = null
 }
 
 /**
@@ -72,4 +82,72 @@ export function resetRepositories(): void {
  */
 export function setCoffeeEvaluationRepository(repo: CoffeeEvaluationRepository): void {
   coffeeEvaluationRepositoryInstance = repo
+}
+
+// =============================================================================
+// UserLlmSettingsRepository
+// =============================================================================
+
+let userLlmSettingsRepositoryInstance: UserLlmSettingsRepository | null = null
+
+export function getUserLlmSettingsRepository(): UserLlmSettingsRepository {
+  if (!userLlmSettingsRepositoryInstance) {
+    userLlmSettingsRepositoryInstance = new SupabaseUserLlmSettingsRepository()
+  }
+  return userLlmSettingsRepositoryInstance
+}
+
+export function setUserLlmSettingsRepository(repo: UserLlmSettingsRepository): void {
+  userLlmSettingsRepositoryInstance = repo
+}
+
+// =============================================================================
+// ApiKeyEncryptor
+// =============================================================================
+
+let apiKeyEncryptorInstance: ApiKeyEncryptor | null = null
+
+export function getApiKeyEncryptor(): ApiKeyEncryptor {
+  if (!apiKeyEncryptorInstance) {
+    apiKeyEncryptorInstance = new Aes256GcmEncryptor()
+  }
+  return apiKeyEncryptorInstance
+}
+
+export function setApiKeyEncryptor(encryptor: ApiKeyEncryptor): void {
+  apiKeyEncryptorInstance = encryptor
+}
+
+// =============================================================================
+// LlmModelFactory
+// =============================================================================
+
+let llmModelFactoryInstance: LlmModelFactory | null = null
+
+export function getLlmModelFactory(): LlmModelFactory {
+  if (!llmModelFactoryInstance) {
+    llmModelFactoryInstance = new DefaultLlmModelFactory()
+  }
+  return llmModelFactoryInstance
+}
+
+export function setLlmModelFactory(factory: LlmModelFactory): void {
+  llmModelFactoryInstance = factory
+}
+
+// =============================================================================
+// OcrExecutor
+// =============================================================================
+
+let ocrExecutorInstance: OcrExecutor | null = null
+
+export function getOcrExecutor(): OcrExecutor {
+  if (!ocrExecutorInstance) {
+    ocrExecutorInstance = new MastraOcrExecutor()
+  }
+  return ocrExecutorInstance
+}
+
+export function setOcrExecutor(executor: OcrExecutor): void {
+  ocrExecutorInstance = executor
 }

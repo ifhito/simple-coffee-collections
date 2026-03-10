@@ -205,6 +205,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_llm_settings: {
+        Row: {
+          id: string
+          user_id: string
+          provider: 'openai_compatible' | 'anthropic' | 'ollama'
+          provider_template: string | null
+          api_url: string | null
+          encrypted_api_key: string | null
+          model_name: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          provider: 'openai_compatible' | 'anthropic' | 'ollama'
+          provider_template?: string | null
+          api_url?: string | null
+          encrypted_api_key?: string | null
+          model_name: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          provider?: 'openai_compatible' | 'anthropic' | 'ollama'
+          provider_template?: string | null
+          api_url?: string | null
+          encrypted_api_key?: string | null
+          model_name?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
           bio: string | null
