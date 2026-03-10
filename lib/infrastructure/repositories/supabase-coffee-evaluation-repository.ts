@@ -35,21 +35,25 @@ type CoffeeEvaluationUpdate = Database['public']['Tables']['coffee_evaluations']
  * Maps a database row to a CoffeeEvaluation domain entity
  */
 function mapRowToEntity(row: CoffeeEvaluationRow): CoffeeEvaluation {
+  const hasRatings = row.acidity !== null && row.bitterness !== null && row.aroma !== null && row.overall_rating !== null
+
   const props: CoffeeEvaluationProps = {
     id: row.id,
     userId: row.user_id,
-    shopInfo: ShopInfo.fromPrimitive(row.shop_name),
+    shopInfo: ShopInfo.fromPrimitive(row.shop_name ?? ''),
     beanInfo: BeanInfo.fromPrimitive(
       row.bean_name ?? '',
-      row.bean_type,
+      row.bean_type ?? '',
       row.roast_level
     ),
-    ratings: {
-      acidity: Rating.fromPrimitive(row.acidity as RatingValue),
-      bitterness: Rating.fromPrimitive(row.bitterness as RatingValue),
-      aroma: Rating.fromPrimitive(row.aroma as RatingValue),
-      overallRating: Rating.fromPrimitive(row.overall_rating as RatingValue),
-    },
+    ratings: hasRatings
+      ? {
+          acidity: Rating.fromPrimitive(row.acidity as RatingValue),
+          bitterness: Rating.fromPrimitive(row.bitterness as RatingValue),
+          aroma: Rating.fromPrimitive(row.aroma as RatingValue),
+          overallRating: Rating.fromPrimitive(row.overall_rating as RatingValue),
+        }
+      : null,
     visibility: Visibility.fromBoolean(row.is_public),
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
@@ -68,10 +72,10 @@ function mapEntityToInsert(entity: CoffeeEvaluation): Omit<CoffeeEvaluationInser
     bean_type: entity.beanType,
     bean_name: entity.beanName,
     roast_level: entity.roastLevel,
-    acidity: entity.acidity.value,
-    bitterness: entity.bitterness.value,
-    aroma: entity.aroma.value,
-    overall_rating: entity.overallRating.value,
+    acidity: entity.acidity?.value ?? null,
+    bitterness: entity.bitterness?.value ?? null,
+    aroma: entity.aroma?.value ?? null,
+    overall_rating: entity.overallRating?.value ?? null,
     is_public: entity.isPublic,
   }
 }
@@ -85,10 +89,10 @@ function mapEntityToUpdate(entity: CoffeeEvaluation): CoffeeEvaluationUpdate {
     bean_type: entity.beanType,
     bean_name: entity.beanName,
     roast_level: entity.roastLevel,
-    acidity: entity.acidity.value,
-    bitterness: entity.bitterness.value,
-    aroma: entity.aroma.value,
-    overall_rating: entity.overallRating.value,
+    acidity: entity.acidity?.value ?? null,
+    bitterness: entity.bitterness?.value ?? null,
+    aroma: entity.aroma?.value ?? null,
+    overall_rating: entity.overallRating?.value ?? null,
     is_public: entity.isPublic,
   }
 }

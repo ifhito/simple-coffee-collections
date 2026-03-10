@@ -17,6 +17,7 @@ export type {
   CoffeeEvaluationId,
   EvaluationRatings,
   CreateCoffeeEvaluationInput,
+  CreateBeanOnlyInput,
   UpdateCoffeeEvaluationInput,
   CoffeeEvaluationProps,
 } from './entity'

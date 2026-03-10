@@ -1,7 +1,7 @@
 /**
  * CoffeeEvaluation Entity Unit Tests
  */
-import { CoffeeEvaluation, CreateCoffeeEvaluationInput } from '../coffee-evaluation/entity'
+import { CoffeeEvaluation, CreateCoffeeEvaluationInput, CreateBeanOnlyInput } from '../coffee-evaluation/entity'
 
 describe('CoffeeEvaluation Entity', () => {
   const validInput: CreateCoffeeEvaluationInput = {
@@ -78,6 +78,155 @@ describe('CoffeeEvaluation Entity', () => {
       if (!result.ok) {
         expect(result.error).toContain('コーヒー名')
       }
+    })
+  })
+
+  describe('createBeanOnly', () => {
+    const beanOnlyInput: CreateBeanOnlyInput = {
+      userId: 'user-123',
+      shopName: 'スターバックス',
+      beanName: 'Ethiopia Yirgacheffe',
+      beanType: 'アフリカ',
+      roastLevel: '中煎り',
+      isPublic: true,
+    }
+
+    it('should create a bean-only evaluation with null ratings', () => {
+      const result = CoffeeEvaluation.createBeanOnly(beanOnlyInput)
+
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        const evaluation = result.value
+        expect(evaluation.beanName).toBe('Ethiopia Yirgacheffe')
+        expect(evaluation.shopName).toBe('スターバックス')
+        expect(evaluation.ratings).toBeNull()
+        expect(evaluation.acidity).toBeNull()
+        expect(evaluation.bitterness).toBeNull()
+        expect(evaluation.aroma).toBeNull()
+        expect(evaluation.overallRating).toBeNull()
+        expect(evaluation.isEvaluated).toBe(false)
+      }
+    })
+
+    it('should fail with empty bean name', () => {
+      const result = CoffeeEvaluation.createBeanOnly({
+        ...beanOnlyInput,
+        beanName: '',
+      })
+
+      expect(result.ok).toBe(false)
+    })
+  })
+
+  describe('isEvaluated', () => {
+    it('should return true for evaluation with ratings', () => {
+      const result = CoffeeEvaluation.create(validInput)
+
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.isEvaluated).toBe(true)
+      }
+    })
+
+    it('should return false for bean-only evaluation', () => {
+      const result = CoffeeEvaluation.createBeanOnly({
+        userId: 'user-123',
+        beanName: 'Test Bean',
+        isPublic: false,
+      })
+
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.isEvaluated).toBe(false)
+      }
+    })
+  })
+
+  describe('evaluate', () => {
+    it('should add ratings to an unevaluated bean', () => {
+      const createResult = CoffeeEvaluation.createBeanOnly({
+        userId: 'user-123',
+        beanName: 'Test Bean',
+        isPublic: false,
+      })
+      expect(createResult.ok).toBe(true)
+      if (!createResult.ok) return
+
+      const evaluateResult = createResult.value.evaluate({
+        acidity: 7,
+        bitterness: 5,
+        aroma: 8,
+        overallRating: 8,
+      })
+
+      expect(evaluateResult.ok).toBe(true)
+      if (evaluateResult.ok) {
+        expect(evaluateResult.value.isEvaluated).toBe(true)
+        expect(evaluateResult.value.acidity!.value).toBe(7)
+        expect(evaluateResult.value.bitterness!.value).toBe(5)
+        expect(evaluateResult.value.aroma!.value).toBe(8)
+        expect(evaluateResult.value.overallRating!.value).toBe(8)
+        // Bean info should be preserved
+        expect(evaluateResult.value.beanName).toBe('Test Bean')
+      }
+    })
+
+    it('should allow re-evaluation (overwrite existing ratings)', () => {
+      const createResult = CoffeeEvaluation.create(validInput)
+      expect(createResult.ok).toBe(true)
+      if (!createResult.ok) return
+
+      const evaluateResult = createResult.value.evaluate({
+        acidity: 3,
+        bitterness: 9,
+        aroma: 4,
+        overallRating: 6,
+      })
+
+      expect(evaluateResult.ok).toBe(true)
+      if (evaluateResult.ok) {
+        expect(evaluateResult.value.acidity!.value).toBe(3)
+        expect(evaluateResult.value.bitterness!.value).toBe(9)
+        expect(evaluateResult.value.overallRating!.value).toBe(6)
+      }
+    })
+
+    it('should fail with invalid rating values', () => {
+      const createResult = CoffeeEvaluation.createBeanOnly({
+        userId: 'user-123',
+        beanName: 'Test Bean',
+        isPublic: false,
+      })
+      expect(createResult.ok).toBe(true)
+      if (!createResult.ok) return
+
+      const evaluateResult = createResult.value.evaluate({
+        acidity: 15,
+        bitterness: 5,
+        aroma: 8,
+        overallRating: 8,
+      })
+
+      expect(evaluateResult.ok).toBe(false)
+    })
+  })
+
+  describe('toPersistence', () => {
+    it('should serialize null ratings when unevaluated', () => {
+      const result = CoffeeEvaluation.createBeanOnly({
+        userId: 'user-123',
+        beanName: 'Test Bean',
+        isPublic: true,
+      })
+      expect(result.ok).toBe(true)
+      if (!result.ok) return
+
+      const persistence = result.value.toPersistence()
+      expect(persistence.acidity).toBeNull()
+      expect(persistence.bitterness).toBeNull()
+      expect(persistence.aroma).toBeNull()
+      expect(persistence.overall_rating).toBeNull()
+      expect(persistence.bean_name).toBe('Test Bean')
     })
   })
 

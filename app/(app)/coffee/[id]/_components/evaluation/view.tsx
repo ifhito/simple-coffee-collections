@@ -50,18 +50,32 @@ export function EvaluationDetailView({ evaluation, currentUserId }: EvaluationDe
         )}
       </header>
 
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {ratings.map((key) => (
-          <div
-            key={key}
-            className="rounded-md border border-neutral-100 p-3 animate-slide-up"
-            style={{ animationDelay: `${ratings.indexOf(key) * 40}ms` }}
-          >
-            <p className="text-xs text-neutral-500">{labelMap[key]}</p>
-            <RatingStars rating={evaluation[key]} size="md" />
-          </div>
-        ))}
-      </section>
+      {evaluation.overall_rating !== null ? (
+        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {ratings.map((key) => (
+            <div
+              key={key}
+              className="rounded-md border border-neutral-100 p-3 animate-slide-up"
+              style={{ animationDelay: `${ratings.indexOf(key) * 40}ms` }}
+            >
+              <p className="text-xs text-neutral-500">{labelMap[key]}</p>
+              <RatingStars rating={evaluation[key]!} size="md" />
+            </div>
+          ))}
+        </section>
+      ) : (
+        <section className="rounded-md border border-neutral-100 bg-neutral-50 p-4 animate-fade-in">
+          <p className="text-sm text-neutral-500">まだ評価されていません</p>
+          {isOwner && (
+            <Link
+              href={`/coffee/${evaluation.id}/evaluate`}
+              className="mt-2 inline-flex items-center rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700"
+            >
+              評価する
+            </Link>
+          )}
+        </section>
+      )}
 
       {evaluation.notes && (
         <section className="rounded-md border border-neutral-100 bg-neutral-50 p-4 animate-fade-in">

@@ -29,7 +29,7 @@ export interface EvaluationRatings {
 }
 
 /**
- * Input for creating a new CoffeeEvaluation
+ * Input for creating a new CoffeeEvaluation (with ratings)
  */
 export interface CreateCoffeeEvaluationInput {
   userId: string
@@ -41,6 +41,18 @@ export interface CreateCoffeeEvaluationInput {
   bitterness: number
   aroma: number
   overallRating: number
+  isPublic: boolean
+}
+
+/**
+ * Input for creating a bean-only CoffeeEvaluation (without ratings)
+ */
+export interface CreateBeanOnlyInput {
+  userId: string
+  shopName?: string
+  beanName: string
+  beanType?: string
+  roastLevel?: string | null
   isPublic: boolean
 }
 
@@ -67,7 +79,7 @@ export interface CoffeeEvaluationProps {
   userId: string
   shopInfo: ShopInfo
   beanInfo: BeanInfo
-  ratings: EvaluationRatings
+  ratings: EvaluationRatings | null
   visibility: Visibility
   createdAt: Date
   updatedAt: Date
@@ -85,7 +97,7 @@ export class CoffeeEvaluation {
     private readonly _userId: string,
     private _shopInfo: ShopInfo,
     private _beanInfo: BeanInfo,
-    private _ratings: EvaluationRatings,
+    private _ratings: EvaluationRatings | null,
     private _visibility: Visibility,
     private readonly _createdAt: Date,
     private _updatedAt: Date
@@ -130,6 +142,36 @@ export class CoffeeEvaluation {
       shopInfoResult.value,
       beanInfoResult.value,
       ratingsResult.value,
+      Visibility.fromBoolean(input.isPublic),
+      now,
+      now
+    ))
+  }
+
+  /**
+   * Create a bean-only CoffeeEvaluation without ratings
+   * @param input - Bean info input data (no ratings)
+   * @returns Result containing CoffeeEvaluation or validation error
+   */
+  static createBeanOnly(input: CreateBeanOnlyInput): Result<CoffeeEvaluation, string> {
+    const shopInfoResult = ShopInfo.create(input.shopName)
+    if (!shopInfoResult.ok) return shopInfoResult
+
+    const beanInfoResult = BeanInfo.create({
+      beanName: input.beanName,
+      beanType: input.beanType,
+      roastLevel: input.roastLevel,
+    })
+    if (!beanInfoResult.ok) return beanInfoResult
+
+    const now = new Date()
+
+    return ok(new CoffeeEvaluation(
+      '',
+      input.userId,
+      shopInfoResult.value,
+      beanInfoResult.value,
+      null,
       Visibility.fromBoolean(input.isPublic),
       now,
       now
@@ -202,8 +244,12 @@ export class CoffeeEvaluation {
     return this._beanInfo
   }
 
-  get ratings(): EvaluationRatings {
+  get ratings(): EvaluationRatings | null {
     return this._ratings
+  }
+
+  get isEvaluated(): boolean {
+    return this._ratings !== null
   }
 
   get visibility(): Visibility {
@@ -235,20 +281,20 @@ export class CoffeeEvaluation {
     return this._beanInfo.roastLevel
   }
 
-  get acidity(): Rating {
-    return this._ratings.acidity
+  get acidity(): Rating | null {
+    return this._ratings?.acidity ?? null
   }
 
-  get bitterness(): Rating {
-    return this._ratings.bitterness
+  get bitterness(): Rating | null {
+    return this._ratings?.bitterness ?? null
   }
 
-  get aroma(): Rating {
-    return this._ratings.aroma
+  get aroma(): Rating | null {
+    return this._ratings?.aroma ?? null
   }
 
-  get overallRating(): Rating {
-    return this._ratings.overallRating
+  get overallRating(): Rating | null {
+    return this._ratings?.overallRating ?? null
   }
 
   get isPublic(): boolean {
@@ -274,6 +320,33 @@ export class CoffeeEvaluation {
     if (this._visibility.isPublic) return true
     if (!userId) return false
     return this._userId === userId
+  }
+
+  /**
+   * Add or update ratings on this evaluation
+   * Works for both unevaluated → evaluated transition and re-evaluation
+   * @param input - Rating values to set
+   * @returns Result with updated entity or validation error
+   */
+  evaluate(input: {
+    acidity: number
+    bitterness: number
+    aroma: number
+    overallRating: number
+  }): Result<CoffeeEvaluation, string> {
+    const ratingsResult = CoffeeEvaluation.validateRatings(input)
+    if (!ratingsResult.ok) return ratingsResult
+
+    return ok(new CoffeeEvaluation(
+      this._id,
+      this._userId,
+      this._shopInfo,
+      this._beanInfo,
+      ratingsResult.value,
+      this._visibility,
+      this._createdAt,
+      new Date()
+    ))
   }
 
   /**
@@ -310,11 +383,26 @@ export class CoffeeEvaluation {
       input.aroma !== undefined ||
       input.overallRating !== undefined
     ) {
+      // When current ratings are null, all four values must be provided
+      const currentAcidity = this._ratings?.acidity.value
+      const currentBitterness = this._ratings?.bitterness.value
+      const currentAroma = this._ratings?.aroma.value
+      const currentOverall = this._ratings?.overallRating.value
+
+      const acidity = input.acidity ?? currentAcidity
+      const bitterness = input.bitterness ?? currentBitterness
+      const aroma = input.aroma ?? currentAroma
+      const overallRating = input.overallRating ?? currentOverall
+
+      if (acidity === undefined || bitterness === undefined || aroma === undefined || overallRating === undefined) {
+        return fail('未評価の豆に対しては、全ての評価値を指定してください')
+      }
+
       const result = CoffeeEvaluation.validateRatings({
-        acidity: input.acidity ?? this._ratings.acidity.value,
-        bitterness: input.bitterness ?? this._ratings.bitterness.value,
-        aroma: input.aroma ?? this._ratings.aroma.value,
-        overallRating: input.overallRating ?? this._ratings.overallRating.value,
+        acidity,
+        bitterness,
+        aroma,
+        overallRating,
       })
       if (!result.ok) return result
       newRatings = result.value
@@ -368,10 +456,10 @@ export class CoffeeEvaluation {
     bean_type: string
     bean_name: string
     roast_level: string | null
-    acidity: RatingValue
-    bitterness: RatingValue
-    aroma: RatingValue
-    overall_rating: RatingValue
+    acidity: RatingValue | null
+    bitterness: RatingValue | null
+    aroma: RatingValue | null
+    overall_rating: RatingValue | null
     is_public: boolean
     created_at: string
     updated_at: string
@@ -383,10 +471,10 @@ export class CoffeeEvaluation {
       bean_type: this._beanInfo.beanType,
       bean_name: this._beanInfo.beanName,
       roast_level: this._beanInfo.roastLevel,
-      acidity: this._ratings.acidity.value,
-      bitterness: this._ratings.bitterness.value,
-      aroma: this._ratings.aroma.value,
-      overall_rating: this._ratings.overallRating.value,
+      acidity: this._ratings?.acidity.value ?? null,
+      bitterness: this._ratings?.bitterness.value ?? null,
+      aroma: this._ratings?.aroma.value ?? null,
+      overall_rating: this._ratings?.overallRating.value ?? null,
       is_public: this._visibility.isPublic,
       created_at: this._createdAt.toISOString(),
       updated_at: this._updatedAt.toISOString(),

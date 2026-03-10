@@ -27,16 +27,17 @@ type ActionResponse = { error: string } | void
 
 /**
  * Parsed and validated form data for coffee evaluation
+ * Rating fields are nullable to support bean-only registration
  */
 interface ParsedEvaluationData {
   shop_name: string
   bean_type: string
   bean_name: string
   roast_level: string | null
-  acidity: number
-  bitterness: number
-  aroma: number
-  overall_rating: number
+  acidity: number | null
+  bitterness: number | null
+  aroma: number | null
+  overall_rating: number | null
   is_public: boolean
 }
 
@@ -98,21 +99,31 @@ function parseRating(value: FormDataEntryValue | null): number {
  * @param formData - Form data from client
  * @returns Parsed evaluation data object
  */
+/**
+ * Parse a rating field, returning null if the value is empty or missing
+ */
+function parseNullableRating(value: FormDataEntryValue | null): number | null {
+  if (value === null || value === '') return null
+  return typeof value === 'string' ? parseInt(value, 10) : NaN
+}
+
 function parseEvaluationFormData(formData: FormData): ParsedEvaluationData {
   const shopName = getStringField(formData, 'shop_name').trim()
   const beanType = getStringField(formData, 'bean_type').trim()
   const beanName = getStringField(formData, 'bean_name').trim()
   const roastLevel = getStringField(formData, 'roast_level').trim()
 
+  const skipEvaluation = formData.get('skip_evaluation') === 'true'
+
   return {
     shop_name: shopName,
     bean_type: beanType,
     bean_name: beanName,
     roast_level: roastLevel || null,
-    acidity: parseRating(formData.get('acidity')),
-    bitterness: parseRating(formData.get('bitterness')),
-    aroma: parseRating(formData.get('aroma')),
-    overall_rating: parseRating(formData.get('overall_rating')),
+    acidity: skipEvaluation ? null : parseNullableRating(formData.get('acidity')),
+    bitterness: skipEvaluation ? null : parseNullableRating(formData.get('bitterness')),
+    aroma: skipEvaluation ? null : parseNullableRating(formData.get('aroma')),
+    overall_rating: skipEvaluation ? null : parseNullableRating(formData.get('overall_rating')),
     is_public: formData.get('is_public') === 'true',
   }
 }
@@ -128,16 +139,20 @@ function validateEvaluationData(data: ParsedEvaluationData): ValidationResult {
     return buildFieldError('bean_name', 'bean_name is required')
   }
 
-  // Validate rating values (1-10)
-  const ratings = [
-    data.acidity,
-    data.bitterness,
-    data.aroma,
-    data.overall_rating,
-  ]
-  for (const rating of ratings) {
-    if (isNaN(rating) || rating < 1 || rating > 10) {
-      return { error: 'rating must be between 1-10' }
+  // All-or-nothing: either all ratings are null or all are present
+  const ratings = [data.acidity, data.bitterness, data.aroma, data.overall_rating]
+  const nullCount = ratings.filter((r) => r === null).length
+
+  if (nullCount > 0 && nullCount < 4) {
+    return { error: '評価値は全て入力するか、全て空にしてください' }
+  }
+
+  // Validate rating values (1-10) when present
+  if (nullCount === 0) {
+    for (const rating of ratings) {
+      if (isNaN(rating!) || rating! < 1 || rating! > 10) {
+        return { error: 'rating must be between 1-10' }
+      }
     }
   }
 
@@ -220,10 +235,10 @@ export async function createCoffeeEvaluation(
       bean_type: data.bean_type,
       bean_name: data.bean_name,
       roast_level: data.roast_level,
-      acidity: data.acidity,
-      bitterness: data.bitterness,
-      aroma: data.aroma,
-      overall_rating: data.overall_rating,
+      acidity: data.acidity ?? undefined,
+      bitterness: data.bitterness ?? undefined,
+      aroma: data.aroma ?? undefined,
+      overall_rating: data.overall_rating ?? undefined,
       is_public: data.is_public,
     })
 
@@ -353,4 +368,66 @@ export async function deleteCoffeeEvaluation(
 
   // 5. Redirect to user's my page
   redirect('/coffee/my')
+}
+
+/**
+ * Add or update evaluation ratings on an existing coffee evaluation
+ *
+ * @param id - Coffee evaluation ID to evaluate
+ * @param formData - Form data containing rating fields
+ * @returns void on success (redirects), or error object on failure
+ */
+export async function addEvaluation(
+  id: string,
+  formData: FormData
+): Promise<ActionResponse> {
+  // 1. Authenticate user
+  const authResult = await getAuthenticatedUser()
+  if ('error' in authResult) {
+    return authResult
+  }
+  const { user } = authResult
+
+  // 2. Verify ownership
+  const ownershipError = await verifyEvaluationOwnership(id, user.id)
+  if (ownershipError) {
+    return ownershipError
+  }
+
+  // 3. Parse and validate rating data
+  const acidity = parseRating(formData.get('acidity'))
+  const bitterness = parseRating(formData.get('bitterness'))
+  const aroma = parseRating(formData.get('aroma'))
+  const overallRating = parseRating(formData.get('overall_rating'))
+
+  const ratings = [acidity, bitterness, aroma, overallRating]
+  for (const rating of ratings) {
+    if (isNaN(rating) || rating < 1 || rating > 10) {
+      return { error: 'rating must be between 1-10' }
+    }
+  }
+
+  // 4. Update database
+  const supabase = await createClient()
+  const { error: updateError } = await supabase
+    .from('coffee_evaluations')
+    .update({
+      acidity,
+      bitterness,
+      aroma,
+      overall_rating: overallRating,
+    })
+    .eq('id', id)
+
+  if (updateError) {
+    return { error: updateError.message }
+  }
+
+  // 5. Revalidate caches
+  revalidatePath('/coffee')
+  revalidatePath(`/coffee/${id}`)
+  revalidatePath('/coffee/my')
+
+  // 6. Redirect to detail page
+  redirect(`/coffee/${id}`)
 }

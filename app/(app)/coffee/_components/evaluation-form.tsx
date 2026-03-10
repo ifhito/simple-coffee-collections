@@ -13,10 +13,10 @@ export type EvaluationFormDefaultValues = {
   bean_type?: string | null
   bean_name?: string | null
   roast_level?: string | null
-  overall_rating?: number
-  acidity?: number
-  bitterness?: number
-  aroma?: number
+  overall_rating?: number | null
+  acidity?: number | null
+  bitterness?: number | null
+  aroma?: number | null
   is_public?: boolean
 }
 
@@ -53,6 +53,7 @@ export function EvaluationForm({ id, defaultValues }: EvaluationFormProps) {
   const [beanType, setBeanType] = useState(defaultValues?.bean_type ?? '')
   const [beanName, setBeanName] = useState(defaultValues?.bean_name ?? '')
   const [roastLevel, setRoastLevel] = useState(defaultValues?.roast_level ?? '')
+  const [skipEvaluation, setSkipEvaluation] = useState(false)
   const [errors, setErrors] = useState<FieldErrors>({})
   const [isPending, startTransition] = useTransition()
   const formRef = useRef<HTMLFormElement | null>(null)
@@ -90,10 +91,14 @@ export function EvaluationForm({ id, defaultValues }: EvaluationFormProps) {
     formData.set('bean_type', beanType.trim())
     formData.set('bean_name', beanName.trim())
     formData.set('roast_level', roastLevel.trim())
-    formData.set('acidity', ratings.acidity.toString())
-    formData.set('bitterness', ratings.bitterness.toString())
-    formData.set('aroma', ratings.aroma.toString())
-    formData.set('overall_rating', ratings.overall_rating.toString())
+    formData.set('skip_evaluation', skipEvaluation ? 'true' : 'false')
+
+    if (!skipEvaluation) {
+      formData.set('acidity', ratings.acidity.toString())
+      formData.set('bitterness', ratings.bitterness.toString())
+      formData.set('aroma', ratings.aroma.toString())
+      formData.set('overall_rating', ratings.overall_rating.toString())
+    }
     // is_public is automatically included from PublicToggle's hidden input
     return formData
   }
@@ -184,10 +189,26 @@ export function EvaluationForm({ id, defaultValues }: EvaluationFormProps) {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">{sliderRows}</div>
-      <p className="text-xs text-neutral-500">
-        スライダーは1〜10の範囲で入力できます（初期値は5）。後からいつでも編集できます。
-      </p>
+      {!isEditMode && (
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={skipEvaluation}
+            onChange={(e) => setSkipEvaluation(e.target.checked)}
+            className="h-4 w-4 rounded border-neutral-300 text-amber-600 focus:ring-amber-500"
+          />
+          <span className="text-sm text-neutral-700">評価は後で追加する</span>
+        </label>
+      )}
+
+      {!skipEvaluation && (
+        <>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">{sliderRows}</div>
+          <p className="text-xs text-neutral-500">
+            スライダーは1〜10の範囲で入力できます（初期値は5）。後からいつでも編集できます。
+          </p>
+        </>
+      )}
 
       <PublicToggle defaultChecked={defaultValues?.is_public ?? false} name="is_public" />
 
