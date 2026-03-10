@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
-import type { RoastLevelValue } from '@/lib/mastra/tools/coffee-ocr-tool'
-import type { OcrExtractedData } from '@/lib/application/ocr'
+import type { EvaluationFormDefaultValues } from '../_components/evaluation-form'
 import { NewEvaluationContainer } from './_components/new-evaluation-container'
 
 export const metadata: Metadata = {
@@ -16,18 +15,16 @@ export default async function NewCoffeeEvaluationPage({
     bean_type?: string
     roast_level?: string
     shop_name?: string
-    shop_address?: string
   }>
 }) {
   const params = await searchParams
-  const ocrPreFill: OcrExtractedData | undefined =
+  const defaultValues: EvaluationFormDefaultValues | undefined =
     params.bean_name || params.roast_level || params.shop_name
       ? {
-          bean_name: params.bean_name ?? null,
-          bean_type: params.bean_type ?? null,
-          roast_level: (params.roast_level as RoastLevelValue) ?? null,
-          shop_name: params.shop_name ?? null,
-          shop_address: params.shop_address ?? null,
+          bean_name: params.bean_name,
+          bean_type: params.bean_type,
+          roast_level: params.roast_level,
+          shop_name: params.shop_name,
         }
       : undefined
 
@@ -41,7 +38,7 @@ export default async function NewCoffeeEvaluationPage({
         </p>
       </header>
 
-      <NewEvaluationContainer ocrPreFill={ocrPreFill} />
+      <NewEvaluationContainer defaultValues={defaultValues} />
     </section>
   )
 }

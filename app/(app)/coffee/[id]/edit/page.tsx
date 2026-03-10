@@ -40,7 +40,7 @@ export default async function EditCoffeeEvaluationPage({
         </p>
       </header>
 
-      <EvaluationForm initialData={evaluation} />
+      <EvaluationForm id={evaluation.id} defaultValues={evaluation} />
     </section>
   )
 }

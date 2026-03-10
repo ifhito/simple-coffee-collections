@@ -80,7 +80,7 @@ export function useAiSettingsController(initialSettings: LlmSettingsOutput | nul
   }
 
   function handleDeleteSettings() {
-    if (!confirm('AI設定を削除してもよいですか？')) return
+    if (!confirm('AIプロバイダー設定を削除してもよいですか？')) return
 
     startTransition(async () => {
       const result = await deleteLlmSettings()

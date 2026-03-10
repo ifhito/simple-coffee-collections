@@ -1,12 +1,12 @@
 import Link from 'next/link'
 import { EvaluationForm } from '../../_components/evaluation-form'
-import type { OcrExtractedData } from '@/lib/application/ocr'
+import type { EvaluationFormDefaultValues } from '../../_components/evaluation-form'
 
 type Props = {
-  ocrPreFill?: OcrExtractedData
+  defaultValues?: EvaluationFormDefaultValues
 }
 
-export function NewEvaluationContainer({ ocrPreFill }: Props) {
+export function NewEvaluationContainer({ defaultValues }: Props) {
   return (
     <>
       {/* AI link button */}
@@ -21,13 +21,12 @@ export function NewEvaluationContainer({ ocrPreFill }: Props) {
           </svg>
           画像から入力する
         </Link>
-        {ocrPreFill && (
+        {defaultValues && (
           <span className="ml-3 text-xs text-green-600">✓ AI解析結果を反映済み（確認・修正してから保存してください）</span>
         )}
       </div>
 
-      {/* Evaluation form - pre-filled with OCR data when available */}
-      <EvaluationForm ocrPreFill={ocrPreFill} />
+      <EvaluationForm defaultValues={defaultValues} />
     </>
   )
 }

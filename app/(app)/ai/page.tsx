@@ -4,7 +4,7 @@ import { AiFeaturesClient } from './_components/ai-features-client'
 
 export const metadata: Metadata = {
   title: 'AI機能',
-  description: 'AI設定とコーヒーパッケージ画像解析',
+  description: 'AIプロバイダー設定とコーヒーパッケージ画像解析',
 }
 
 export default async function AiPage() {

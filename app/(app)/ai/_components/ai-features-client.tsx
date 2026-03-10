@@ -31,7 +31,7 @@ export function AiFeaturesClient({ initialSettings }: Props) {
     <div className="space-y-8">
       {/* ── AI設定セクション ── */}
       <section className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold text-neutral-900">AI設定</h2>
+        <h2 className="mb-4 text-lg font-semibold text-neutral-900">AIプロバイダー設定</h2>
 
         {settings.mode === 'view' && settings.currentSettings && (
           <div className="space-y-4">
