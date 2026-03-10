@@ -75,7 +75,7 @@ describe('Coffee end-to-end flows (mocked)', () => {
     // Edit
     cleanup()
     mockUpdateCoffeeEvaluation.mockResolvedValue(undefined)
-    render(<EvaluationForm initialData={sampleEvaluation as any} />)
+    render(<EvaluationForm id={sampleEvaluation.id} defaultValues={sampleEvaluation as any} />)
     await user.click(screen.getByRole('button', { name: /更新/i }))
     await waitFor(() =>
       expect(mockUpdateCoffeeEvaluation).toHaveBeenCalledWith(
@@ -129,7 +129,7 @@ describe('Coffee end-to-end flows (mocked)', () => {
       const user = userEvent.setup()
 
       mockUpdateCoffeeEvaluation.mockResolvedValue(undefined)
-      render(<EvaluationForm initialData={sampleEvaluation as any} />)
+      render(<EvaluationForm id={sampleEvaluation.id} defaultValues={sampleEvaluation as any} />)
 
       expect(screen.getByLabelText(/豆の名前/i)).toHaveValue(sampleEvaluation.bean_name)
 
@@ -148,7 +148,7 @@ describe('Coffee end-to-end flows (mocked)', () => {
       const user = userEvent.setup()
 
       mockUpdateCoffeeEvaluation.mockResolvedValue(undefined)
-      render(<EvaluationForm initialData={sampleEvaluation as any} />)
+      render(<EvaluationForm id={sampleEvaluation.id} defaultValues={sampleEvaluation as any} />)
 
       expect(screen.getByLabelText(/豆の名前/i)).toHaveValue(sampleEvaluation.bean_name)
 
