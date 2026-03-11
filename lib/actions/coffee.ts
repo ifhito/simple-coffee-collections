@@ -12,6 +12,7 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { getShopRepository } from '@/lib/di/container'
 import type { User } from '@supabase/supabase-js'
 
 /**
@@ -22,6 +23,7 @@ type ActionResponse = { error: string } | void
 
 interface ParsedBeanInfo {
   shop_name: string
+  shop_id: string | null
   bean_type: string
   bean_name: string
   roast_level: string | null
@@ -76,8 +78,10 @@ function parseRating(value: FormDataEntryValue | null): number {
 // =============================================================================
 
 function parseBeanInfoFormData(formData: FormData): ParsedBeanInfo {
+  const shopId = getStringField(formData, 'shop_id').trim()
   return {
     shop_name: getStringField(formData, 'shop_name').trim(),
+    shop_id: shopId || null,
     bean_type: getStringField(formData, 'bean_type').trim(),
     bean_name: getStringField(formData, 'bean_name').trim(),
     roast_level: getStringField(formData, 'roast_level').trim() || null,
@@ -146,6 +150,19 @@ function validateRatings(data: ParsedRatings): ValidationResult {
 }
 
 // =============================================================================
+// Shop Resolution
+// =============================================================================
+
+async function resolveShopId(beanInfo: ParsedBeanInfo): Promise<string | null> {
+  if (beanInfo.shop_id) return beanInfo.shop_id
+  if (!beanInfo.shop_name) return null
+
+  const shopRepo = getShopRepository()
+  const result = await shopRepo.findOrCreate(beanInfo.shop_name)
+  return result.ok ? result.value.id : null
+}
+
+// =============================================================================
 // Ownership Verification
 // =============================================================================
 
@@ -199,12 +216,15 @@ export async function createCoffeeEvaluation(
     if (ratingsError) return ratingsError
   }
 
+  const shopId = await resolveShopId(beanInfo)
+
   const supabase = await createClient()
   const { error: insertError } = await supabase
     .from('coffee_evaluations')
     .insert({
       user_id: user.id,
       ...beanInfo,
+      shop_id: shopId,
       ...(ratings ?? {}),
     })
 
@@ -261,9 +281,12 @@ export async function updateCoffeeEvaluation(
     return { error: '評価済みの豆から評価を取り消すことはできません' }
   }
 
+  const shopId = await resolveShopId(beanInfo)
+
   // Build update payload — only include ratings if present
   const updatePayload: Record<string, unknown> = {
     shop_name: beanInfo.shop_name,
+    shop_id: shopId,
     bean_type: beanInfo.bean_type,
     bean_name: beanInfo.bean_name,
     roast_level: beanInfo.roast_level,

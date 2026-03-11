@@ -25,6 +25,7 @@ export type CoffeeEvaluationId = string
 export interface CreateCoffeeEvaluationInput {
   userId: string
   shopName?: string
+  shopId?: string | null
   beanName: string
   beanType?: string
   roastLevel?: string | null
@@ -41,6 +42,7 @@ export interface CreateCoffeeEvaluationInput {
 export interface CreateBeanOnlyInput {
   userId: string
   shopName?: string
+  shopId?: string | null
   beanName: string
   beanType?: string
   roastLevel?: string | null
@@ -52,6 +54,7 @@ export interface CreateBeanOnlyInput {
  */
 export interface UpdateCoffeeEvaluationInput {
   shopName?: string
+  shopId?: string | null
   beanName?: string
   beanType?: string
   roastLevel?: string | null
@@ -104,7 +107,7 @@ export class CoffeeEvaluation {
    * @returns Result containing CoffeeEvaluation or validation error
    */
   static create(input: CreateCoffeeEvaluationInput): Result<CoffeeEvaluation, string> {
-    const shopInfoResult = ShopInfo.create(input.shopName)
+    const shopInfoResult = ShopInfo.create(input.shopName, input.shopId)
     if (!shopInfoResult.ok) return shopInfoResult
 
     const beanInfoResult = BeanInfo.create({
@@ -142,7 +145,7 @@ export class CoffeeEvaluation {
    * @returns Result containing CoffeeEvaluation or validation error
    */
   static createBeanOnly(input: CreateBeanOnlyInput): Result<CoffeeEvaluation, string> {
-    const shopInfoResult = ShopInfo.create(input.shopName)
+    const shopInfoResult = ShopInfo.create(input.shopName, input.shopId)
     if (!shopInfoResult.ok) return shopInfoResult
 
     const beanInfoResult = BeanInfo.create({
@@ -226,6 +229,10 @@ export class CoffeeEvaluation {
   // Convenience getters for common access patterns
   get shopName(): string {
     return this._shopInfo.shopName
+  }
+
+  get shopId(): string | null {
+    return this._shopInfo.shopId
   }
 
   get beanName(): string {
@@ -316,8 +323,11 @@ export class CoffeeEvaluation {
   update(input: UpdateCoffeeEvaluationInput): Result<CoffeeEvaluation, string> {
     // Validate and create new shop info if provided
     let newShopInfo = this._shopInfo
-    if (input.shopName !== undefined) {
-      const result = ShopInfo.create(input.shopName)
+    if (input.shopName !== undefined || input.shopId !== undefined) {
+      const result = ShopInfo.create(
+        input.shopName ?? this._shopInfo.shopName,
+        input.shopId !== undefined ? input.shopId : this._shopInfo.shopId
+      )
       if (!result.ok) return result
       newShopInfo = result.value
     }
@@ -412,6 +422,7 @@ export class CoffeeEvaluation {
     id: string
     user_id: string
     shop_name: string
+    shop_id: string | null
     bean_type: string
     bean_name: string
     roast_level: string | null
@@ -423,6 +434,7 @@ export class CoffeeEvaluation {
       id: this._id,
       user_id: this._userId,
       shop_name: this._shopInfo.shopName,
+      shop_id: this._shopInfo.shopId,
       bean_type: this._beanInfo.beanType,
       bean_name: this._beanInfo.beanName,
       roast_level: this._beanInfo.roastLevel,

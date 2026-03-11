@@ -15,6 +15,8 @@ import type { RatingValue, EvaluationSortOption } from '@/lib/domain'
 export interface CreateEvaluationInput {
   /** Shop/cafe name (optional) */
   shopName?: string
+  /** Shop entity ID (optional) */
+  shopId?: string | null
   /** Coffee bean name (required) */
   beanName: string
   /** Bean type/origin (optional) */
@@ -41,6 +43,8 @@ export interface UpdateEvaluationInput {
   id: string
   /** Shop/cafe name */
   shopName?: string
+  /** Shop entity ID */
+  shopId?: string | null
   /** Coffee bean name */
   beanName?: string
   /** Bean type/origin */
@@ -86,6 +90,7 @@ export interface EvaluationOutput {
   id: string
   userId: string
   shopName: string
+  shopId: string | null
   beanName: string
   beanType: string
   roastLevel: string | null
@@ -120,6 +125,7 @@ export function toEvaluationOutput(entity: {
   id: string
   userId: string
   shopName: string
+  shopId: string | null
   beanName: string
   beanType: string
   roastLevel: string | null
@@ -136,6 +142,7 @@ export function toEvaluationOutput(entity: {
     id: entity.id,
     userId: entity.userId,
     shopName: entity.shopName,
+    shopId: entity.shopId,
     beanName: entity.beanName,
     beanType: entity.beanType,
     roastLevel: entity.roastLevel,

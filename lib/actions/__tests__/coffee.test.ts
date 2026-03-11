@@ -12,6 +12,13 @@ jest.mock('next/cache', () => ({
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(),
 }))
+jest.mock('@/lib/di/container', () => ({
+  getShopRepository: jest.fn(() => ({
+    findOrCreate: jest.fn().mockResolvedValue({ ok: true, value: { id: 'mock-shop-id' } }),
+    search: jest.fn().mockResolvedValue([]),
+    findById: jest.fn().mockResolvedValue({ ok: true, value: null }),
+  })),
+}))
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'

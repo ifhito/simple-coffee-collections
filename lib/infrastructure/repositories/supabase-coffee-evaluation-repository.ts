@@ -75,7 +75,7 @@ function mapRowToEntity(row: CoffeeEvaluationRow): CoffeeEvaluation {
   const props: CoffeeEvaluationProps = {
     id: row.id,
     userId: row.user_id,
-    shopInfo: ShopInfo.fromPrimitive(row.shop_name ?? ''),
+    shopInfo: ShopInfo.fromPrimitive(row.shop_name ?? '', row.shop_id),
     beanInfo: BeanInfo.fromPrimitive(
       row.bean_name ?? '',
       row.bean_type ?? '',
@@ -97,10 +97,11 @@ function mapEntityToWritableFields(
   entity: CoffeeEvaluation
 ): Pick<
   CoffeeEvaluationInsert,
-  'shop_name' | 'bean_type' | 'bean_name' | 'roast_level' | 'acidity' | 'bitterness' | 'aroma' | 'overall_rating' | 'is_public'
+  'shop_name' | 'shop_id' | 'bean_type' | 'bean_name' | 'roast_level' | 'acidity' | 'bitterness' | 'aroma' | 'overall_rating' | 'is_public'
 > {
   const {
     shop_name,
+    shop_id,
     bean_type,
     bean_name,
     roast_level,
@@ -113,6 +114,7 @@ function mapEntityToWritableFields(
 
   return {
     shop_name,
+    shop_id,
     bean_type,
     bean_name,
     roast_level,

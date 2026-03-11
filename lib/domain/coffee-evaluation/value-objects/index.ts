@@ -14,6 +14,7 @@ export { BeanInfo, BEAN_INFO_CONSTRAINTS } from './bean-info'
 export type { BeanInfoInput } from './bean-info'
 
 export { ShopInfo, SHOP_INFO_CONSTRAINTS } from './shop-info'
+export type { ShopInfoPrimitive } from './shop-info'
 
 export {
   Visibility,

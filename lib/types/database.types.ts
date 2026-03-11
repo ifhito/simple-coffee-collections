@@ -46,6 +46,7 @@ export type Database = {
           is_public: boolean
           overall_rating: number | null
           roast_level: string | null
+          shop_id: string | null
           shop_name: string | null
           updated_at: string
           user_id: string
@@ -61,6 +62,7 @@ export type Database = {
           is_public?: boolean
           overall_rating?: number | null
           roast_level?: string | null
+          shop_id?: string | null
           shop_name?: string | null
           updated_at?: string
           user_id: string
@@ -76,9 +78,42 @@ export type Database = {
           is_public?: boolean
           overall_rating?: number | null
           roast_level?: string | null
+          shop_id?: string | null
           shop_name?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coffee_evaluations_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shops: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          normalized_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          normalized_name?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          normalized_name?: string
+          updated_at?: string
         }
         Relationships: []
       }

@@ -29,6 +29,15 @@ jest.mock('next/cache', () => ({
 // Mock Supabase client
 jest.mock('@/lib/supabase/server')
 
+// Mock DI container
+jest.mock('@/lib/di/container', () => ({
+  getShopRepository: jest.fn(() => ({
+    findOrCreate: jest.fn().mockResolvedValue({ ok: true, value: { id: 'mock-shop-id' } }),
+    search: jest.fn().mockResolvedValue([]),
+    findById: jest.fn().mockResolvedValue({ ok: true, value: null }),
+  })),
+}))
+
 describe('Coffee Evaluation Server Actions', () => {
   let mockSupabaseClient: any
   let mockAuthGetUser: jest.Mock
