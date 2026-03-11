@@ -89,11 +89,12 @@ export interface EvaluationOutput {
   beanName: string
   beanType: string
   roastLevel: string | null
-  acidity: RatingValue
-  bitterness: RatingValue
-  aroma: RatingValue
-  overallRating: RatingValue
+  acidity: RatingValue | null
+  bitterness: RatingValue | null
+  aroma: RatingValue | null
+  overallRating: RatingValue | null
   isPublic: boolean
+  isEvaluated: boolean
   createdAt: string
   updatedAt: string
 }
@@ -122,11 +123,12 @@ export function toEvaluationOutput(entity: {
   beanName: string
   beanType: string
   roastLevel: string | null
-  acidity: { value: RatingValue }
-  bitterness: { value: RatingValue }
-  aroma: { value: RatingValue }
-  overallRating: { value: RatingValue }
+  acidity: { value: RatingValue } | null
+  bitterness: { value: RatingValue } | null
+  aroma: { value: RatingValue } | null
+  overallRating: { value: RatingValue } | null
   isPublic: boolean
+  isEvaluated: boolean
   createdAt: Date
   updatedAt: Date
 }): EvaluationOutput {
@@ -137,11 +139,12 @@ export function toEvaluationOutput(entity: {
     beanName: entity.beanName,
     beanType: entity.beanType,
     roastLevel: entity.roastLevel,
-    acidity: entity.acidity.value,
-    bitterness: entity.bitterness.value,
-    aroma: entity.aroma.value,
-    overallRating: entity.overallRating.value,
+    acidity: entity.acidity?.value ?? null,
+    bitterness: entity.bitterness?.value ?? null,
+    aroma: entity.aroma?.value ?? null,
+    overallRating: entity.overallRating?.value ?? null,
     isPublic: entity.isPublic,
+    isEvaluated: entity.isEvaluated,
     createdAt: entity.createdAt.toISOString(),
     updatedAt: entity.updatedAt.toISOString(),
   }

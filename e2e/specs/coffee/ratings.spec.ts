@@ -1,5 +1,6 @@
 import { test, expect } from '../../fixtures'
 import { coffeeFormDefaults, getUniqueBeanName } from '../../fixtures/test-data'
+import { openEvaluationDetail } from '../../fixtures/coffee-list'
 
 test.describe('Coffee Evaluation Detailed Ratings', () => {
   test.beforeEach(async ({ page }) => {
@@ -25,8 +26,7 @@ test.describe('Coffee Evaluation Detailed Ratings', () => {
 
     await page.waitForURL('/coffee/my')
 
-    await page.getByRole('heading', { name: beanName }).click()
-    await expect(page).toHaveURL(/\/coffee\/[a-zA-Z0-9-]+$/)
+    await openEvaluationDetail(page, beanName)
 
     // Assert
     await expect(page.getByText('full_city')).toBeVisible()

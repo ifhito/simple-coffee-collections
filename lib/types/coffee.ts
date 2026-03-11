@@ -56,10 +56,10 @@ export interface CoffeeEvaluationFormInput {
   bean_type?: string
   bean_name: string
   roast_level: string | null
-  acidity: number
-  bitterness: number
-  aroma: number
-  overall_rating: number
+  acidity?: number
+  bitterness?: number
+  aroma?: number
+  overall_rating?: number
   is_public: boolean
 }
 
@@ -196,4 +196,5 @@ export interface CoffeeEvaluationSearchParams {
   sort?: CoffeeEvaluationSortOption        // Sort option
   user_id?: string                         // Filter by user
   is_public?: boolean                      // Filter by visibility
+  evaluation_status?: 'all' | 'evaluated' | 'unevaluated'  // Filter by evaluation status
 }

@@ -1,13 +1,8 @@
 /**
  * Coffee Evaluation Server Actions
- * Refactored for better maintainability with extracted helper functions
  *
  * Server Actions for CRUD operations on coffee evaluations.
- * All actions:
- * - Validate user authentication
- * - Parse and validate FormData
- * - Verify resource ownership (for update/delete)
- * - Revalidate Next.js cache before redirecting
+ * Bean info and ratings are separated as independent concerns.
  *
  * @module lib/actions/coffee
  */
@@ -25,19 +20,19 @@ import type { User } from '@supabase/supabase-js'
  */
 type ActionResponse = { error: string } | void
 
-/**
- * Parsed and validated form data for coffee evaluation
- */
-interface ParsedEvaluationData {
+interface ParsedBeanInfo {
   shop_name: string
   bean_type: string
   bean_name: string
   roast_level: string | null
+  is_public: boolean
+}
+
+interface ParsedRatings {
   acidity: number
   bitterness: number
   aroma: number
   overall_rating: number
-  is_public: boolean
 }
 
 type ValidationResult = { error: string } | null
@@ -46,11 +41,6 @@ type ValidationResult = { error: string } | null
 // Helper Functions
 // =============================================================================
 
-/**
- * Get authenticated user from Supabase session
- * @returns Authenticated user object
- * @throws Returns error response if not authenticated
- */
 async function getAuthenticatedUser(): Promise<
   { user: User } | { error: string }
 > {
@@ -67,74 +57,85 @@ async function getAuthenticatedUser(): Promise<
   return { user }
 }
 
-/**
- * Build consistent validation error responses that include the field name.
- * Including the raw field name keeps tests and UI messaging aligned.
- */
-function buildFieldError(
-  field: keyof ParsedEvaluationData,
-  description: string
-): { error: string } {
-  return { error: `${field}: ${description}` }
-}
-
-/**
- * Safely extract a string value from FormData (falls back to empty string).
- */
 function getStringField(formData: FormData, key: string): string {
   const value = formData.get(key)
   return typeof value === 'string' ? value : ''
 }
 
-/**
- * Parse rating fields from FormData entry to number (NaN if invalid).
- */
+function parseNullableRating(value: FormDataEntryValue | null): number | null {
+  if (value === null || value === '') return null
+  return typeof value === 'string' ? parseInt(value, 10) : NaN
+}
+
 function parseRating(value: FormDataEntryValue | null): number {
   return typeof value === 'string' ? parseInt(value, 10) : NaN
 }
 
-/**
- * Parse coffee evaluation data from FormData
- * @param formData - Form data from client
- * @returns Parsed evaluation data object
- */
-function parseEvaluationFormData(formData: FormData): ParsedEvaluationData {
-  const shopName = getStringField(formData, 'shop_name').trim()
-  const beanType = getStringField(formData, 'bean_type').trim()
-  const beanName = getStringField(formData, 'bean_name').trim()
-  const roastLevel = getStringField(formData, 'roast_level').trim()
+// =============================================================================
+// Parse Functions (separated by concern)
+// =============================================================================
 
+function parseBeanInfoFormData(formData: FormData): ParsedBeanInfo {
   return {
-    shop_name: shopName,
-    bean_type: beanType,
-    bean_name: beanName,
-    roast_level: roastLevel || null,
-    acidity: parseRating(formData.get('acidity')),
-    bitterness: parseRating(formData.get('bitterness')),
-    aroma: parseRating(formData.get('aroma')),
-    overall_rating: parseRating(formData.get('overall_rating')),
+    shop_name: getStringField(formData, 'shop_name').trim(),
+    bean_type: getStringField(formData, 'bean_type').trim(),
+    bean_name: getStringField(formData, 'bean_name').trim(),
+    roast_level: getStringField(formData, 'roast_level').trim() || null,
     is_public: formData.get('is_public') === 'true',
   }
 }
 
-/**
- * Validate coffee evaluation data
- * @param data - Parsed evaluation data
- * @returns Null if valid, error object if invalid
- */
-function validateEvaluationData(data: ParsedEvaluationData): ValidationResult {
-  // Validate required fields
-  if (!data.bean_name || !data.bean_name.trim()) {
-    return buildFieldError('bean_name', 'bean_name is required')
+function parseRatingsFormData(
+  formData: FormData,
+  options?: { allowSkipEvaluation?: boolean }
+): { ratings: ParsedRatings | null } | { error: string } {
+  const skipEvaluation =
+    options?.allowSkipEvaluation !== false &&
+    formData.get('skip_evaluation') === 'true'
+
+  if (skipEvaluation) return { ratings: null }
+
+  const values = [
+    parseNullableRating(formData.get('acidity')),
+    parseNullableRating(formData.get('bitterness')),
+    parseNullableRating(formData.get('aroma')),
+    parseNullableRating(formData.get('overall_rating')),
+  ]
+
+  const nullCount = values.filter((v) => v === null).length
+
+  // All null → no ratings
+  if (nullCount === 4) return { ratings: null }
+
+  // Partial → error (all-or-nothing)
+  if (nullCount > 0) {
+    return { error: '評価値は全て入力するか、全て空にしてください' }
   }
 
-  // Validate rating values (1-10)
-  const ratings = [
-    data.acidity,
-    data.bitterness,
-    data.aroma,
-    data.overall_rating,
-  ]
+  return {
+    ratings: {
+      acidity: values[0]!,
+      bitterness: values[1]!,
+      aroma: values[2]!,
+      overall_rating: values[3]!,
+    },
+  }
+}
+
+// =============================================================================
+// Validation Functions (separated by concern)
+// =============================================================================
+
+function validateBeanInfo(data: ParsedBeanInfo): ValidationResult {
+  if (!data.bean_name || !data.bean_name.trim()) {
+    return { error: 'bean_name: bean_name is required' }
+  }
+  return null
+}
+
+function validateRatings(data: ParsedRatings): ValidationResult {
+  const ratings = [data.acidity, data.bitterness, data.aroma, data.overall_rating]
+
   for (const rating of ratings) {
     if (isNaN(rating) || rating < 1 || rating > 10) {
       return { error: 'rating must be between 1-10' }
@@ -144,12 +145,10 @@ function validateEvaluationData(data: ParsedEvaluationData): ValidationResult {
   return null
 }
 
-/**
- * Verify that the current user owns the coffee evaluation
- * @param id - Evaluation ID
- * @param userId - Current user ID
- * @returns Null if verified, error object if not owned or not found
- */
+// =============================================================================
+// Ownership Verification
+// =============================================================================
+
 async function verifyEvaluationOwnership(
   id: string,
   userId: string
@@ -180,177 +179,178 @@ async function verifyEvaluationOwnership(
 // Server Actions
 // =============================================================================
 
-/**
- * Create a new coffee evaluation from FormData
- *
- * Workflow:
- * 1. Authenticate user
- * 2. Parse and validate FormData
- * 3. Insert to database
- * 4. Revalidate cache
- * 5. Redirect to list page
- *
- * @param formData - Form data containing evaluation fields
- * @returns void on success (redirects), or error object on failure
- */
 export async function createCoffeeEvaluation(
   formData: FormData
 ): Promise<ActionResponse> {
-  // 1. Authenticate user
   const authResult = await getAuthenticatedUser()
-  if ('error' in authResult) {
-    return authResult
-  }
+  if ('error' in authResult) return authResult
   const { user } = authResult
 
-  // 2. Parse and validate FormData
-  const data = parseEvaluationFormData(formData)
-  const validationError = validateEvaluationData(data)
-  if (validationError) {
-    return validationError
+  const beanInfo = parseBeanInfoFormData(formData)
+  const ratingsResult = parseRatingsFormData(formData)
+  if ('error' in ratingsResult) return ratingsResult
+  const { ratings } = ratingsResult
+
+  const beanError = validateBeanInfo(beanInfo)
+  if (beanError) return beanError
+
+  if (ratings) {
+    const ratingsError = validateRatings(ratings)
+    if (ratingsError) return ratingsError
   }
 
-  // 3. Insert into database
   const supabase = await createClient()
   const { error: insertError } = await supabase
     .from('coffee_evaluations')
     .insert({
       user_id: user.id,
-      shop_name: data.shop_name,
-      bean_type: data.bean_type,
-      bean_name: data.bean_name,
-      roast_level: data.roast_level,
-      acidity: data.acidity,
-      bitterness: data.bitterness,
-      aroma: data.aroma,
-      overall_rating: data.overall_rating,
-      is_public: data.is_public,
+      ...beanInfo,
+      ...(ratings ?? {}),
     })
 
-  if (insertError) {
-    return { error: insertError.message }
-  }
+  if (insertError) return { error: insertError.message }
 
-  // 4. Revalidate cache BEFORE redirect
   revalidatePath('/coffee')
   revalidatePath('/coffee/my')
-
-  // 5. Redirect to user's my page
   redirect('/coffee/my')
 }
 
-/**
- * Update an existing coffee evaluation from FormData
- *
- * Workflow:
- * 1. Authenticate user
- * 2. Parse and validate FormData
- * 3. Verify ownership
- * 4. Update database
- * 5. Revalidate cache
- * 6. Redirect to detail page
- *
- * @param id - Coffee evaluation ID to update
- * @param formData - Form data containing updated fields
- * @returns void on success (redirects), or error object on failure
- */
 export async function updateCoffeeEvaluation(
   id: string,
   formData: FormData
 ): Promise<ActionResponse> {
-  // 1. Authenticate user
   const authResult = await getAuthenticatedUser()
-  if ('error' in authResult) {
-    return authResult
-  }
+  if ('error' in authResult) return authResult
   const { user } = authResult
 
-  // 2. Parse and validate FormData
-  const data = parseEvaluationFormData(formData)
-  const validationError = validateEvaluationData(data)
-  if (validationError) {
-    return validationError
+  const beanInfo = parseBeanInfoFormData(formData)
+  const ratingsResult = parseRatingsFormData(formData, { allowSkipEvaluation: false })
+  if ('error' in ratingsResult) return ratingsResult
+  const { ratings } = ratingsResult
+
+  const beanError = validateBeanInfo(beanInfo)
+  if (beanError) return beanError
+
+  if (ratings) {
+    const ratingsError = validateRatings(ratings)
+    if (ratingsError) return ratingsError
   }
 
-  // 3. Verify ownership
-  const ownershipError = await verifyEvaluationOwnership(id, user.id)
-  if (ownershipError) {
-    return ownershipError
-  }
-
-  // 4. Update database
+  // Verify ownership and get existing data
   const supabase = await createClient()
+  const { data: existing, error: fetchError } = await supabase
+    .from('coffee_evaluations')
+    .select('user_id, overall_rating')
+    .eq('id', id)
+    .single()
+
+  if (fetchError) {
+    if (fetchError.code === 'PGRST116') {
+      return { error: '評価が見つかりません' }
+    }
+    return { error: fetchError.message }
+  }
+
+  if (existing.user_id !== user.id) {
+    return { error: '権限がありません' }
+  }
+
+  // Prevent removing existing ratings (evaluation downgrade)
+  const wasEvaluated = existing.overall_rating !== null
+  if (wasEvaluated && !ratings) {
+    return { error: '評価済みの豆から評価を取り消すことはできません' }
+  }
+
+  // Build update payload — only include ratings if present
+  const updatePayload: Record<string, unknown> = {
+    shop_name: beanInfo.shop_name,
+    bean_type: beanInfo.bean_type,
+    bean_name: beanInfo.bean_name,
+    roast_level: beanInfo.roast_level,
+    is_public: beanInfo.is_public,
+  }
+
+  if (ratings) {
+    updatePayload.acidity = ratings.acidity
+    updatePayload.bitterness = ratings.bitterness
+    updatePayload.aroma = ratings.aroma
+    updatePayload.overall_rating = ratings.overall_rating
+  }
+
   const { error: updateError } = await supabase
     .from('coffee_evaluations')
-    .update({
-      shop_name: data.shop_name,
-      bean_type: data.bean_type,
-      bean_name: data.bean_name,
-      roast_level: data.roast_level,
-      acidity: data.acidity,
-      bitterness: data.bitterness,
-      aroma: data.aroma,
-      overall_rating: data.overall_rating,
-      is_public: data.is_public,
-    })
+    .update(updatePayload)
     .eq('id', id)
 
-  if (updateError) {
-    return { error: updateError.message }
-  }
+  if (updateError) return { error: updateError.message }
 
-  // 5. Revalidate caches BEFORE redirect
   revalidatePath('/coffee')
   revalidatePath(`/coffee/${id}`)
-
-  // 6. Redirect to detail page
   redirect(`/coffee/${id}`)
 }
 
-/**
- * Delete a coffee evaluation by ID
- *
- * Workflow:
- * 1. Authenticate user
- * 2. Verify ownership
- * 3. Delete from database
- * 4. Revalidate cache
- * 5. Redirect to list page
- *
- * @param id - Coffee evaluation ID to delete
- * @returns void on success (redirects), or error object on failure
- */
 export async function deleteCoffeeEvaluation(
   id: string
 ): Promise<ActionResponse> {
-  // 1. Authenticate user
   const authResult = await getAuthenticatedUser()
-  if ('error' in authResult) {
-    return authResult
-  }
+  if ('error' in authResult) return authResult
   const { user } = authResult
 
-  // 2. Verify ownership
   const ownershipError = await verifyEvaluationOwnership(id, user.id)
-  if (ownershipError) {
-    return ownershipError
-  }
+  if (ownershipError) return ownershipError
 
-  // 3. Delete from database
   const supabase = await createClient()
   const { error: deleteError } = await supabase
     .from('coffee_evaluations')
     .delete()
     .eq('id', id)
 
-  if (deleteError) {
-    return { error: deleteError.message }
-  }
+  if (deleteError) return { error: deleteError.message }
 
-  // 4. Revalidate cache BEFORE redirect
   revalidatePath('/coffee')
   revalidatePath('/coffee/my')
-
-  // 5. Redirect to user's my page
   redirect('/coffee/my')
+}
+
+export async function addEvaluation(
+  id: string,
+  formData: FormData
+): Promise<ActionResponse> {
+  const authResult = await getAuthenticatedUser()
+  if ('error' in authResult) return authResult
+  const { user } = authResult
+
+  const ownershipError = await verifyEvaluationOwnership(id, user.id)
+  if (ownershipError) return ownershipError
+
+  // Parse and validate ratings (all required for addEvaluation)
+  const acidity = parseRating(formData.get('acidity'))
+  const bitterness = parseRating(formData.get('bitterness'))
+  const aroma = parseRating(formData.get('aroma'))
+  const overallRating = parseRating(formData.get('overall_rating'))
+
+  const allRatings = [acidity, bitterness, aroma, overallRating]
+  for (const rating of allRatings) {
+    if (isNaN(rating) || rating < 1 || rating > 10) {
+      return { error: 'rating must be between 1-10' }
+    }
+  }
+
+  const supabase = await createClient()
+  const { error: updateError } = await supabase
+    .from('coffee_evaluations')
+    .update({
+      acidity,
+      bitterness,
+      aroma,
+      overall_rating: overallRating,
+    })
+    .eq('id', id)
+
+  if (updateError) return { error: updateError.message }
+
+  revalidatePath('/coffee')
+  revalidatePath(`/coffee/${id}`)
+  revalidatePath('/coffee/my')
+  redirect(`/coffee/${id}`)
 }

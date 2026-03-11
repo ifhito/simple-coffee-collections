@@ -4,7 +4,9 @@ import type { CoffeeEvaluation } from '@/lib/types/coffee'
 import { RatingStars } from '../shared/rating-stars'
 
 type CoffeeCardProps = {
-  evaluation: Pick<CoffeeEvaluation, 'id' | 'shop_name' | 'bean_type' | 'bean_name' | 'overall_rating' | 'created_at'>
+  evaluation: Pick<CoffeeEvaluation, 'id' | 'shop_name' | 'bean_type' | 'bean_name' | 'created_at'> & {
+    overall_rating: number | null
+  }
   badge?: ReactNode
   meta?: ReactNode
 }
@@ -42,7 +44,13 @@ function CoffeeCardComponent({ evaluation, badge, meta }: CoffeeCardProps) {
             </p>
           </div>
           <div className="shrink-0">
-            <RatingStars rating={overall_rating} size="md" />
+            {overall_rating !== null ? (
+              <RatingStars rating={overall_rating} size="md" />
+            ) : (
+              <span className="inline-block rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-500">
+                未評価
+              </span>
+            )}
           </div>
         </div>
         <div className="mt-auto pt-4 flex items-center justify-between text-xs text-neutral-500">

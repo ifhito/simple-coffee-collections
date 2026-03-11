@@ -34,210 +34,87 @@ export type Database = {
   }
   public: {
     Tables: {
-      bean_types: {
-        Row: {
-          created_at: string
-          id: string
-          is_default: boolean
-          name: string
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          is_default?: boolean
-          name: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          is_default?: boolean
-          name?: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       coffee_evaluations: {
         Row: {
-          acidity: number
-          aroma: number
-          bean_name: string | null
-          bean_type: string
-          bitterness: number
+          acidity: number | null
+          aroma: number | null
+          bean_name: string
+          bean_type: string | null
+          bitterness: number | null
           created_at: string
           id: string
           is_public: boolean
-          overall_rating: number
+          overall_rating: number | null
           roast_level: string | null
-          shop_name: string
+          shop_name: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
-          acidity: number
-          aroma: number
-          bean_name?: string | null
-          bean_type: string
-          bitterness: number
-          created_at?: string
-          id?: string
-          is_public?: boolean
-          overall_rating: number
-          roast_level?: string | null
-          shop_name: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          acidity?: number
-          aroma?: number
-          bean_name?: string | null
-          bean_type?: string
-          bitterness?: number
-          created_at?: string
-          id?: string
-          is_public?: boolean
-          overall_rating?: number
-          roast_level?: string | null
-          shop_name?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      coffee_records: {
-        Row: {
-          acidity: number
-          aroma: number
-          bean_name: string
-          bean_type_id: string
-          bitterness: number
-          created_at: string
-          deleted_at: string | null
-          id: string
-          is_public: boolean
-          overall_rating: number
-          roast_level_id: string
-          shop_name: string
-          tasting_date: string
-          tasting_notes: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          acidity: number
-          aroma: number
-          bean_name: string
-          bean_type_id: string
-          bitterness: number
-          created_at?: string
-          deleted_at?: string | null
-          id?: string
-          is_public?: boolean
-          overall_rating: number
-          roast_level_id: string
-          shop_name?: string
-          tasting_date?: string
-          tasting_notes?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          acidity?: number
-          aroma?: number
+          acidity?: number | null
+          aroma?: number | null
           bean_name?: string
-          bean_type_id?: string
-          bitterness?: number
+          bean_type?: string | null
+          bitterness?: number | null
           created_at?: string
-          deleted_at?: string | null
           id?: string
           is_public?: boolean
-          overall_rating?: number
-          roast_level_id?: string
-          shop_name?: string
-          tasting_date?: string
-          tasting_notes?: string | null
+          overall_rating?: number | null
+          roast_level?: string | null
+          shop_name?: string | null
           updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "coffee_records_bean_type_id_fkey"
-            columns: ["bean_type_id"]
-            isOneToOne: false
-            referencedRelation: "bean_types"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "coffee_records_roast_level_id_fkey"
-            columns: ["roast_level_id"]
-            isOneToOne: false
-            referencedRelation: "roast_levels"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      roast_levels: {
-        Row: {
-          created_at: string
-          id: string
-          level: number
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          level: number
-          name: string
-          updated_at?: string
+          user_id: string
         }
         Update: {
+          acidity?: number | null
+          aroma?: number | null
+          bean_name?: string
+          bean_type?: string | null
+          bitterness?: number | null
           created_at?: string
           id?: string
-          level?: number
-          name?: string
+          is_public?: boolean
+          overall_rating?: number | null
+          roast_level?: string | null
+          shop_name?: string | null
           updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
       user_llm_settings: {
         Row: {
-          id: string
-          user_id: string
-          provider: 'openai_compatible' | 'anthropic' | 'ollama'
-          provider_template: string | null
           api_url: string | null
-          encrypted_api_key: string | null
-          model_name: string
           created_at: string
+          encrypted_api_key: string | null
+          id: string
+          model_name: string
+          provider: string
+          provider_template: string | null
           updated_at: string
+          user_id: string
         }
         Insert: {
-          id?: string
-          user_id: string
-          provider: 'openai_compatible' | 'anthropic' | 'ollama'
-          provider_template?: string | null
           api_url?: string | null
-          encrypted_api_key?: string | null
-          model_name: string
           created_at?: string
+          encrypted_api_key?: string | null
+          id?: string
+          model_name: string
+          provider: string
+          provider_template?: string | null
           updated_at?: string
+          user_id: string
         }
         Update: {
-          id?: string
-          user_id?: string
-          provider?: 'openai_compatible' | 'anthropic' | 'ollama'
-          provider_template?: string | null
           api_url?: string | null
-          encrypted_api_key?: string | null
-          model_name?: string
           created_at?: string
+          encrypted_api_key?: string | null
+          id?: string
+          model_name?: string
+          provider?: string
+          provider_template?: string | null
           updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -270,38 +147,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      gtrgm_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_decompress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_options: {
-        Args: { "": unknown }
-        Returns: undefined
-      }
-      gtrgm_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      set_limit: {
-        Args: { "": number }
-        Returns: number
-      }
-      show_limit: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      show_trgm: {
-        Args: { "": string }
-        Returns: string[]
-      }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
       [_ in never]: never
@@ -437,3 +284,4 @@ export const Constants = {
     Enums: {},
   },
 } as const
+

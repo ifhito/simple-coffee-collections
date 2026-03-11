@@ -16,7 +16,7 @@ import {
   EvaluationQueryParams,
   EvaluationSortOption,
   EvaluationWithDisplayName,
-  Rating,
+  EvaluationRatings,
   BeanInfo,
   ShopInfo,
   Visibility,
@@ -30,6 +30,43 @@ import type { Database } from '@/lib/types/database.types'
 type CoffeeEvaluationRow = Database['public']['Tables']['coffee_evaluations']['Row']
 type CoffeeEvaluationInsert = Database['public']['Tables']['coffee_evaluations']['Insert']
 type CoffeeEvaluationUpdate = Database['public']['Tables']['coffee_evaluations']['Update']
+type RowRatings = {
+  acidity: RatingValue
+  bitterness: RatingValue
+  aroma: RatingValue
+  overallRating: RatingValue
+}
+type PersistedRowRatings = {
+  [K in keyof RowRatings]: number | null
+}
+
+function hasCompleteRatings(ratings: PersistedRowRatings): ratings is { [K in keyof RowRatings]: number } {
+  return Object.values(ratings).every((value) => value !== null)
+}
+
+function extractRatingsFromRow(row: CoffeeEvaluationRow): EvaluationRatings | null {
+  const ratings: PersistedRowRatings = {
+    acidity: row.acidity,
+    bitterness: row.bitterness,
+    aroma: row.aroma,
+    overallRating: row.overall_rating,
+  }
+
+  if (Object.values(ratings).every((value) => value === null)) {
+    return null
+  }
+
+  if (!hasCompleteRatings(ratings)) {
+    throw new Error('評価項目の永続化データが不正です')
+  }
+
+  return EvaluationRatings.fromPrimitive({
+    acidity: ratings.acidity as RatingValue,
+    bitterness: ratings.bitterness as RatingValue,
+    aroma: ratings.aroma as RatingValue,
+    overallRating: ratings.overallRating as RatingValue,
+  })
+}
 
 /**
  * Maps a database row to a CoffeeEvaluation domain entity
@@ -38,18 +75,13 @@ function mapRowToEntity(row: CoffeeEvaluationRow): CoffeeEvaluation {
   const props: CoffeeEvaluationProps = {
     id: row.id,
     userId: row.user_id,
-    shopInfo: ShopInfo.fromPrimitive(row.shop_name),
+    shopInfo: ShopInfo.fromPrimitive(row.shop_name ?? ''),
     beanInfo: BeanInfo.fromPrimitive(
       row.bean_name ?? '',
-      row.bean_type,
+      row.bean_type ?? '',
       row.roast_level
     ),
-    ratings: {
-      acidity: Rating.fromPrimitive(row.acidity as RatingValue),
-      bitterness: Rating.fromPrimitive(row.bitterness as RatingValue),
-      aroma: Rating.fromPrimitive(row.aroma as RatingValue),
-      overallRating: Rating.fromPrimitive(row.overall_rating as RatingValue),
-    },
+    ratings: extractRatingsFromRow(row),
     visibility: Visibility.fromBoolean(row.is_public),
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
@@ -59,20 +91,46 @@ function mapRowToEntity(row: CoffeeEvaluationRow): CoffeeEvaluation {
 }
 
 /**
+ * Maps common writable fields from a CoffeeEvaluation entity
+ */
+function mapEntityToWritableFields(
+  entity: CoffeeEvaluation
+): Pick<
+  CoffeeEvaluationInsert,
+  'shop_name' | 'bean_type' | 'bean_name' | 'roast_level' | 'acidity' | 'bitterness' | 'aroma' | 'overall_rating' | 'is_public'
+> {
+  const {
+    shop_name,
+    bean_type,
+    bean_name,
+    roast_level,
+    acidity,
+    bitterness,
+    aroma,
+    overall_rating,
+    is_public,
+  } = entity.toPersistence()
+
+  return {
+    shop_name,
+    bean_type,
+    bean_name,
+    roast_level,
+    acidity,
+    bitterness,
+    aroma,
+    overall_rating,
+    is_public,
+  }
+}
+
+/**
  * Maps a CoffeeEvaluation entity to database insert format
  */
 function mapEntityToInsert(entity: CoffeeEvaluation): Omit<CoffeeEvaluationInsert, 'id'> {
   return {
     user_id: entity.userId,
-    shop_name: entity.shopName,
-    bean_type: entity.beanType,
-    bean_name: entity.beanName,
-    roast_level: entity.roastLevel,
-    acidity: entity.acidity.value,
-    bitterness: entity.bitterness.value,
-    aroma: entity.aroma.value,
-    overall_rating: entity.overallRating.value,
-    is_public: entity.isPublic,
+    ...mapEntityToWritableFields(entity),
   }
 }
 
@@ -80,27 +138,17 @@ function mapEntityToInsert(entity: CoffeeEvaluation): Omit<CoffeeEvaluationInser
  * Maps a CoffeeEvaluation entity to database update format
  */
 function mapEntityToUpdate(entity: CoffeeEvaluation): CoffeeEvaluationUpdate {
-  return {
-    shop_name: entity.shopName,
-    bean_type: entity.beanType,
-    bean_name: entity.beanName,
-    roast_level: entity.roastLevel,
-    acidity: entity.acidity.value,
-    bitterness: entity.bitterness.value,
-    aroma: entity.aroma.value,
-    overall_rating: entity.overallRating.value,
-    is_public: entity.isPublic,
-  }
+  return mapEntityToWritableFields(entity)
 }
 
 /**
  * Sort configuration for Supabase queries
  */
-const SORT_CONFIG: Record<EvaluationSortOption, { column: string; ascending: boolean }> = {
+const SORT_CONFIG: Record<EvaluationSortOption, { column: string; ascending: boolean; nullsFirst?: boolean }> = {
   created_at_desc: { column: 'created_at', ascending: false },
   created_at_asc: { column: 'created_at', ascending: true },
-  rating_desc: { column: 'overall_rating', ascending: false },
-  rating_asc: { column: 'overall_rating', ascending: true },
+  rating_desc: { column: 'overall_rating', ascending: false, nullsFirst: false },
+  rating_asc: { column: 'overall_rating', ascending: true, nullsFirst: false },
   shop_name_asc: { column: 'shop_name', ascending: true },
   shop_name_desc: { column: 'shop_name', ascending: false },
 }
@@ -164,7 +212,10 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
 
       // Apply sorting
       const sortConfig = SORT_CONFIG[params?.sort ?? 'created_at_desc']
-      query = query.order(sortConfig.column, { ascending: sortConfig.ascending })
+      query = query.order(sortConfig.column, {
+        ascending: sortConfig.ascending,
+        ...(sortConfig.nullsFirst !== undefined && { nullsFirst: sortConfig.nullsFirst }),
+      })
 
       // Apply pagination
       if (params?.limit) {
@@ -219,7 +270,10 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
 
       // Apply sorting
       const sortConfig = SORT_CONFIG[params?.sort ?? 'created_at_desc']
-      query = query.order(sortConfig.column, { ascending: sortConfig.ascending })
+      query = query.order(sortConfig.column, {
+        ascending: sortConfig.ascending,
+        ...(sortConfig.nullsFirst !== undefined && { nullsFirst: sortConfig.nullsFirst }),
+      })
 
       // Apply pagination
       if (params?.limit) {
