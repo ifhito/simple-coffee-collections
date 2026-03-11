@@ -1,10 +1,11 @@
 'use client'
 
-import { useMemo, useRef, useState, useTransition } from 'react'
+import { useRef, useState, useTransition } from 'react'
 import type { FormEvent } from 'react'
 import { addEvaluation } from '@/lib/actions/coffee'
 import { Button } from '@/components/ui/Button'
-import { CoffeeSlider } from './shared/coffee-slider'
+import { RatingSliders } from './shared/rating-sliders'
+import type { RatingsState } from './shared/rating-sliders'
 
 type EvaluateFormProps = {
   evaluationId: string
@@ -16,24 +17,17 @@ type EvaluateFormProps = {
   }
 }
 
-const ratingFields = [
-  { key: 'overall_rating', label: '総合評価' },
-  { key: 'acidity', label: '酸味' },
-  { key: 'bitterness', label: '苦味' },
-  { key: 'aroma', label: '香り' },
-] as const
-
 export function EvaluateForm({ evaluationId, defaultValues }: EvaluateFormProps) {
   const [error, setError] = useState<string>()
   const [isPending, startTransition] = useTransition()
   const formRef = useRef<HTMLFormElement | null>(null)
 
-  const [ratings, setRatings] = useState(() => ({
+  const [ratings, setRatings] = useState<RatingsState>({
     overall_rating: defaultValues?.overall_rating ?? 5,
     acidity: defaultValues?.acidity ?? 5,
     bitterness: defaultValues?.bitterness ?? 5,
     aroma: defaultValues?.aroma ?? 5,
-  }))
+  })
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -53,24 +47,6 @@ export function EvaluateForm({ evaluationId, defaultValues }: EvaluateFormProps)
     })
   }
 
-  const sliderRows = useMemo(
-    () =>
-      ratingFields.map((field) => (
-        <CoffeeSlider
-          key={field.key}
-          label={field.label}
-          value={ratings[field.key]}
-          onChange={(value) =>
-            setRatings((prev) => ({ ...prev, [field.key]: value }))
-          }
-          min={1}
-          max={10}
-          step={1}
-        />
-      )),
-    [ratings]
-  )
-
   return (
     <form
       onSubmit={handleSubmit}
@@ -79,7 +55,7 @@ export function EvaluateForm({ evaluationId, defaultValues }: EvaluateFormProps)
       className="space-y-6 rounded-lg border border-neutral-200 bg-white p-6 shadow-sm"
       aria-live="polite"
     >
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">{sliderRows}</div>
+      <RatingSliders values={ratings} onChange={setRatings} />
       <p className="text-xs text-neutral-500">
         スライダーは1〜10の範囲で入力できます。
       </p>

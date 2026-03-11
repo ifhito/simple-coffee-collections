@@ -92,13 +92,14 @@ describe('createCoffeeEvaluation', () => {
       expect.objectContaining({
         bean_name: 'Ethiopia Yirgacheffe',
         shop_name: 'Blue Bottle',
-        // Rating fields should be undefined (null → undefined via ?? undefined)
-        acidity: undefined,
-        bitterness: undefined,
-        aroma: undefined,
-        overall_rating: undefined,
       })
     )
+    // Rating fields should NOT be in the payload at all
+    const payload = mockInsert.mock.calls[0][0]
+    expect(payload).not.toHaveProperty('acidity')
+    expect(payload).not.toHaveProperty('bitterness')
+    expect(payload).not.toHaveProperty('aroma')
+    expect(payload).not.toHaveProperty('overall_rating')
     expect(redirect).toHaveBeenCalledWith('/coffee/my')
   })
 
