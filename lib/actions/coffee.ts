@@ -107,13 +107,14 @@ function parseNullableRating(value: FormDataEntryValue | null): number | null {
   return typeof value === 'string' ? parseInt(value, 10) : NaN
 }
 
-function parseEvaluationFormData(formData: FormData): ParsedEvaluationData {
+function parseEvaluationFormData(formData: FormData, options?: { allowSkipEvaluation?: boolean }): ParsedEvaluationData {
   const shopName = getStringField(formData, 'shop_name').trim()
   const beanType = getStringField(formData, 'bean_type').trim()
   const beanName = getStringField(formData, 'bean_name').trim()
   const roastLevel = getStringField(formData, 'roast_level').trim()
 
-  const skipEvaluation = formData.get('skip_evaluation') === 'true'
+  const skipEvaluation = options?.allowSkipEvaluation !== false
+    && formData.get('skip_evaluation') === 'true'
 
   return {
     shop_name: shopName,
@@ -280,34 +281,57 @@ export async function updateCoffeeEvaluation(
   }
   const { user } = authResult
 
-  // 2. Parse and validate FormData
-  const data = parseEvaluationFormData(formData)
+  // 2. Parse and validate FormData (skip_evaluation is not allowed in update)
+  const data = parseEvaluationFormData(formData, { allowSkipEvaluation: false })
   const validationError = validateEvaluationData(data)
   if (validationError) {
     return validationError
   }
 
-  // 3. Verify ownership
-  const ownershipError = await verifyEvaluationOwnership(id, user.id)
-  if (ownershipError) {
-    return ownershipError
+  // 3. Verify ownership and get existing data
+  const supabase = await createClient()
+  const { data: existing, error: fetchError } = await supabase
+    .from('coffee_evaluations')
+    .select('user_id, overall_rating')
+    .eq('id', id)
+    .single()
+
+  if (fetchError) {
+    if (fetchError.code === 'PGRST116') {
+      return { error: '評価が見つかりません' }
+    }
+    return { error: fetchError.message }
   }
 
-  // 4. Update database
-  const supabase = await createClient()
+  if (existing.user_id !== user.id) {
+    return { error: '権限がありません' }
+  }
+
+  // Prevent removing existing ratings via update (evaluation downgrade is not allowed)
+  const wasEvaluated = existing.overall_rating !== null
+  if (wasEvaluated && data.overall_rating === null) {
+    return { error: '評価済みの豆から評価を取り消すことはできません' }
+  }
+
+  // 4. Update database — preserve null ratings for unevaluated beans
+  const updatePayload: Record<string, unknown> = {
+    shop_name: data.shop_name,
+    bean_type: data.bean_type,
+    bean_name: data.bean_name,
+    roast_level: data.roast_level,
+    is_public: data.is_public,
+  }
+  // Only include rating fields if they are present (non-null)
+  if (data.acidity !== null) {
+    updatePayload.acidity = data.acidity
+    updatePayload.bitterness = data.bitterness
+    updatePayload.aroma = data.aroma
+    updatePayload.overall_rating = data.overall_rating
+  }
+
   const { error: updateError } = await supabase
     .from('coffee_evaluations')
-    .update({
-      shop_name: data.shop_name,
-      bean_type: data.bean_type,
-      bean_name: data.bean_name,
-      roast_level: data.roast_level,
-      acidity: data.acidity,
-      bitterness: data.bitterness,
-      aroma: data.aroma,
-      overall_rating: data.overall_rating,
-      is_public: data.is_public,
-    })
+    .update(updatePayload)
     .eq('id', id)
 
   if (updateError) {

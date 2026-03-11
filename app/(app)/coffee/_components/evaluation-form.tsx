@@ -53,7 +53,11 @@ export function EvaluationForm({ id, defaultValues }: EvaluationFormProps) {
   const [beanType, setBeanType] = useState(defaultValues?.bean_type ?? '')
   const [beanName, setBeanName] = useState(defaultValues?.bean_name ?? '')
   const [roastLevel, setRoastLevel] = useState(defaultValues?.roast_level ?? '')
-  const [skipEvaluation, setSkipEvaluation] = useState(false)
+  // 編集モードで未評価データの場合、評価スキップを初期状態にする
+  const hasExistingRatings = defaultValues?.overall_rating != null
+  const [skipEvaluation, setSkipEvaluation] = useState(
+    id ? !hasExistingRatings : false
+  )
   const [errors, setErrors] = useState<FieldErrors>({})
   const [isPending, startTransition] = useTransition()
   const formRef = useRef<HTMLFormElement | null>(null)
@@ -189,7 +193,7 @@ export function EvaluationForm({ id, defaultValues }: EvaluationFormProps) {
         </div>
       </div>
 
-      {!isEditMode && (
+      {(!isEditMode || !hasExistingRatings) && (
         <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
