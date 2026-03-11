@@ -156,7 +156,7 @@ describe('Coffee Evaluation Data Fetching', () => {
       await getCoffeeEvaluations({ sort: 'rating_desc' })
 
       // Assert
-      expect(mockSupabaseClient.order).toHaveBeenCalledWith('overall_rating', { ascending: false })
+      expect(mockSupabaseClient.order).toHaveBeenCalledWith('overall_rating', { ascending: false, nullsFirst: false })
     })
 
     it('should apply search filter across shop, bean, and roast_level', async () => {
@@ -398,6 +398,7 @@ describe('Coffee Evaluation Data Fetching', () => {
       // Assert
       expect(mockSupabaseClient.order).toHaveBeenCalledWith('overall_rating', {
         ascending: false,
+        nullsFirst: false,
       })
     })
 

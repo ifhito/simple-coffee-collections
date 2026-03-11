@@ -94,18 +94,21 @@ export const getCoffeeEvaluations = cache(
 function applySortOrder(query: any, sort?: string) {
   const sortOption = sort || 'created_at_desc'
 
-  const sortMap: Record<string, { column: string; ascending: boolean }> = {
+  const sortMap: Record<string, { column: string; ascending: boolean; nullsFirst?: boolean }> = {
     created_at_asc: { column: 'created_at', ascending: true },
     created_at_desc: { column: 'created_at', ascending: false },
-    rating_desc: { column: 'overall_rating', ascending: false },
-    rating_asc: { column: 'overall_rating', ascending: true },
+    rating_desc: { column: 'overall_rating', ascending: false, nullsFirst: false },
+    rating_asc: { column: 'overall_rating', ascending: true, nullsFirst: false },
     shop_name_asc: { column: 'shop_name', ascending: true },
     shop_name_desc: { column: 'shop_name', ascending: false },
   }
 
   const config = sortMap[sortOption] || sortMap.created_at_desc
 
-  return query.order(config.column, { ascending: config.ascending })
+  return query.order(config.column, {
+    ascending: config.ascending,
+    ...(config.nullsFirst !== undefined && { nullsFirst: config.nullsFirst }),
+  })
 }
 
 /**

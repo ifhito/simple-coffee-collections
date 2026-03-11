@@ -100,11 +100,11 @@ function mapEntityToUpdate(entity: CoffeeEvaluation): CoffeeEvaluationUpdate {
 /**
  * Sort configuration for Supabase queries
  */
-const SORT_CONFIG: Record<EvaluationSortOption, { column: string; ascending: boolean }> = {
+const SORT_CONFIG: Record<EvaluationSortOption, { column: string; ascending: boolean; nullsFirst?: boolean }> = {
   created_at_desc: { column: 'created_at', ascending: false },
   created_at_asc: { column: 'created_at', ascending: true },
-  rating_desc: { column: 'overall_rating', ascending: false },
-  rating_asc: { column: 'overall_rating', ascending: true },
+  rating_desc: { column: 'overall_rating', ascending: false, nullsFirst: false },
+  rating_asc: { column: 'overall_rating', ascending: true, nullsFirst: false },
   shop_name_asc: { column: 'shop_name', ascending: true },
   shop_name_desc: { column: 'shop_name', ascending: false },
 }
@@ -168,7 +168,10 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
 
       // Apply sorting
       const sortConfig = SORT_CONFIG[params?.sort ?? 'created_at_desc']
-      query = query.order(sortConfig.column, { ascending: sortConfig.ascending })
+      query = query.order(sortConfig.column, {
+        ascending: sortConfig.ascending,
+        ...(sortConfig.nullsFirst !== undefined && { nullsFirst: sortConfig.nullsFirst }),
+      })
 
       // Apply pagination
       if (params?.limit) {
@@ -223,7 +226,10 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
 
       // Apply sorting
       const sortConfig = SORT_CONFIG[params?.sort ?? 'created_at_desc']
-      query = query.order(sortConfig.column, { ascending: sortConfig.ascending })
+      query = query.order(sortConfig.column, {
+        ascending: sortConfig.ascending,
+        ...(sortConfig.nullsFirst !== undefined && { nullsFirst: sortConfig.nullsFirst }),
+      })
 
       // Apply pagination
       if (params?.limit) {
