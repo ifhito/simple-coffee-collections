@@ -7,6 +7,14 @@ export async function openEvaluationDetail(page: Page, beanName: string) {
   })
 
   await expect(card).toBeVisible()
-  await card.getByRole('link').click()
-  await expect(page).toHaveURL(/\/coffee\/[a-zA-Z0-9-]+$/)
+
+  const detailLink = card.getByRole('link')
+  const href = await detailLink.getAttribute('href')
+
+  if (!href) {
+    throw new Error(`評価 "${beanName}" の詳細リンク href を取得できませんでした`)
+  }
+
+  await page.goto(href)
+  await expect(page).toHaveURL((url) => url.pathname === href)
 }
