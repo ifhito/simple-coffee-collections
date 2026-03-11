@@ -30,13 +30,43 @@ import type { Database } from '@/lib/types/database.types'
 type CoffeeEvaluationRow = Database['public']['Tables']['coffee_evaluations']['Row']
 type CoffeeEvaluationInsert = Database['public']['Tables']['coffee_evaluations']['Insert']
 type CoffeeEvaluationUpdate = Database['public']['Tables']['coffee_evaluations']['Update']
+type RowRatings = {
+  acidity: RatingValue
+  bitterness: RatingValue
+  aroma: RatingValue
+  overallRating: RatingValue
+}
+type NullableRowRatings = {
+  [K in keyof RowRatings]: RowRatings[K] | null
+}
+
+function hasCompleteRatings(ratings: NullableRowRatings): ratings is RowRatings {
+  return Object.values(ratings).every((value) => value !== null)
+}
+
+function extractRatingsFromRow(row: CoffeeEvaluationRow): EvaluationRatings | null {
+  const ratings: NullableRowRatings = {
+    acidity: row.acidity,
+    bitterness: row.bitterness,
+    aroma: row.aroma,
+    overallRating: row.overall_rating,
+  }
+
+  if (Object.values(ratings).every((value) => value === null)) {
+    return null
+  }
+
+  if (!hasCompleteRatings(ratings)) {
+    throw new Error('評価項目の永続化データが不正です')
+  }
+
+  return EvaluationRatings.fromPrimitive(ratings)
+}
 
 /**
  * Maps a database row to a CoffeeEvaluation domain entity
  */
 function mapRowToEntity(row: CoffeeEvaluationRow): CoffeeEvaluation {
-  const hasRatings = row.acidity !== null && row.bitterness !== null && row.aroma !== null && row.overall_rating !== null
-
   const props: CoffeeEvaluationProps = {
     id: row.id,
     userId: row.user_id,
@@ -46,14 +76,7 @@ function mapRowToEntity(row: CoffeeEvaluationRow): CoffeeEvaluation {
       row.bean_type ?? '',
       row.roast_level
     ),
-    ratings: hasRatings
-      ? EvaluationRatings.fromPrimitive({
-          acidity: row.acidity as RatingValue,
-          bitterness: row.bitterness as RatingValue,
-          aroma: row.aroma as RatingValue,
-          overallRating: row.overall_rating as RatingValue,
-        })
-      : null,
+    ratings: extractRatingsFromRow(row),
     visibility: Visibility.fromBoolean(row.is_public),
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
