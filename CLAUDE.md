@@ -48,4 +48,35 @@ Helps enthusiasts track their coffee journey, discover patterns, and explore new
 
 ---
 
-**Last Updated**: 2026-01-30 | **Version**: 1.1.0
+### Continuous Recording (継続記録ルール)
+
+小さな修正も意味単位として扱い、作業のたびに記録を残す。
+
+**記録先の使い分け**
+
+| 種別 | 記録先 |
+|------|--------|
+| 日常の実装・修正・リファクタ | `memory-bank/progress.md` に追記 |
+| 将来も迷い直す可能性がある設計判断 | `docs/decisions/` に個別ファイルを作成 |
+
+**progress.md エントリー形式**
+
+```
+### YYYY-MM-DD - 変更の要点（一行）
+- What: 何を変えたか
+- Why: なぜ変えたか
+- Rejected: 却下した案（なければ省略）
+- Next: 次に確認・改善すべき点
+- Decision: docs/decisions/... があれば記載
+```
+
+**Claude の振る舞いルール**
+
+- 実装・修正・リファクタを完了したら `memory-bank/progress.md` に追記する
+- 1タスク = 1エントリー（複数ファイルにまたがっても1つにまとめてよい）
+- エントリーは短く。長い説明が必要な場合は `docs/decisions/` に移す
+- `docs/decisions/` への移動判断基準: 「同じ迷いを将来もしそうか？」→ Yes なら移す
+
+---
+
+**Last Updated**: 2026-03-11 | **Version**: 1.2.0
