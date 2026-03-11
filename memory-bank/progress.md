@@ -13,6 +13,11 @@
 
 ## Entries
 
+### 2026-03-11 - Repository の評価永続化マッピングを共通化
+- What: `supabase-coffee-evaluation-repository.ts` に書き込み用フィールド抽出の helper を追加し、`entity.acidity?.value ?? null` などの繰り返しを `entity.toPersistence()` ベースへ置き換え
+- Why: 評価値の null 変換ロジックをリポジトリ内で重複させず、ドメイン側の永続化表現に寄せて責務を明確にするため
+- Rejected: Insert/Update それぞれで `?.value ?? null` を残したまま微修正する案。重複が消えず、将来の項目追加時に差分が出やすいため不採用
+
 ### 2026-03-11 - 評価スコアの永続化型を明示して null 表現を共通化
 - What: `EvaluationRatings` の永続化用型を `RatingsPersistence` / `NullRatingsPersistence` として切り出し、未評価豆の null 値を `NULL_PERSISTENCE` に集約。`CoffeeEvaluation.toPersistence()` もその型を返すように整理
 - Why: 評価あり/なしの永続化形を型で明示し、null オブジェクトの重複定義を避けるため

@@ -63,20 +63,46 @@ function mapRowToEntity(row: CoffeeEvaluationRow): CoffeeEvaluation {
 }
 
 /**
+ * Maps common writable fields from a CoffeeEvaluation entity
+ */
+function mapEntityToWritableFields(
+  entity: CoffeeEvaluation
+): Pick<
+  CoffeeEvaluationInsert,
+  'shop_name' | 'bean_type' | 'bean_name' | 'roast_level' | 'acidity' | 'bitterness' | 'aroma' | 'overall_rating' | 'is_public'
+> {
+  const {
+    shop_name,
+    bean_type,
+    bean_name,
+    roast_level,
+    acidity,
+    bitterness,
+    aroma,
+    overall_rating,
+    is_public,
+  } = entity.toPersistence()
+
+  return {
+    shop_name,
+    bean_type,
+    bean_name,
+    roast_level,
+    acidity,
+    bitterness,
+    aroma,
+    overall_rating,
+    is_public,
+  }
+}
+
+/**
  * Maps a CoffeeEvaluation entity to database insert format
  */
 function mapEntityToInsert(entity: CoffeeEvaluation): Omit<CoffeeEvaluationInsert, 'id'> {
   return {
     user_id: entity.userId,
-    shop_name: entity.shopName,
-    bean_type: entity.beanType,
-    bean_name: entity.beanName,
-    roast_level: entity.roastLevel,
-    acidity: entity.acidity?.value ?? null,
-    bitterness: entity.bitterness?.value ?? null,
-    aroma: entity.aroma?.value ?? null,
-    overall_rating: entity.overallRating?.value ?? null,
-    is_public: entity.isPublic,
+    ...mapEntityToWritableFields(entity),
   }
 }
 
@@ -84,17 +110,7 @@ function mapEntityToInsert(entity: CoffeeEvaluation): Omit<CoffeeEvaluationInser
  * Maps a CoffeeEvaluation entity to database update format
  */
 function mapEntityToUpdate(entity: CoffeeEvaluation): CoffeeEvaluationUpdate {
-  return {
-    shop_name: entity.shopName,
-    bean_type: entity.beanType,
-    bean_name: entity.beanName,
-    roast_level: entity.roastLevel,
-    acidity: entity.acidity?.value ?? null,
-    bitterness: entity.bitterness?.value ?? null,
-    aroma: entity.aroma?.value ?? null,
-    overall_rating: entity.overallRating?.value ?? null,
-    is_public: entity.isPublic,
-  }
+  return mapEntityToWritableFields(entity)
 }
 
 /**
