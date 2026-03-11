@@ -7,6 +7,7 @@
 
 import { test, expect } from '../../fixtures'
 import { coffeeFormDefaults, getUniqueBeanName } from '../../fixtures/test-data'
+import { openEvaluationDetail } from '../../fixtures/coffee-list'
 
 test.describe('Coffee Evaluation Delete', () => {
   test.beforeEach(async ({ page }) => {
@@ -27,8 +28,7 @@ test.describe('Coffee Evaluation Delete', () => {
     await page.waitForURL('/coffee/my')
 
     // Navigate to detail page
-    await page.getByRole('heading', { name: uniqueBeanName }).click()
-    await expect(page).toHaveURL(/\/coffee\/[a-zA-Z0-9-]+$/)
+    await openEvaluationDetail(page, uniqueBeanName)
 
     // Act: Setup dialog handler before clicking delete
     let dialogShown = false
@@ -67,8 +67,7 @@ test.describe('Coffee Evaluation Delete', () => {
     await expect(page.getByRole('heading', { name: uniqueBeanName })).toBeVisible()
 
     // Navigate to detail page
-    await page.getByRole('heading', { name: uniqueBeanName }).click()
-    await expect(page).toHaveURL(/\/coffee\/[a-zA-Z0-9-]+$/)
+    await openEvaluationDetail(page, uniqueBeanName)
 
     // Act: Accept deletion
     page.on('dialog', async dialog => {
@@ -98,8 +97,7 @@ test.describe('Coffee Evaluation Delete', () => {
     await page.waitForURL('/coffee/my')
 
     // Navigate to detail page
-    await page.getByRole('heading', { name: uniqueBeanName }).click()
-    await page.waitForURL((url) => /\/coffee\/[a-f0-9-]+$/.test(url.pathname))
+    await openEvaluationDetail(page, uniqueBeanName)
     const currentUrl = page.url()
 
     // Act: Dismiss deletion dialog

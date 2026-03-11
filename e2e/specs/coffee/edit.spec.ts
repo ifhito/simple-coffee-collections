@@ -7,6 +7,7 @@
 
 import { test, expect } from '../../fixtures'
 import { coffeeFormDefaults, getUniqueBeanName } from '../../fixtures/test-data'
+import { openEvaluationDetail } from '../../fixtures/coffee-list'
 
 test.describe('Coffee Evaluation Edit', () => {
   test.beforeEach(async ({ page }) => {
@@ -27,8 +28,7 @@ test.describe('Coffee Evaluation Edit', () => {
     await page.waitForURL('/coffee/my')
 
     // Navigate to detail page
-    await page.getByRole('heading', { name: uniqueBeanName }).click()
-    await expect(page).toHaveURL(/\/coffee\/[a-zA-Z0-9-]+$/)
+    await openEvaluationDetail(page, uniqueBeanName)
 
     // Act: Click edit button
     const editButton = page.getByRole('link', { name: /編集/ })
@@ -53,7 +53,7 @@ test.describe('Coffee Evaluation Edit', () => {
     await page.waitForURL('/coffee/my')
 
     // Navigate to detail, then edit
-    await page.getByRole('heading', { name: uniqueBeanName }).click()
+    await openEvaluationDetail(page, uniqueBeanName)
     await page.getByRole('link', { name: /編集/ }).click()
 
     // Assert: Form should be pre-filled with existing data
@@ -80,7 +80,7 @@ test.describe('Coffee Evaluation Edit', () => {
     await page.waitForURL('/coffee/my')
 
     // Navigate to edit page
-    await page.getByRole('heading', { name: originalBeanName }).click()
+    await openEvaluationDetail(page, originalBeanName)
     await page.getByRole('link', { name: /編集/ }).click()
     await expect(page).toHaveURL(/\/coffee\/[a-zA-Z0-9-]+\/edit$/)
 

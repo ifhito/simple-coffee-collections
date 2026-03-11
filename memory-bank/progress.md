@@ -13,6 +13,11 @@
 
 ## Entries
 
+### 2026-03-11 - E2E の詳細遷移を heading click からカードリンク基準へ変更
+- What: `e2e/fixtures/coffee-list.ts` に詳細遷移 helper を追加し、`community/detail/edit/delete/ratings` の spec で `heading.click()` をカード内リンク click に置き換え
+- Why: 見出し要素の直接 click は CI で不安定になりやすく、実際の導線である詳細リンクを使う方が E2E の意図に合うため
+- Rejected: spec ごとに `waitForURL` を足して延命する案。遷移対象の選択自体が脆いまま残るため不採用
+
 ### 2026-03-11 - 評価 row helper の型境界を修正
 - What: `extractRatingsFromRow()` で DB row の評価値を `number | null` として扱う型に分離し、全項目が揃った後だけ `RatingValue` へ変換するよう修正
 - Why: `Database` の生値を最初から `RatingValue` 扱いすると build 時の型検査に失敗するため

@@ -7,6 +7,7 @@
 
 import { test, expect } from '../../fixtures'
 import { coffeeFormDefaults, getUniqueBeanName } from '../../fixtures/test-data'
+import { openEvaluationDetail } from '../../fixtures/coffee-list'
 
 test.describe('Coffee Evaluation Detail View', () => {
   test.beforeEach(async ({ page }) => {
@@ -35,12 +36,9 @@ test.describe('Coffee Evaluation Detail View', () => {
     await page.waitForURL('/coffee/my')
 
     // Act: Click on the created evaluation to view details
-    const evaluationCard = page.getByRole('heading', { name: uniqueBeanName })
-    await expect(evaluationCard).toBeVisible()
-    await evaluationCard.click()
+    await openEvaluationDetail(page, uniqueBeanName)
 
     // Assert: Verify all entered data is displayed
-    await expect(page).toHaveURL(/\/coffee\/[a-zA-Z0-9-]+$/)
     await expect(page.getByRole('heading', { level: 1 })).toContainText(uniqueBeanName)
 
     // Verify key fields are displayed
@@ -61,8 +59,7 @@ test.describe('Coffee Evaluation Detail View', () => {
     await page.waitForURL('/coffee/my')
 
     // Navigate to detail
-    await page.getByRole('heading', { name: uniqueBeanName }).click()
-    await expect(page).toHaveURL(/\/coffee\/[a-zA-Z0-9-]+$/)
+    await openEvaluationDetail(page, uniqueBeanName)
 
     // Act: Click back button
     const backLink = page.getByRole('link', { name: /戻る|マイページ/ })

@@ -2,6 +2,7 @@ import { test, expect } from '../../fixtures'
 import type { Page } from '@playwright/test'
 import type { CoffeeFormPage } from '../../pages/coffee-form.page'
 import { coffeeFormDefaults, getUniqueBeanName } from '../../fixtures/test-data'
+import { openEvaluationDetail } from '../../fixtures/coffee-list'
 
 async function createEvaluation(
   coffeeFormPage: CoffeeFormPage,
@@ -83,7 +84,7 @@ test.describe('Community Feed', () => {
     })
 
     // Act: Toggle to public in edit form
-    await page.getByRole('heading', { name: beanName }).click()
+    await openEvaluationDetail(page, beanName)
     await page.getByRole('link', { name: /編集/ }).click()
     await coffeeFormPage.togglePublic()
     await coffeeFormPage.submit()
@@ -123,7 +124,7 @@ test.describe('Community Feed', () => {
 
     // Act: Toggle to private in edit form
     await page.goto('/coffee/my')
-    await page.getByRole('heading', { name: beanName }).click()
+    await openEvaluationDetail(page, beanName)
     await page.getByRole('link', { name: /編集/ }).click()
     await coffeeFormPage.togglePublic()
     await coffeeFormPage.submit()
