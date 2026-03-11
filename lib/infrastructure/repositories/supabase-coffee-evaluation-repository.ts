@@ -36,16 +36,16 @@ type RowRatings = {
   aroma: RatingValue
   overallRating: RatingValue
 }
-type NullableRowRatings = {
-  [K in keyof RowRatings]: RowRatings[K] | null
+type PersistedRowRatings = {
+  [K in keyof RowRatings]: number | null
 }
 
-function hasCompleteRatings(ratings: NullableRowRatings): ratings is RowRatings {
+function hasCompleteRatings(ratings: PersistedRowRatings): ratings is { [K in keyof RowRatings]: number } {
   return Object.values(ratings).every((value) => value !== null)
 }
 
 function extractRatingsFromRow(row: CoffeeEvaluationRow): EvaluationRatings | null {
-  const ratings: NullableRowRatings = {
+  const ratings: PersistedRowRatings = {
     acidity: row.acidity,
     bitterness: row.bitterness,
     aroma: row.aroma,
@@ -60,7 +60,12 @@ function extractRatingsFromRow(row: CoffeeEvaluationRow): EvaluationRatings | nu
     throw new Error('評価項目の永続化データが不正です')
   }
 
-  return EvaluationRatings.fromPrimitive(ratings)
+  return EvaluationRatings.fromPrimitive({
+    acidity: ratings.acidity as RatingValue,
+    bitterness: ratings.bitterness as RatingValue,
+    aroma: ratings.aroma as RatingValue,
+    overallRating: ratings.overallRating as RatingValue,
+  })
 }
 
 /**

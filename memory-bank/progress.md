@@ -13,6 +13,11 @@
 
 ## Entries
 
+### 2026-03-11 - 評価 row helper の型境界を修正
+- What: `extractRatingsFromRow()` で DB row の評価値を `number | null` として扱う型に分離し、全項目が揃った後だけ `RatingValue` へ変換するよう修正
+- Why: `Database` の生値を最初から `RatingValue` 扱いすると build 時の型検査に失敗するため
+- Rejected: row 定義側を `RatingValue | null` に寄せる案。Supabase 生成型との整合が崩れるため不採用
+
 ### 2026-03-11 - 評価 row 復元時の null 判定を helper に集約
 - What: `supabase-coffee-evaluation-repository.ts` で `hasRatings` を廃止し、評価4項目を `extractRatingsFromRow()` でまとめて復元。4項目が一部だけ null の row は不整合エラーに変更し、repository テストも追加
 - Why: 評価値は all-or-nothing というドメイン制約を読み取り側でも明示し、部分 null を静かに未評価扱いしないため
