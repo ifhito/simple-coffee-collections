@@ -16,7 +16,7 @@ import {
   EvaluationQueryParams,
   EvaluationSortOption,
   EvaluationWithDisplayName,
-  Rating,
+  EvaluationRatings,
   BeanInfo,
   ShopInfo,
   Visibility,
@@ -47,12 +47,12 @@ function mapRowToEntity(row: CoffeeEvaluationRow): CoffeeEvaluation {
       row.roast_level
     ),
     ratings: hasRatings
-      ? {
-          acidity: Rating.fromPrimitive(row.acidity as RatingValue),
-          bitterness: Rating.fromPrimitive(row.bitterness as RatingValue),
-          aroma: Rating.fromPrimitive(row.aroma as RatingValue),
-          overallRating: Rating.fromPrimitive(row.overall_rating as RatingValue),
-        }
+      ? EvaluationRatings.fromPrimitive({
+          acidity: row.acidity as RatingValue,
+          bitterness: row.bitterness as RatingValue,
+          aroma: row.aroma as RatingValue,
+          overallRating: row.overall_rating as RatingValue,
+        })
       : null,
     visibility: Visibility.fromBoolean(row.is_public),
     createdAt: new Date(row.created_at),

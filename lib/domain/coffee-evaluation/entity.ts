@@ -7,8 +7,9 @@
  * @module lib/domain/coffee-evaluation/entity
  */
 
-import { Result, ok, fail, flatMap } from '../shared/result'
+import { Result, ok, fail } from '../shared/result'
 import { Rating, RatingValue } from './value-objects/rating'
+import { EvaluationRatings } from './value-objects/evaluation-ratings'
 import { BeanInfo, BeanInfoInput } from './value-objects/bean-info'
 import { ShopInfo } from './value-objects/shop-info'
 import { Visibility } from './value-objects/visibility'
@@ -17,16 +18,6 @@ import { Visibility } from './value-objects/visibility'
  * Unique identifier for CoffeeEvaluation
  */
 export type CoffeeEvaluationId = string
-
-/**
- * Rating fields for a coffee evaluation
- */
-export interface EvaluationRatings {
-  acidity: Rating
-  bitterness: Rating
-  aroma: Rating
-  overallRating: Rating
-}
 
 /**
  * Input for creating a new CoffeeEvaluation (with ratings)
@@ -113,11 +104,9 @@ export class CoffeeEvaluation {
    * @returns Result containing CoffeeEvaluation or validation error
    */
   static create(input: CreateCoffeeEvaluationInput): Result<CoffeeEvaluation, string> {
-    // Validate shop info
     const shopInfoResult = ShopInfo.create(input.shopName)
     if (!shopInfoResult.ok) return shopInfoResult
 
-    // Validate bean info
     const beanInfoResult = BeanInfo.create({
       beanName: input.beanName,
       beanType: input.beanType,
@@ -125,8 +114,7 @@ export class CoffeeEvaluation {
     })
     if (!beanInfoResult.ok) return beanInfoResult
 
-    // Validate ratings
-    const ratingsResult = CoffeeEvaluation.validateRatings({
+    const ratingsResult = EvaluationRatings.create({
       acidity: input.acidity,
       bitterness: input.bitterness,
       aroma: input.aroma,
@@ -135,9 +123,9 @@ export class CoffeeEvaluation {
     if (!ratingsResult.ok) return ratingsResult
 
     const now = new Date()
-    
+
     return ok(new CoffeeEvaluation(
-      '', // ID will be assigned by repository
+      '',
       input.userId,
       shopInfoResult.value,
       beanInfoResult.value,
@@ -193,35 +181,6 @@ export class CoffeeEvaluation {
       props.createdAt,
       props.updatedAt
     )
-  }
-
-  /**
-   * Validate rating values and create Rating objects
-   */
-  private static validateRatings(input: {
-    acidity: number
-    bitterness: number
-    aroma: number
-    overallRating: number
-  }): Result<EvaluationRatings, string> {
-    const acidityResult = Rating.create(input.acidity)
-    if (!acidityResult.ok) return fail(`酸味: ${acidityResult.error}`)
-
-    const bitternessResult = Rating.create(input.bitterness)
-    if (!bitternessResult.ok) return fail(`苦味: ${bitternessResult.error}`)
-
-    const aromaResult = Rating.create(input.aroma)
-    if (!aromaResult.ok) return fail(`香り: ${aromaResult.error}`)
-
-    const overallRatingResult = Rating.create(input.overallRating)
-    if (!overallRatingResult.ok) return fail(`総合評価: ${overallRatingResult.error}`)
-
-    return ok({
-      acidity: acidityResult.value,
-      bitterness: bitternessResult.value,
-      aroma: aromaResult.value,
-      overallRating: overallRatingResult.value,
-    })
   }
 
   // =========================================================================
@@ -334,7 +293,7 @@ export class CoffeeEvaluation {
     aroma: number
     overallRating: number
   }): Result<CoffeeEvaluation, string> {
-    const ratingsResult = CoffeeEvaluation.validateRatings(input)
+    const ratingsResult = EvaluationRatings.create(input)
     if (!ratingsResult.ok) return ratingsResult
 
     return ok(new CoffeeEvaluation(
@@ -398,7 +357,7 @@ export class CoffeeEvaluation {
         return fail('未評価の豆に対しては、全ての評価値を指定してください')
       }
 
-      const result = CoffeeEvaluation.validateRatings({
+      const result = EvaluationRatings.create({
         acidity,
         bitterness,
         aroma,
@@ -464,6 +423,7 @@ export class CoffeeEvaluation {
     created_at: string
     updated_at: string
   } {
+    const nullRatings = { acidity: null, bitterness: null, aroma: null, overall_rating: null }
     return {
       id: this._id,
       user_id: this._userId,
@@ -471,10 +431,7 @@ export class CoffeeEvaluation {
       bean_type: this._beanInfo.beanType,
       bean_name: this._beanInfo.beanName,
       roast_level: this._beanInfo.roastLevel,
-      acidity: this._ratings?.acidity.value ?? null,
-      bitterness: this._ratings?.bitterness.value ?? null,
-      aroma: this._ratings?.aroma.value ?? null,
-      overall_rating: this._ratings?.overallRating.value ?? null,
+      ...(this._ratings?.toPersistence() ?? nullRatings),
       is_public: this._visibility.isPublic,
       created_at: this._createdAt.toISOString(),
       updated_at: this._updatedAt.toISOString(),

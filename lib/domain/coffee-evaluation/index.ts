@@ -15,7 +15,6 @@ export { ok, fail, isOk, isFail, map, flatMap, unwrap, unwrapOr } from '../share
 export { CoffeeEvaluation } from './entity'
 export type {
   CoffeeEvaluationId,
-  EvaluationRatings,
   CreateCoffeeEvaluationInput,
   CreateBeanOnlyInput,
   UpdateCoffeeEvaluationInput,
@@ -26,6 +25,7 @@ export type {
 export {
   Rating,
   RATING_CONSTRAINTS,
+  EvaluationRatings,
   BeanInfo,
   BEAN_INFO_CONSTRAINTS,
   ShopInfo,
@@ -34,7 +34,7 @@ export {
   VISIBILITY_EMOJI,
   VISIBILITY_LABEL,
 } from './value-objects'
-export type { RatingValue, BeanInfoInput } from './value-objects'
+export type { RatingValue, EvaluationRatingsInput, BeanInfoInput } from './value-objects'
 
 // Repository Interface
 export type {
