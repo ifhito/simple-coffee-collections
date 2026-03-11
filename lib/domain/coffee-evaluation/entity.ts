@@ -9,7 +9,7 @@
 
 import { Result, ok, fail } from '../shared/result'
 import { Rating, RatingValue } from './value-objects/rating'
-import { EvaluationRatings } from './value-objects/evaluation-ratings'
+import { EvaluationRatings, type RatingsPersistence, type NullRatingsPersistence } from './value-objects/evaluation-ratings'
 import { BeanInfo, BeanInfoInput } from './value-objects/bean-info'
 import { ShopInfo } from './value-objects/shop-info'
 import { Visibility } from './value-objects/visibility'
@@ -415,15 +415,10 @@ export class CoffeeEvaluation {
     bean_type: string
     bean_name: string
     roast_level: string | null
-    acidity: RatingValue | null
-    bitterness: RatingValue | null
-    aroma: RatingValue | null
-    overall_rating: RatingValue | null
     is_public: boolean
     created_at: string
     updated_at: string
-  } {
-    const nullRatings = { acidity: null, bitterness: null, aroma: null, overall_rating: null }
+  } & (RatingsPersistence | NullRatingsPersistence) {
     return {
       id: this._id,
       user_id: this._userId,
@@ -431,7 +426,7 @@ export class CoffeeEvaluation {
       bean_type: this._beanInfo.beanType,
       bean_name: this._beanInfo.beanName,
       roast_level: this._beanInfo.roastLevel,
-      ...(this._ratings?.toPersistence() ?? nullRatings),
+      ...(this._ratings?.toPersistence() ?? EvaluationRatings.NULL_PERSISTENCE),
       is_public: this._visibility.isPublic,
       created_at: this._createdAt.toISOString(),
       updated_at: this._updatedAt.toISOString(),

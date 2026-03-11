@@ -144,12 +144,7 @@ export class EvaluationRatings {
   /**
    * Convert to persistence format (snake_case keys)
    */
-  toPersistence(): {
-    acidity: RatingValue
-    bitterness: RatingValue
-    aroma: RatingValue
-    overall_rating: RatingValue
-  } {
+  toPersistence(): RatingsPersistence {
     return {
       acidity: this._acidity.toPrimitive(),
       bitterness: this._bitterness.toPrimitive(),
@@ -157,4 +152,25 @@ export class EvaluationRatings {
       overall_rating: this._overallRating.toPrimitive(),
     }
   }
+
+  /**
+   * Null persistence representation for unevaluated beans
+   */
+  static readonly NULL_PERSISTENCE: NullRatingsPersistence = {
+    acidity: null,
+    bitterness: null,
+    aroma: null,
+    overall_rating: null,
+  }
+}
+
+export type RatingsPersistence = {
+  acidity: RatingValue
+  bitterness: RatingValue
+  aroma: RatingValue
+  overall_rating: RatingValue
+}
+
+export type NullRatingsPersistence = {
+  [K in keyof RatingsPersistence]: null
 }

@@ -34,7 +34,7 @@ export {
   VISIBILITY_EMOJI,
   VISIBILITY_LABEL,
 } from './value-objects'
-export type { RatingValue, EvaluationRatingsInput, BeanInfoInput } from './value-objects'
+export type { RatingValue, EvaluationRatingsInput, RatingsPersistence, NullRatingsPersistence, BeanInfoInput } from './value-objects'
 
 // Repository Interface
 export type {

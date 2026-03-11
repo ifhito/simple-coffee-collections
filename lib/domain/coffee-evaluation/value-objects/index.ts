@@ -8,7 +8,7 @@ export { Rating, RATING_CONSTRAINTS } from './rating'
 export type { RatingValue } from './rating'
 
 export { EvaluationRatings } from './evaluation-ratings'
-export type { EvaluationRatingsInput } from './evaluation-ratings'
+export type { EvaluationRatingsInput, RatingsPersistence, NullRatingsPersistence } from './evaluation-ratings'
 
 export { BeanInfo, BEAN_INFO_CONSTRAINTS } from './bean-info'
 export type { BeanInfoInput } from './bean-info'
