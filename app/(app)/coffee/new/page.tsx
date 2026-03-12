@@ -34,7 +34,7 @@ export default async function NewCoffeeEvaluationPage({
         <p className="text-xs font-semibold uppercase tracking-wide text-amber-600">New</p>
         <h1 className="text-2xl font-bold text-neutral-900">コーヒー評価を作成</h1>
         <p className="text-sm text-neutral-600">
-          香り・酸味・苦味・総合評価をスライダーで入力し、メモを残しましょう。
+          香り・酸味・苦味・総合評価をスライダーで入力し、感想を残しましょう。
         </p>
       </header>
 
