@@ -11,10 +11,7 @@ import type { Database } from './database.types'
 // =============================================================================
 
 /** Coffee evaluation record from database */
-export type CoffeeEvaluation = Database['public']['Tables']['coffee_evaluations']['Row'] & {
-  // notes is currently optional in the app layer; the column may not exist in all environments
-  notes?: string | null
-}
+export type CoffeeEvaluation = Database['public']['Tables']['coffee_evaluations']['Row']
 
 /** Coffee evaluation insert payload */
 export type CoffeeEvaluationInsert = Database['public']['Tables']['coffee_evaluations']['Insert']
@@ -61,6 +58,7 @@ export interface CoffeeEvaluationFormInput {
   bean_type?: string
   bean_name: string
   roast_level: string | null
+  notes?: string | null
   acidity?: number
   bitterness?: number
   aroma?: number
@@ -77,6 +75,7 @@ export interface CoffeeEvaluationEditFormInput {
   bean_type?: string
   bean_name?: string
   roast_level?: string | null
+  notes?: string | null
   acidity?: number
   bitterness?: number
   aroma?: number
@@ -122,6 +121,10 @@ export const CoffeeEvaluationValidation = {
     required: false,
     maxLength: 100,
   },
+  notes: {
+    required: false,
+    maxLength: 500,
+  },
   rating: {
     min: 1,
     max: 10,
@@ -162,6 +165,7 @@ export interface FormValidationErrors {
   bean_type?: string
   bean_name?: string
   roast_level?: string
+  notes?: string
   acidity?: string
   bitterness?: string
   aroma?: string

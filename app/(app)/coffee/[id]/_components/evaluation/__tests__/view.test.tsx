@@ -54,6 +54,7 @@ describe('EvaluationDetailView', () => {
       'data-rating',
       sampleEvaluation.overall_rating.toString()
     )
+    expect(screen.getByRole('heading', { level: 2, name: /感想/i })).toBeInTheDocument()
     expect(screen.getByText(sampleEvaluation.notes!)).toBeInTheDocument()
   })
 
@@ -104,5 +105,16 @@ describe('EvaluationDetailView', () => {
       expect(screen.getByText('産地不明')).toBeInTheDocument()
       expect(screen.queryByText('Unknown')).not.toBeInTheDocument()
     })
+  })
+
+  it('hides the notes section when notes are not present', () => {
+    render(
+      <EvaluationDetailView
+        evaluation={{ ...sampleEvaluation, notes: null } as any}
+        currentUserId="owner-1"
+      />
+    )
+
+    expect(screen.queryByRole('heading', { level: 2, name: /感想/i })).not.toBeInTheDocument()
   })
 })

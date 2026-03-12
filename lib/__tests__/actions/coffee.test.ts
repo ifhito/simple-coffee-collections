@@ -88,6 +88,7 @@ describe('Coffee Evaluation Server Actions', () => {
       formData.append('bean_type', 'エチオピア イルガチェフェ')
       formData.append('bean_name', 'イルガチェフェ G1')
       formData.append('roast_level', '中煎り')
+      formData.append('notes', '華やかな香り')
       formData.append('acidity', '8')
       formData.append('bitterness', '4')
       formData.append('aroma', '9')
@@ -113,6 +114,7 @@ describe('Coffee Evaluation Server Actions', () => {
           bean_type: 'エチオピア イルガチェフェ',
           bean_name: 'イルガチェフェ G1',
           roast_level: '中煎り',
+          notes: '華やかな香り',
           acidity: 8,
           bitterness: 4,
           aroma: 9,
@@ -250,6 +252,48 @@ describe('Coffee Evaluation Server Actions', () => {
       )
     })
 
+    it('should normalize blank notes to null', async () => {
+      const formData = new FormData()
+      formData.append('bean_type', 'エチオピア')
+      formData.append('bean_name', 'イルガチェフェ')
+      formData.append('notes', '   ')
+      formData.append('acidity', '8')
+      formData.append('bitterness', '4')
+      formData.append('aroma', '9')
+      formData.append('overall_rating', '8')
+
+      mockSupabaseClient.insert.mockResolvedValueOnce({
+        data: null,
+        error: null,
+      })
+
+      await createCoffeeEvaluation(formData)
+
+      expect(mockSupabaseClient.insert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          notes: null,
+        })
+      )
+    })
+
+    it('should reject notes longer than 500 characters', async () => {
+      const formData = new FormData()
+      formData.append('bean_type', 'エチオピア')
+      formData.append('bean_name', 'イルガチェフェ')
+      formData.append('notes', 'a'.repeat(501))
+      formData.append('acidity', '8')
+      formData.append('bitterness', '4')
+      formData.append('aroma', '9')
+      formData.append('overall_rating', '8')
+
+      const result = await createCoffeeEvaluation(formData)
+
+      expect(result).toEqual({
+        error: 'notes: notes must be 500 characters or less',
+      })
+      expect(mockSupabaseClient.insert).not.toHaveBeenCalled()
+    })
+
     // bean_name is now required; handled in validation test above
   })
 
@@ -263,6 +307,7 @@ describe('Coffee Evaluation Server Actions', () => {
       formData.append('bean_type', 'コロンビア')
       formData.append('bean_name', '更新豆')
       formData.append('roast_level', '深煎り')
+      formData.append('notes', '甘さが長い')
       formData.append('acidity', '6')
       formData.append('bitterness', '8')
       formData.append('aroma', '7')
@@ -296,6 +341,7 @@ describe('Coffee Evaluation Server Actions', () => {
         expect.objectContaining({
           bean_type: 'コロンビア',
           bean_name: '更新豆',
+          notes: '甘さが長い',
           overall_rating: 7,
         })
       )

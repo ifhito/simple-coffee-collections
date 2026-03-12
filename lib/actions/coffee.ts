@@ -12,6 +12,7 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { CoffeeEvaluationValidation } from '@/lib/types/coffee'
 import { getShopRepository } from '@/lib/di/container'
 import type { User } from '@supabase/supabase-js'
 
@@ -27,6 +28,7 @@ interface ParsedBeanInfo {
   bean_type: string
   bean_name: string
   roast_level: string | null
+  notes: string | null
   is_public: boolean
 }
 
@@ -78,6 +80,7 @@ function parseRating(value: FormDataEntryValue | null): number {
 // =============================================================================
 
 function parseBeanInfoFormData(formData: FormData): ParsedBeanInfo {
+  const notes = getStringField(formData, 'notes').trim()
   const shopId = getStringField(formData, 'shop_id').trim()
   return {
     shop_name: getStringField(formData, 'shop_name').trim(),
@@ -85,6 +88,7 @@ function parseBeanInfoFormData(formData: FormData): ParsedBeanInfo {
     bean_type: getStringField(formData, 'bean_type').trim(),
     bean_name: getStringField(formData, 'bean_name').trim(),
     roast_level: getStringField(formData, 'roast_level').trim() || null,
+    notes: notes || null,
     is_public: formData.get('is_public') === 'true',
   }
 }
@@ -133,6 +137,11 @@ function parseRatingsFormData(
 function validateBeanInfo(data: ParsedBeanInfo): ValidationResult {
   if (!data.bean_name || !data.bean_name.trim()) {
     return { error: 'bean_name: bean_name is required' }
+  }
+  if (data.notes && data.notes.length > CoffeeEvaluationValidation.notes.maxLength) {
+    return {
+      error: `notes: notes must be ${CoffeeEvaluationValidation.notes.maxLength} characters or less`,
+    }
   }
   return null
 }
@@ -234,6 +243,7 @@ export async function createCoffeeEvaluation(
       bean_type: beanInfo.bean_type,
       bean_name: beanInfo.bean_name,
       roast_level: beanInfo.roast_level,
+      notes: beanInfo.notes,
       is_public: beanInfo.is_public,
       ...(ratings ?? {}),
     })
@@ -301,6 +311,7 @@ export async function updateCoffeeEvaluation(
     bean_type: beanInfo.bean_type,
     bean_name: beanInfo.bean_name,
     roast_level: beanInfo.roast_level,
+    notes: beanInfo.notes,
     is_public: beanInfo.is_public,
   }
 
