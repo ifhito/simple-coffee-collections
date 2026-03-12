@@ -175,16 +175,33 @@ describe('EvaluationForm', () => {
     expect(await screen.findByText(/保存に失敗しました/i)).toBeInTheDocument()
   })
 
-  it('blocks submission when notes exceed 500 characters', async () => {
+  it('allows submitting notes with exactly 500 characters', async () => {
+    mockCreateCoffeeEvaluation.mockResolvedValue(undefined)
+
     const user = userEvent.setup()
     render(<EvaluationForm />)
 
     await user.type(screen.getByLabelText(/豆の名前/i), 'Brazil Santos')
-    await user.type(screen.getByLabelText(/感想/i), 'a'.repeat(501))
+    await user.type(screen.getByLabelText(/感想/i), 'a'.repeat(500))
     await user.click(screen.getByRole('button', { name: /保存/i }))
 
-    expect(await screen.findByText(/感想は500文字以内で入力してください/i)).toBeInTheDocument()
-    expect(mockCreateCoffeeEvaluation).not.toHaveBeenCalled()
+    await waitFor(() =>
+      expect(mockCreateCoffeeEvaluation).toHaveBeenCalledWith(expect.any(FormData))
+    )
+
+    const formData = mockCreateCoffeeEvaluation.mock.calls[0][0] as FormData
+    expect(formData.get('notes')).toBe('a'.repeat(500))
+  })
+
+  it('caps notes input at 500 characters', async () => {
+    const user = userEvent.setup()
+    render(<EvaluationForm />)
+
+    const notesInput = screen.getByLabelText(/感想/i)
+    await user.type(notesInput, 'a'.repeat(501))
+
+    expect(notesInput).toHaveValue('a'.repeat(500))
+    expect(screen.getByText('500/500')).toBeInTheDocument()
   })
 
   it('shows a loading state while submitting', async () => {
