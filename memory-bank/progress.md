@@ -13,6 +13,11 @@
 
 ## Entries
 
+### 2026-03-12 - notes migration の version 衝突を解消
+- What: `supabase/migrations/20260312000000_add_notes_to_coffee_evaluations.sql` を `20260312010000_add_notes_to_coffee_evaluations.sql` へリネームし、同日の `drop_shop_name_column` migration と version が重ならないよう修正
+- Why: CI の Supabase migration 適用時に `schema_migrations.version` の主キー衝突で停止していたため
+- Rejected: `drop_shop_name_column` 側の version を変更する案。main 由来の migration を動かすより、このブランチ追加分をずらす方が安全なため不採用
+
 ### 2026-03-12 - 感想欄の上限入力を 500 文字で打ち止めに修正
 - What: `EvaluationForm` の感想 textarea の `maxLength` を 500 に修正し、UI テストを「500 文字は保存できる」「501 文字目は入力されない」境界値確認へ更新
 - Why: 実ブラウザ上で 501 文字まで入力できており、仕様の 500 文字以内を UI でも厳密に守る必要があったため
