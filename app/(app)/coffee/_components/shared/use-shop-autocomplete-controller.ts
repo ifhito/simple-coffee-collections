@@ -21,6 +21,9 @@ export function useShopAutocompleteController({ onChange }: Input) {
   const [activeIndex, setActiveIndex] = useState(-1)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  // stale response 防止用シーケンス番号。fetch 開始時にインクリメントし、
+  // レスポンス到着時に現在値と一致しなければ state 更新をスキップする。
+  const requestSeqRef = useRef(0)
 
   const closeSuggestions = useCallback(() => {
     setIsOpen(false)
@@ -33,6 +36,9 @@ export function useShopAutocompleteController({ onChange }: Input) {
   }, [closeSuggestions])
 
   const fetchSuggestions = useCallback(async (query: string) => {
+    // インクリメントして「この fetch の世代番号」を確定する。
+    // 入力が空でも番号を進め、進行中の古い fetch が state を書き換えるのを防ぐ。
+    const seq = ++requestSeqRef.current
     const normalizedQuery = query.trim()
     if (!normalizedQuery) {
       resetSuggestions()
@@ -41,14 +47,21 @@ export function useShopAutocompleteController({ onChange }: Input) {
 
     try {
       const response = await fetch(buildShopSearchUrl(normalizedQuery))
-      if (!response.ok) return
+      if (seq !== requestSeqRef.current) return  // 古い世代のレスポンスは破棄
+
+      if (!response.ok) {
+        resetSuggestions()
+        return
+      }
 
       const nextSuggestions: ShopSuggestion[] = await response.json()
+      if (seq !== requestSeqRef.current) return  // JSON parse 中に打ち替えが来た場合も破棄
+
       setSuggestions(nextSuggestions)
       setIsOpen(shouldShowSuggestions(normalizedQuery, nextSuggestions.length))
       setActiveIndex(-1)
     } catch {
-      resetSuggestions()
+      if (seq === requestSeqRef.current) resetSuggestions()
     }
   }, [resetSuggestions])
 
