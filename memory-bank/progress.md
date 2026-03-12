@@ -13,6 +13,11 @@
 
 ## Entries
 
+### 2026-03-12 - cmux handoff skill に対象 task / agent の確認手順を追加
+- What: `.agents/skills/cmux-handoff-orchestrator/SKILL.md` に、続ける作業内容や対象エージェントが未指定なら探索前に確認する手順を追加し、引き継ぎで使った `plan/2026-03-12-cmux-resume-plan.md` も保存
+- Why: cmux ログ探索で対象 task や agent を早い段階で絞り、`codex` と `Claude Code` などの取り違えを減らすため
+- Rejected: タイトルやセッション名だけで対象を推定する案。作業内容と agent が食い違うケースで誤認しやすいため不採用
+
 ### 2026-03-12 - notes migration の version 衝突を解消
 - What: `supabase/migrations/20260312000000_add_notes_to_coffee_evaluations.sql` を `20260312010000_add_notes_to_coffee_evaluations.sql` へリネームし、同日の `drop_shop_name_column` migration と version が重ならないよう修正
 - Why: CI の Supabase migration 適用時に `schema_migrations.version` の主キー衝突で停止していたため
