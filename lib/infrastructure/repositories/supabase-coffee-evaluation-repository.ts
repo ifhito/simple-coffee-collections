@@ -30,6 +30,10 @@ import type { Database } from '@/lib/types/database.types'
 type CoffeeEvaluationRow = Database['public']['Tables']['coffee_evaluations']['Row']
 type CoffeeEvaluationInsert = Database['public']['Tables']['coffee_evaluations']['Insert']
 type CoffeeEvaluationUpdate = Database['public']['Tables']['coffee_evaluations']['Update']
+// shops JOIN を含む拡張行型。select('*, shops(name)') の実行時形状に合わせる
+type CoffeeEvaluationRowWithShop = CoffeeEvaluationRow & {
+  shops?: { name: string } | null
+}
 type RowRatings = {
   acidity: RatingValue
   bitterness: RatingValue
@@ -39,6 +43,7 @@ type RowRatings = {
 type PersistedRowRatings = {
   [K in keyof RowRatings]: number | null
 }
+const COFFEE_TEXT_SEARCH_FIELDS = ['bean_type', 'bean_name', 'roast_level'] as const
 
 function hasCompleteRatings(ratings: PersistedRowRatings): ratings is { [K in keyof RowRatings]: number } {
   return Object.values(ratings).every((value) => value !== null)
@@ -69,13 +74,15 @@ function extractRatingsFromRow(row: CoffeeEvaluationRow): EvaluationRatings | nu
 }
 
 /**
- * Maps a database row to a CoffeeEvaluation domain entity
+ * Maps a database row to a CoffeeEvaluation domain entity.
+ * shop_name は shops JOIN から取得する。
  */
-function mapRowToEntity(row: CoffeeEvaluationRow): CoffeeEvaluation {
+function mapRowToEntity(row: CoffeeEvaluationRowWithShop): CoffeeEvaluation {
+  const shopName = row.shops?.name ?? ''
   const props: CoffeeEvaluationProps = {
     id: row.id,
     userId: row.user_id,
-    shopInfo: ShopInfo.fromPrimitive(row.shop_name ?? ''),
+    shopInfo: ShopInfo.fromPrimitive(shopName, row.shop_id),
     beanInfo: BeanInfo.fromPrimitive(
       row.bean_name ?? '',
       row.bean_type ?? '',
@@ -97,10 +104,10 @@ function mapEntityToWritableFields(
   entity: CoffeeEvaluation
 ): Pick<
   CoffeeEvaluationInsert,
-  'shop_name' | 'bean_type' | 'bean_name' | 'roast_level' | 'acidity' | 'bitterness' | 'aroma' | 'overall_rating' | 'is_public'
+  'shop_id' | 'bean_type' | 'bean_name' | 'roast_level' | 'acidity' | 'bitterness' | 'aroma' | 'overall_rating' | 'is_public'
 > {
   const {
-    shop_name,
+    shop_id,
     bean_type,
     bean_name,
     roast_level,
@@ -112,7 +119,7 @@ function mapEntityToWritableFields(
   } = entity.toPersistence()
 
   return {
-    shop_name,
+    shop_id,
     bean_type,
     bean_name,
     roast_level,
@@ -144,13 +151,42 @@ function mapEntityToUpdate(entity: CoffeeEvaluation): CoffeeEvaluationUpdate {
 /**
  * Sort configuration for Supabase queries
  */
-const SORT_CONFIG: Record<EvaluationSortOption, { column: string; ascending: boolean; nullsFirst?: boolean }> = {
+const SORT_CONFIG: Record<EvaluationSortOption, { column: string; ascending: boolean; nullsFirst?: boolean; referencedTable?: string }> = {
   created_at_desc: { column: 'created_at', ascending: false },
   created_at_asc: { column: 'created_at', ascending: true },
   rating_desc: { column: 'overall_rating', ascending: false, nullsFirst: false },
   rating_asc: { column: 'overall_rating', ascending: true, nullsFirst: false },
-  shop_name_asc: { column: 'shop_name', ascending: true },
-  shop_name_desc: { column: 'shop_name', ascending: false },
+  shop_name_asc: { column: 'name', ascending: true, referencedTable: 'shops' },
+  shop_name_desc: { column: 'name', ascending: false, referencedTable: 'shops' },
+}
+
+function buildCoffeeSearchFilter(searchTerm: string, shopIds: string[]): string {
+  const pattern = `%${searchTerm}%`
+  const textFilters = COFFEE_TEXT_SEARCH_FIELDS.map((field) => `${field}.ilike.${pattern}`)
+
+  if (shopIds.length === 0) {
+    return textFilters.join(',')
+  }
+
+  return [`shop_id.in.(${shopIds.join(',')})`, ...textFilters].join(',')
+}
+
+async function findMatchingShopIds(supabase: any, searchTerm: string): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('shops')
+    .select('id')
+    .ilike('name', `%${searchTerm}%`)
+
+  if (error) {
+    throw new Error(`店舗検索に失敗しました: ${error.message}`)
+  }
+
+  return (data || []).map((row: { id: string }) => row.id)
+}
+
+async function resolveCoffeeSearchFilter(supabase: any, searchTerm: string) {
+  const shopIds = await findMatchingShopIds(supabase, searchTerm)
+  return buildCoffeeSearchFilter(searchTerm, shopIds)
 }
 
 /**
@@ -166,7 +202,7 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
 
       const { data, error } = await supabase
         .from('coffee_evaluations')
-        .select('*')
+        .select('*, shops(name)')
         .eq('id', id)
         .single()
 
@@ -178,7 +214,7 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
         return fail(new Error(`評価の取得に失敗しました: ${error.message}`))
       }
 
-      return ok(mapRowToEntity(data))
+      return ok(mapRowToEntity(data as CoffeeEvaluationRowWithShop))
     } catch (err) {
       return fail(err instanceof Error ? err : new Error('Unknown error'))
     }
@@ -191,7 +227,7 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
     try {
       const supabase = await createClient()
 
-      let query = supabase.from('coffee_evaluations').select('*')
+      let query = supabase.from('coffee_evaluations').select('*, shops(name)')
 
       // Apply filters
       if (params?.userId) {
@@ -204,10 +240,8 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
 
       // Apply search
       if (params?.search) {
-        const pattern = `%${params.search}%`
-        query = query.or(
-          `shop_name.ilike.${pattern},bean_type.ilike.${pattern},bean_name.ilike.${pattern},roast_level.ilike.${pattern}`
-        )
+        const searchFilter = await resolveCoffeeSearchFilter(supabase, params.search)
+        query = query.or(searchFilter)
       }
 
       // Apply sorting
@@ -215,6 +249,7 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
       query = query.order(sortConfig.column, {
         ascending: sortConfig.ascending,
         ...(sortConfig.nullsFirst !== undefined && { nullsFirst: sortConfig.nullsFirst }),
+        ...(sortConfig.referencedTable !== undefined && { referencedTable: sortConfig.referencedTable }),
       })
 
       // Apply pagination
@@ -231,7 +266,7 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
         return fail(new Error(`評価一覧の取得に失敗しました: ${error.message}`))
       }
 
-      return ok((data || []).map(mapRowToEntity))
+      return ok((data || []).map((row) => mapRowToEntity(row as CoffeeEvaluationRowWithShop)))
     } catch (err) {
       return fail(err instanceof Error ? err : new Error('Unknown error'))
     }
@@ -249,7 +284,7 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
       // First, try JOIN approach
       let query = supabase
         .from('coffee_evaluations')
-        .select('*, user_profiles!inner(display_name)')
+        .select('*, user_profiles!inner(display_name), shops(name)')
 
       // Apply filters
       if (params?.userId) {
@@ -262,10 +297,8 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
 
       // Apply search
       if (params?.search) {
-        const pattern = `%${params.search}%`
-        query = query.or(
-          `shop_name.ilike.${pattern},bean_type.ilike.${pattern},bean_name.ilike.${pattern},roast_level.ilike.${pattern}`
-        )
+        const searchFilter = await resolveCoffeeSearchFilter(supabase, params.search)
+        query = query.or(searchFilter)
       }
 
       // Apply sorting
@@ -273,6 +306,7 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
       query = query.order(sortConfig.column, {
         ascending: sortConfig.ascending,
         ...(sortConfig.nullsFirst !== undefined && { nullsFirst: sortConfig.nullsFirst }),
+        ...(sortConfig.referencedTable !== undefined && { referencedTable: sortConfig.referencedTable }),
       })
 
       // Apply pagination
@@ -291,7 +325,7 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
       }
 
       const results: EvaluationWithDisplayName[] = (data || []).map((row: any) => ({
-        evaluation: mapRowToEntity(row),
+        evaluation: mapRowToEntity(row as CoffeeEvaluationRowWithShop),
         displayName: row.user_profiles?.display_name ?? null,
       }))
 
@@ -365,14 +399,14 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
       const { data, error } = await supabase
         .from('coffee_evaluations')
         .insert(insertData)
-        .select()
+        .select('*, shops(name)')
         .single()
 
       if (error) {
         return fail(new Error(`評価の保存に失敗しました: ${error.message}`))
       }
 
-      return ok(mapRowToEntity(data))
+      return ok(mapRowToEntity(data as CoffeeEvaluationRowWithShop))
     } catch (err) {
       return fail(err instanceof Error ? err : new Error('Unknown error'))
     }
@@ -391,14 +425,14 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
         .from('coffee_evaluations')
         .update(updateData)
         .eq('id', evaluation.id)
-        .select()
+        .select('*, shops(name)')
         .single()
 
       if (error) {
         return fail(new Error(`評価の更新に失敗しました: ${error.message}`))
       }
 
-      return ok(mapRowToEntity(data))
+      return ok(mapRowToEntity(data as CoffeeEvaluationRowWithShop))
     } catch (err) {
       return fail(err instanceof Error ? err : new Error('Unknown error'))
     }
@@ -457,7 +491,7 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
 
       let query = supabase
         .from('coffee_evaluations')
-        .select('*', { count: 'exact', head: true })
+        .select('*, shops!left(name)', { count: 'exact', head: true })
 
       // Apply filters
       if (params?.userId) {
@@ -470,10 +504,8 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
 
       // Apply search
       if (params?.search) {
-        const pattern = `%${params.search}%`
-        query = query.or(
-          `shop_name.ilike.${pattern},bean_type.ilike.${pattern},bean_name.ilike.${pattern},roast_level.ilike.${pattern}`
-        )
+        const searchFilter = await resolveCoffeeSearchFilter(supabase, params.search)
+        query = query.or(searchFilter)
       }
 
       const { count, error } = await query

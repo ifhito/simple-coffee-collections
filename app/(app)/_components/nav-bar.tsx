@@ -12,6 +12,7 @@ type NavBarProps = {
 const navItems = [
   { href: '/coffee/my', label: '📝 マイページ', match: '/coffee/my' },
   { href: '/coffee/community', label: '🌐 コミュニティ', match: '/coffee/community' },
+  { href: '/shops', label: '🏪 店舗', match: '/shops' },
 ]
 
 export function NavBar({ userEmail }: NavBarProps) {

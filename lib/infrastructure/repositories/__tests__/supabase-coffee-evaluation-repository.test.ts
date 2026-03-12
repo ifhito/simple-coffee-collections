@@ -9,12 +9,13 @@ jest.mock('../../supabase/server', () => ({
 const mockCreateClient = createClient as jest.MockedFunction<typeof createClient>
 
 type CoffeeEvaluationRow = Database['public']['Tables']['coffee_evaluations']['Row']
+type CoffeeEvaluationRowWithShop = CoffeeEvaluationRow & { shops?: { name: string } | null }
 
-function makeRow(overrides: Partial<CoffeeEvaluationRow> = {}): CoffeeEvaluationRow {
+function makeRow(overrides: Partial<CoffeeEvaluationRowWithShop> = {}): CoffeeEvaluationRowWithShop {
   return {
     id: 'evaluation-1',
     user_id: 'user-1',
-    shop_name: 'Coffee Stand',
+    shop_id: null,
     bean_name: 'Ethiopia',
     bean_type: 'エチオピア',
     roast_level: 'medium',
@@ -25,11 +26,12 @@ function makeRow(overrides: Partial<CoffeeEvaluationRow> = {}): CoffeeEvaluation
     is_public: true,
     created_at: '2026-03-11T00:00:00.000Z',
     updated_at: '2026-03-11T00:00:00.000Z',
+    shops: null,
     ...overrides,
   }
 }
 
-function makeFindByIdClient(result: { data: CoffeeEvaluationRow | null; error: { code?: string; message: string } | null }) {
+function makeFindByIdClient(result: { data: CoffeeEvaluationRowWithShop | null; error: { code?: string; message: string } | null }) {
   return {
     from: jest.fn(() => ({
       select: jest.fn(() => ({
@@ -105,6 +107,46 @@ describe('SupabaseCoffeeEvaluationRepository', () => {
       expect(result.ok).toBe(false)
       if (!result.ok) {
         expect(result.error.message).toBe('評価項目の永続化データが不正です')
+      }
+    })
+
+    it('uses shops.name as shopName when shop_id and shops join exist', async () => {
+      mockCreateClient.mockResolvedValue(
+        makeFindByIdClient({
+          data: makeRow({
+            shop_id: 'shop-1',
+            shops: { name: 'Blue Bottle Coffee' },
+          }),
+          error: null,
+        }) as never
+      )
+      const repository = new SupabaseCoffeeEvaluationRepository()
+
+      const result = await repository.findById('evaluation-1')
+
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value?.shopName).toBe('Blue Bottle Coffee')
+      }
+    })
+
+    it('returns empty shopName when shop_id is null and shops is null', async () => {
+      mockCreateClient.mockResolvedValue(
+        makeFindByIdClient({
+          data: makeRow({
+            shop_id: null,
+            shops: null,
+          }),
+          error: null,
+        }) as never
+      )
+      const repository = new SupabaseCoffeeEvaluationRepository()
+
+      const result = await repository.findById('evaluation-1')
+
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value?.shopName).toBe('')
       }
     })
   })

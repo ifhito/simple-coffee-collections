@@ -11,3 +11,6 @@ export * from './shared/result'
 
 // Coffee Evaluation bounded context
 export * from './coffee-evaluation'
+
+// Shop bounded context
+export * from './shop'

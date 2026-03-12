@@ -12,9 +12,12 @@ import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import type {
   CoffeeEvaluation,
-  CoffeeEvaluationSearchParams,
+  CoffeeEvaluationDisplay,
   CoffeeEvaluationWithUser,
+  CoffeeEvaluationSearchParams,
 } from '@/lib/types/coffee'
+
+const COFFEE_TEXT_SEARCH_FIELDS = ['bean_type', 'bean_name', 'roast_level'] as const
 
 /**
  * Handle Supabase query errors consistently
@@ -25,6 +28,43 @@ import type {
 function handleDatabaseError(error: any, context: string): never {
   const message = error?.message || 'データベースエラーが発生しました'
   throw new Error(`${context}: ${message}`)
+}
+
+function buildCoffeeSearchFilter(searchTerm: string, shopIds: string[]): string {
+  const pattern = `%${searchTerm}%`
+  const textFilters = COFFEE_TEXT_SEARCH_FIELDS.map((field) => `${field}.ilike.${pattern}`)
+
+  if (shopIds.length === 0) {
+    return textFilters.join(',')
+  }
+
+  return [`shop_id.in.(${shopIds.join(',')})`, ...textFilters].join(',')
+}
+
+async function findMatchingShopIds(
+  supabase: any,
+  searchTerm: string,
+  context: string
+): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('shops')
+    .select('id')
+    .ilike('name', `%${searchTerm}%`)
+
+  if (error) {
+    handleDatabaseError(error, context)
+  }
+
+  return (data || []).map((row: { id: string }) => row.id)
+}
+
+async function resolveCoffeeSearchFilter(
+  supabase: any,
+  searchTerm: string,
+  context: string
+) {
+  const shopIds = await findMatchingShopIds(supabase, searchTerm, context)
+  return buildCoffeeSearchFilter(searchTerm, shopIds)
 }
 
 /**
@@ -49,11 +89,11 @@ function handleDatabaseError(error: any, context: string): never {
 export const getCoffeeEvaluations = cache(
   async (
     params?: CoffeeEvaluationSearchParams
-  ): Promise<CoffeeEvaluation[]> => {
+  ): Promise<CoffeeEvaluationDisplay[]> => {
     const supabase = await createClient()
 
     // Start building query
-    let query = supabase.from('coffee_evaluations').select('*')
+    let query = supabase.from('coffee_evaluations').select('*, shops!left(name)')
 
     // Apply filters
     if (params?.user_id) {
@@ -66,10 +106,12 @@ export const getCoffeeEvaluations = cache(
 
     // Apply search across text fields
     if (params?.search) {
-      const pattern = `%${params.search}%`
-      query = query.or(
-        `shop_name.ilike.${pattern},bean_type.ilike.${pattern},bean_name.ilike.${pattern},roast_level.ilike.${pattern}`
+      const searchFilter = await resolveCoffeeSearchFilter(
+        supabase,
+        params.search,
+        'コーヒー評価の取得'
       )
+      query = query.or(searchFilter)
     }
 
     // Apply sorting based on sort parameter
@@ -81,7 +123,7 @@ export const getCoffeeEvaluations = cache(
       handleDatabaseError(error, 'コーヒー評価の取得')
     }
 
-    return data || []
+    return (data || []).map((row: any) => ({ ...row, shop_name: row.shops?.name ?? null }))
   }
 )
 
@@ -94,13 +136,13 @@ export const getCoffeeEvaluations = cache(
 function applySortOrder(query: any, sort?: string) {
   const sortOption = sort || 'created_at_desc'
 
-  const sortMap: Record<string, { column: string; ascending: boolean; nullsFirst?: boolean }> = {
+  const sortMap: Record<string, { column: string; ascending: boolean; nullsFirst?: boolean; referencedTable?: string }> = {
     created_at_asc: { column: 'created_at', ascending: true },
     created_at_desc: { column: 'created_at', ascending: false },
     rating_desc: { column: 'overall_rating', ascending: false, nullsFirst: false },
     rating_asc: { column: 'overall_rating', ascending: true, nullsFirst: false },
-    shop_name_asc: { column: 'shop_name', ascending: true },
-    shop_name_desc: { column: 'shop_name', ascending: false },
+    shop_name_asc: { column: 'name', ascending: true, referencedTable: 'shops' },
+    shop_name_desc: { column: 'name', ascending: false, referencedTable: 'shops' },
   }
 
   const config = sortMap[sortOption] || sortMap.created_at_desc
@@ -108,6 +150,7 @@ function applySortOrder(query: any, sort?: string) {
   return query.order(config.column, {
     ascending: config.ascending,
     ...(config.nullsFirst !== undefined && { nullsFirst: config.nullsFirst }),
+    ...(config.referencedTable !== undefined && { referencedTable: config.referencedTable }),
   })
 }
 
@@ -127,12 +170,12 @@ function applySortOrder(query: any, sort?: string) {
  * ```
  */
 export const getCoffeeEvaluation = cache(
-  async (id: string): Promise<CoffeeEvaluation | null> => {
+  async (id: string): Promise<CoffeeEvaluationDisplay | null> => {
     const supabase = await createClient()
 
     const { data, error } = await supabase
       .from('coffee_evaluations')
-      .select('*')
+      .select('*, shops!left(name)')
       .eq('id', id)
       .single()
 
@@ -144,7 +187,8 @@ export const getCoffeeEvaluation = cache(
       handleDatabaseError(error, 'コーヒー評価の取得')
     }
 
-    return data
+    if (!data) return null
+    return { ...(data as any), shop_name: (data as any).shops?.name ?? null }
   }
 )
 
@@ -167,25 +211,24 @@ export const getCoffeeEvaluation = cache(
  * ```
  */
 export const searchCoffeeEvaluations = cache(
-  async (searchTerm: string): Promise<CoffeeEvaluation[]> => {
+  async (searchTerm: string): Promise<CoffeeEvaluationDisplay[]> => {
     const supabase = await createClient()
 
-    // Build search pattern for PostgreSQL ILIKE (case-insensitive partial match)
-    const searchPattern = `%${searchTerm}%`
+    let query = supabase.from('coffee_evaluations').select('*, shops!left(name)')
+    const searchFilter = await resolveCoffeeSearchFilter(
+      supabase,
+      searchTerm,
+      'コーヒー評価の検索'
+    )
+    query = query.or(searchFilter)
 
-    const { data, error } = await supabase
-      .from('coffee_evaluations')
-      .select('*')
-      .or(
-        `shop_name.ilike.${searchPattern},bean_type.ilike.${searchPattern},bean_name.ilike.${searchPattern},roast_level.ilike.${searchPattern}`
-      )
-      .order('created_at', { ascending: false })
+    const { data, error } = await query.order('created_at', { ascending: false })
 
     if (error) {
       handleDatabaseError(error, 'コーヒー評価の検索')
     }
 
-    return data || []
+    return (data || []).map((row: any) => ({ ...row, shop_name: row.shops?.name ?? null }))
   }
 )
 
@@ -216,8 +259,8 @@ export const getCoffeeEvaluationsWithUser = cache(
   ): Promise<CoffeeEvaluationWithUser[]> => {
     const supabase = await createClient()
 
-    const buildBaseQuery = () => {
-      let query = supabase.from('coffee_evaluations').select('*')
+    const buildBaseQuery = async () => {
+      let query = supabase.from('coffee_evaluations').select('*, shops!left(name)')
 
       if (params?.user_id) {
         query = query.eq('user_id', params.user_id)
@@ -228,10 +271,12 @@ export const getCoffeeEvaluationsWithUser = cache(
       }
 
       if (params?.search) {
-        const pattern = `%${params.search}%`
-        query = query.or(
-          `shop_name.ilike.${pattern},bean_type.ilike.${pattern},bean_name.ilike.${pattern},roast_level.ilike.${pattern}`
+        const searchFilter = await resolveCoffeeSearchFilter(
+          supabase,
+          params.search,
+          'ユーザー情報付きコーヒー評価の取得'
         )
+        query = query.or(searchFilter)
       }
 
       query = applySortOrder(query, params?.sort)
@@ -241,7 +286,7 @@ export const getCoffeeEvaluationsWithUser = cache(
     const fetchWithJoin = async () => {
       let query = supabase
         .from('coffee_evaluations')
-        .select('*, user_profiles!inner(display_name)')
+        .select('*, shops!left(name), user_profiles!inner(display_name)')
 
       if (params?.user_id) {
         query = query.eq('user_id', params.user_id)
@@ -252,10 +297,12 @@ export const getCoffeeEvaluationsWithUser = cache(
       }
 
       if (params?.search) {
-        const pattern = `%${params.search}%`
-        query = query.or(
-          `shop_name.ilike.${pattern},bean_type.ilike.${pattern},bean_name.ilike.${pattern},roast_level.ilike.${pattern}`
+        const searchFilter = await resolveCoffeeSearchFilter(
+          supabase,
+          params.search,
+          'ユーザー情報付きコーヒー評価の取得'
         )
+        query = query.or(searchFilter)
       }
 
       query = applySortOrder(query, params?.sort)
@@ -263,18 +310,12 @@ export const getCoffeeEvaluationsWithUser = cache(
       return query
     }
 
-    const mapJoinResponse = (
-      data: (CoffeeEvaluation & { user_profiles?: { display_name: string | null } | null })[]
-    ) => {
-      return (data || []).map((item) => {
-        if ('display_name' in item && item.display_name !== undefined) {
-          return item as unknown as CoffeeEvaluationWithUser
-        }
-        return {
-          ...item,
-          display_name: item.user_profiles?.display_name ?? null,
-        } as CoffeeEvaluationWithUser
-      })
+    const mapJoinResponse = (data: any[]) => {
+      return (data || []).map((item: any) => ({
+        ...item,
+        shop_name: item.shops?.name ?? null,
+        display_name: item.user_profiles?.display_name ?? item.display_name ?? null,
+      })) as CoffeeEvaluationWithUser[]
     }
 
     try {
@@ -284,8 +325,7 @@ export const getCoffeeEvaluationsWithUser = cache(
         handleDatabaseError(error, 'ユーザー情報付きコーヒー評価の取得')
       }
 
-      // Transform nested user_profiles to flat display_name field
-      return mapJoinResponse((data || []) as any) as CoffeeEvaluationWithUser[]
+      return mapJoinResponse((data || []) as any[])
     } catch (error: any) {
       const message = error?.message || ''
       const relationshipMissing = message.includes('relationship between')
@@ -300,7 +340,7 @@ export const getCoffeeEvaluationsWithUser = cache(
         handleDatabaseError(evalError, 'ユーザー情報付きコーヒー評価の取得(フォールバック)')
       }
 
-      const userIds = Array.from(new Set((evaluations || []).map((item) => item.user_id)))
+      const userIds = Array.from(new Set((evaluations || []).map((item: any) => item.user_id)))
 
       const { data: profiles, error: profileError } = await supabase
         .from('user_profiles')
@@ -316,8 +356,9 @@ export const getCoffeeEvaluationsWithUser = cache(
         displayNameMap.set(profile.id, profile.display_name ?? null)
       }
 
-      return (evaluations || []).map((item) => ({
+      return (evaluations || []).map((item: any) => ({
         ...item,
+        shop_name: item.shops?.name ?? null,
         display_name: displayNameMap.get(item.user_id) ?? null,
       })) as CoffeeEvaluationWithUser[]
     }

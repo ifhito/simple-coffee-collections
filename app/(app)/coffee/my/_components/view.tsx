@@ -1,12 +1,12 @@
 import Link from 'next/link'
-import type { CoffeeEvaluation } from '@/lib/types/coffee'
+import type { CoffeeEvaluationDisplay } from '@/lib/types/coffee'
 import { CoffeeCard } from '../../_components/list/card'
 import { PublicBadge } from '../../_components/shared/public-badge'
 import { EmptyState } from '../../_components/shared/empty-state'
 import { CopyProfileLinkButton } from './copy-profile-link-button'
 
 type MyPageViewProps = {
-  evaluations: CoffeeEvaluation[]
+  evaluations: CoffeeEvaluationDisplay[]
   profileShareUrl?: string
 }
 
