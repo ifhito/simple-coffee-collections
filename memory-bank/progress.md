@@ -13,6 +13,11 @@
 
 ## Entries
 
+### 2026-03-12 - cmux handoff skill に対象 task / agent の確認手順を追加
+- What: `.agents/skills/cmux-handoff-orchestrator/SKILL.md` に、続ける作業内容や対象エージェントが未指定なら探索前に確認する手順を追加し、引き継ぎで使った `plan/2026-03-12-cmux-resume-plan.md` も保存
+- Why: cmux ログ探索で対象 task や agent を早い段階で絞り、`codex` と `Claude Code` などの取り違えを減らすため
+- Rejected: タイトルやセッション名だけで対象を推定する案。作業内容と agent が食い違うケースで誤認しやすいため不採用
+
 ### 2026-03-12 - main へのマージ時は CI テストを走らせないよう調整
 - What: `.github/workflows/ci.yml` の `test` job を `pull_request` 時のみ実行に変更し、`main` への push では migration job だけが動くよう `needs: test` を外した
 - Why: PR を `main` にマージした後の push ではテストを再実行せず、本番向け migration のみを流したいため
