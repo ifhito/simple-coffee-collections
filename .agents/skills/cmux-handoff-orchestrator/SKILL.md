@@ -1,6 +1,6 @@
 ---
 name: cmux-handoff-orchestrator
-description: Use when a user asks to read work from another cmux surface/workspace and continue it. Search across all candidate workspaces/surfaces (not limited to Claude/Codex), identify the right target from logs, ask user confirmation before continuing, then strictly extract/verify the plan and check post-plan execution before implementing.
+description: Use when a user asks to read work from another cmux surface/workspace and continue it. If the target task or target agent is unspecified, ask first. Then search across all candidate workspaces/surfaces (not limited to Claude/Codex), identify the right target from logs, ask user confirmation before continuing, then strictly extract/verify the plan and check post-plan execution before implementing.
 ---
 
 # cmux Handoff Orchestrator
@@ -19,6 +19,15 @@ Do not assume the target is only Claude/Codex. Always search all relevant surfac
 ## Required Workflow
 
 Follow this sequence exactly.
+
+0. Clarify missing targeting information before discovery.
+
+- If the user did not specify what work/task to continue, ask briefly what kind of work you should look for.
+- If the user did not specify which agent/session family to target, ask briefly which one to inspect first.
+  - examples: `codex`, `Claude Code`, other named agents or terminal sessions
+- If both are missing, ask both before reading logs broadly.
+- Do not assume the target agent from titles alone when the user has not said so.
+- If the user already specified both the task and the target agent, do not ask again.
 
 1. Discover all candidates first.
 
