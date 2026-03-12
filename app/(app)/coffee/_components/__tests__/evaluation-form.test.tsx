@@ -24,6 +24,7 @@ const sampleDefaultValues: EvaluationFormDefaultValues = {
   bean_type: 'Ethiopia',
   bean_name: 'イルガチェフェ',
   roast_level: 'Medium',
+  notes: '柑橘っぽい余韻',
   acidity: 7,
   bitterness: 4,
   aroma: 9,
@@ -76,6 +77,7 @@ describe('EvaluationForm', () => {
     expect(screen.getByLabelText(/豆の産地/i)).toHaveValue('Kenya')
     expect(screen.getByLabelText(/豆の名前/i)).toHaveValue('ケニアAA')
     expect(screen.getByLabelText(/焙煎度/i)).toHaveValue('medium')
+    expect(screen.getByLabelText(/感想/i)).toHaveValue('')
   })
 
   it('uses default rating values of 5 when defaultValues has no ratings', () => {
@@ -117,6 +119,7 @@ describe('EvaluationForm', () => {
     const formData = mockUpdateCoffeeEvaluation.mock.calls[0][1] as FormData
     expect(formData.get('shop_name')).toBe('Verve Coffee')
     expect(formData.get('bean_name')).toBe('ケニアAA')
+    expect(formData.get('notes')).toBe(sampleDefaultValues.notes)
     expect(formData.get('acidity')).toBe('6')
     expect(mockCreateCoffeeEvaluation).not.toHaveBeenCalled()
   })
@@ -131,6 +134,7 @@ describe('EvaluationForm', () => {
     await user.type(screen.getByLabelText(/豆の産地/i), 'Kenya AA')
     await user.type(screen.getByLabelText(/焙煎度/i), 'Light roast')
     await user.type(screen.getByLabelText(/豆の名前/i), 'Kenya AA Top')
+    await user.type(screen.getByLabelText(/感想/i), '冷めても甘さが残る')
     setSliderValue(/総合評価/i, 9)
 
     // PublicToggle defaults to false (非公開), so we don't need to toggle it
@@ -144,6 +148,7 @@ describe('EvaluationForm', () => {
     const formData = mockCreateCoffeeEvaluation.mock.calls[0][0] as FormData
     expect(formData.get('shop_name')).toBe('Onibus Coffee')
     expect(formData.get('bean_name')).toBe('Kenya AA Top')
+    expect(formData.get('notes')).toBe('冷めても甘さが残る')
     expect(formData.get('overall_rating')).toBe('9')
     expect(formData.get('is_public')).toBe('false')
   })
@@ -168,6 +173,18 @@ describe('EvaluationForm', () => {
     await user.click(screen.getByRole('button', { name: /保存/i }))
 
     expect(await screen.findByText(/保存に失敗しました/i)).toBeInTheDocument()
+  })
+
+  it('blocks submission when notes exceed 500 characters', async () => {
+    const user = userEvent.setup()
+    render(<EvaluationForm />)
+
+    await user.type(screen.getByLabelText(/豆の名前/i), 'Brazil Santos')
+    await user.type(screen.getByLabelText(/感想/i), 'a'.repeat(501))
+    await user.click(screen.getByRole('button', { name: /保存/i }))
+
+    expect(await screen.findByText(/感想は500文字以内で入力してください/i)).toBeInTheDocument()
+    expect(mockCreateCoffeeEvaluation).not.toHaveBeenCalled()
   })
 
   it('shows a loading state while submitting', async () => {
@@ -248,6 +265,54 @@ describe('EvaluationForm', () => {
 
       const formData = mockUpdateCoffeeEvaluation.mock.calls[0][1] as FormData
       expect(formData.get('bean_name')).toBe('コロンビア スプレモ')
+    })
+  })
+
+  describe('Notes Field', () => {
+    it('initializes notes from defaultValues in edit mode', () => {
+      render(<EvaluationForm id="eval-123" defaultValues={sampleDefaultValues} />)
+
+      expect(screen.getByLabelText(/感想/i)).toHaveValue(sampleDefaultValues.notes)
+      expect(
+        screen.getByText(`${sampleDefaultValues.notes!.trim().length}/500`)
+      ).toBeInTheDocument()
+    })
+
+    it('submits empty notes as an empty string', async () => {
+      mockCreateCoffeeEvaluation.mockResolvedValue(undefined)
+
+      const user = userEvent.setup()
+      render(<EvaluationForm />)
+
+      await user.type(screen.getByLabelText(/豆の名前/i), 'Geisha')
+      await user.click(screen.getByRole('button', { name: /保存/i }))
+
+      await waitFor(() => expect(mockCreateCoffeeEvaluation).toHaveBeenCalledWith(expect.any(FormData)))
+
+      const formData = mockCreateCoffeeEvaluation.mock.calls[0][0] as FormData
+      expect(formData.get('notes')).toBe('')
+    })
+
+    it('hides notes when skip_evaluation is enabled and submits notes as empty', async () => {
+      mockCreateCoffeeEvaluation.mockResolvedValue(undefined)
+
+      const user = userEvent.setup()
+      render(<EvaluationForm />)
+
+      await user.type(screen.getByLabelText(/豆の名前/i), 'Geisha')
+      await user.type(screen.getByLabelText(/感想/i), '華やか')
+      await user.click(screen.getByLabelText(/評価は後で追加する/i))
+
+      expect(screen.queryByLabelText(/感想/i)).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: /保存/i }))
+
+      await waitFor(() =>
+        expect(mockCreateCoffeeEvaluation).toHaveBeenCalledWith(expect.any(FormData))
+      )
+
+      const formData = mockCreateCoffeeEvaluation.mock.calls[0][0] as FormData
+      expect(formData.get('notes')).toBe('')
     })
   })
 

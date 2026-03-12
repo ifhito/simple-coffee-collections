@@ -82,6 +82,7 @@ describe('createCoffeeEvaluation', () => {
       shop_name: 'Blue Bottle',
       bean_type: 'エチオピア',
       roast_level: 'medium',
+      notes: '酸味がきれい',
       is_public: 'false',
       skip_evaluation: 'true',
     })
@@ -92,6 +93,7 @@ describe('createCoffeeEvaluation', () => {
       expect.objectContaining({
         bean_name: 'Ethiopia Yirgacheffe',
         shop_name: 'Blue Bottle',
+        notes: '酸味がきれい',
       })
     )
     // Rating fields should NOT be in the payload at all
@@ -109,6 +111,7 @@ describe('createCoffeeEvaluation', () => {
       shop_name: '',
       bean_type: '',
       roast_level: '',
+      notes: '余韻が長い',
       is_public: 'true',
       skip_evaluation: 'false',
       acidity: '7',
@@ -124,9 +127,46 @@ describe('createCoffeeEvaluation', () => {
         acidity: 7,
         bitterness: 5,
         aroma: 8,
+        notes: '余韻が長い',
         overall_rating: 9,
       })
     )
+  })
+
+  it('should normalize blank notes to null on create', async () => {
+    const fd = buildFormData({
+      bean_name: 'Test Bean',
+      shop_name: '',
+      bean_type: '',
+      roast_level: '',
+      notes: '   ',
+      is_public: 'true',
+      skip_evaluation: 'true',
+    })
+
+    await createCoffeeEvaluation(fd)
+
+    expect(mockInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        notes: null,
+      })
+    )
+  })
+
+  it('should reject notes longer than 500 characters on create', async () => {
+    const fd = buildFormData({
+      bean_name: 'Test Bean',
+      shop_name: '',
+      bean_type: '',
+      roast_level: '',
+      notes: 'a'.repeat(501),
+      is_public: 'true',
+      skip_evaluation: 'true',
+    })
+
+    const result = await createCoffeeEvaluation(fd)
+    expect(result).toEqual({ error: 'notes: notes must be 500 characters or less' })
+    expect(mockInsert).not.toHaveBeenCalled()
   })
 
   it('should reject partial ratings (all-or-nothing)', async () => {
@@ -191,6 +231,7 @@ describe('updateCoffeeEvaluation', () => {
       shop_name: 'New Shop',
       bean_type: 'コロンビア',
       roast_level: 'city',
+      notes: '甘さが続く',
       is_public: 'false',
       // No rating fields → null → unevaluated stays unevaluated
     })
@@ -202,12 +243,35 @@ describe('updateCoffeeEvaluation', () => {
       expect.objectContaining({
         bean_name: 'Updated Bean Name',
         shop_name: 'New Shop',
+        notes: '甘さが続く',
       })
     )
     // Rating keys should NOT be in the payload
     const payload = mockUpdate.mock.calls[0][0]
     expect(payload).not.toHaveProperty('acidity')
     expect(payload).not.toHaveProperty('overall_rating')
+  })
+
+  it('should reject notes longer than 500 characters on update', async () => {
+    setupSupabaseMock({
+      selectResult: {
+        data: { user_id: 'user-1', overall_rating: null },
+        error: null,
+      },
+    })
+
+    const fd = buildFormData({
+      bean_name: 'Updated Bean Name',
+      shop_name: 'New Shop',
+      bean_type: 'コロンビア',
+      roast_level: 'city',
+      notes: 'a'.repeat(501),
+      is_public: 'false',
+    })
+
+    const result = await updateCoffeeEvaluation('eval-1', fd)
+    expect(result).toEqual({ error: 'notes: notes must be 500 characters or less' })
+    expect(mockUpdate).not.toHaveBeenCalled()
   })
 })
 

@@ -44,6 +44,7 @@ export type Database = {
           created_at: string
           id: string
           is_public: boolean
+          notes: string | null
           overall_rating: number | null
           roast_level: string | null
           shop_name: string | null
@@ -59,6 +60,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_public?: boolean
+          notes?: string | null
           overall_rating?: number | null
           roast_level?: string | null
           shop_name?: string | null
@@ -74,6 +76,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_public?: boolean
+          notes?: string | null
           overall_rating?: number | null
           roast_level?: string | null
           shop_name?: string | null
@@ -284,4 +287,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-

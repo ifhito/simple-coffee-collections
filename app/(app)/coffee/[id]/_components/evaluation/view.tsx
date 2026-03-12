@@ -79,7 +79,7 @@ export function EvaluationDetailView({ evaluation, currentUserId }: EvaluationDe
 
       {evaluation.notes && (
         <section className="rounded-md border border-neutral-100 bg-neutral-50 p-4 animate-fade-in">
-          <h2 className="text-sm font-semibold text-neutral-800">メモ</h2>
+          <h2 className="text-sm font-semibold text-neutral-800">感想</h2>
           <p className="mt-2 text-sm text-neutral-700">{evaluation.notes}</p>
         </section>
       )}
