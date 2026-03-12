@@ -9,6 +9,7 @@ on:
 
 jobs:
   test:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -74,7 +75,6 @@ jobs:
   migrate:
     name: Migrate Supabase (Production)
     runs-on: ubuntu-latest
-    needs: test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - name: Checkout

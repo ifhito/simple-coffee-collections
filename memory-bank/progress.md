@@ -13,6 +13,11 @@
 
 ## Entries
 
+### 2026-03-12 - main へのマージ時は CI テストを走らせないよう調整
+- What: `.github/workflows/ci.yml` の `test` job を `pull_request` 時のみ実行に変更し、`main` への push では migration job だけが動くよう `needs: test` を外した
+- Why: PR を `main` にマージした後の push ではテストを再実行せず、本番向け migration のみを流したいため
+- Rejected: workflow 全体から `push` trigger を外す案。production migration も止まってしまうため不採用
+
 ### 2026-03-12 - 店名検索を shops.name OR から shop_id 事前解決方式へ変更
 - What: `lib/api/coffee.ts` と `supabase-coffee-evaluation-repository.ts` の検索処理で、`shops.name.ilike` を `or()` に直接入れる形を廃止。先に `shops` から一致 `id` を取り、`shop_id.in(...)` と豆情報の `ilike` を組み合わせる方式へ変更し、API テストも更新
 - Why: ローカル PostgREST が `or()` 内の `table.column.ilike` を解釈できず、`/coffee/my` の検索 E2E が 0 件になっていたため
