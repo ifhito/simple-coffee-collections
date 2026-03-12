@@ -43,6 +43,7 @@ type RowRatings = {
 type PersistedRowRatings = {
   [K in keyof RowRatings]: number | null
 }
+const COFFEE_TEXT_SEARCH_FIELDS = ['bean_type', 'bean_name', 'roast_level'] as const
 
 function hasCompleteRatings(ratings: PersistedRowRatings): ratings is { [K in keyof RowRatings]: number } {
   return Object.values(ratings).every((value) => value !== null)
@@ -159,6 +160,35 @@ const SORT_CONFIG: Record<EvaluationSortOption, { column: string; ascending: boo
   shop_name_desc: { column: 'name', ascending: false, referencedTable: 'shops' },
 }
 
+function buildCoffeeSearchFilter(searchTerm: string, shopIds: string[]): string {
+  const pattern = `%${searchTerm}%`
+  const textFilters = COFFEE_TEXT_SEARCH_FIELDS.map((field) => `${field}.ilike.${pattern}`)
+
+  if (shopIds.length === 0) {
+    return textFilters.join(',')
+  }
+
+  return [`shop_id.in.(${shopIds.join(',')})`, ...textFilters].join(',')
+}
+
+async function findMatchingShopIds(supabase: any, searchTerm: string): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('shops')
+    .select('id')
+    .ilike('name', `%${searchTerm}%`)
+
+  if (error) {
+    throw new Error(`店舗検索に失敗しました: ${error.message}`)
+  }
+
+  return (data || []).map((row: { id: string }) => row.id)
+}
+
+async function resolveCoffeeSearchFilter(supabase: any, searchTerm: string) {
+  const shopIds = await findMatchingShopIds(supabase, searchTerm)
+  return buildCoffeeSearchFilter(searchTerm, shopIds)
+}
+
 /**
  * Supabase implementation of CoffeeEvaluationRepository
  */
@@ -210,10 +240,8 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
 
       // Apply search
       if (params?.search) {
-        const pattern = `%${params.search}%`
-        query = query.or(
-          `shops.name.ilike.${pattern},bean_type.ilike.${pattern},bean_name.ilike.${pattern},roast_level.ilike.${pattern}`
-        )
+        const searchFilter = await resolveCoffeeSearchFilter(supabase, params.search)
+        query = query.or(searchFilter)
       }
 
       // Apply sorting
@@ -269,10 +297,8 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
 
       // Apply search
       if (params?.search) {
-        const pattern = `%${params.search}%`
-        query = query.or(
-          `shops.name.ilike.${pattern},bean_type.ilike.${pattern},bean_name.ilike.${pattern},roast_level.ilike.${pattern}`
-        )
+        const searchFilter = await resolveCoffeeSearchFilter(supabase, params.search)
+        query = query.or(searchFilter)
       }
 
       // Apply sorting
@@ -478,10 +504,8 @@ export class SupabaseCoffeeEvaluationRepository implements CoffeeEvaluationRepos
 
       // Apply search
       if (params?.search) {
-        const pattern = `%${params.search}%`
-        query = query.or(
-          `shops.name.ilike.${pattern},bean_type.ilike.${pattern},bean_name.ilike.${pattern},roast_level.ilike.${pattern}`
-        )
+        const searchFilter = await resolveCoffeeSearchFilter(supabase, params.search)
+        query = query.or(searchFilter)
       }
 
       const { count, error } = await query

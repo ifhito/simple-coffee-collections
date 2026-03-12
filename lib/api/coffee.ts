@@ -17,6 +17,8 @@ import type {
   CoffeeEvaluationSearchParams,
 } from '@/lib/types/coffee'
 
+const COFFEE_TEXT_SEARCH_FIELDS = ['bean_type', 'bean_name', 'roast_level'] as const
+
 /**
  * Handle Supabase query errors consistently
  * @param error - Supabase error object
@@ -26,6 +28,43 @@ import type {
 function handleDatabaseError(error: any, context: string): never {
   const message = error?.message || 'データベースエラーが発生しました'
   throw new Error(`${context}: ${message}`)
+}
+
+function buildCoffeeSearchFilter(searchTerm: string, shopIds: string[]): string {
+  const pattern = `%${searchTerm}%`
+  const textFilters = COFFEE_TEXT_SEARCH_FIELDS.map((field) => `${field}.ilike.${pattern}`)
+
+  if (shopIds.length === 0) {
+    return textFilters.join(',')
+  }
+
+  return [`shop_id.in.(${shopIds.join(',')})`, ...textFilters].join(',')
+}
+
+async function findMatchingShopIds(
+  supabase: any,
+  searchTerm: string,
+  context: string
+): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('shops')
+    .select('id')
+    .ilike('name', `%${searchTerm}%`)
+
+  if (error) {
+    handleDatabaseError(error, context)
+  }
+
+  return (data || []).map((row: { id: string }) => row.id)
+}
+
+async function resolveCoffeeSearchFilter(
+  supabase: any,
+  searchTerm: string,
+  context: string
+) {
+  const shopIds = await findMatchingShopIds(supabase, searchTerm, context)
+  return buildCoffeeSearchFilter(searchTerm, shopIds)
 }
 
 /**
@@ -67,10 +106,12 @@ export const getCoffeeEvaluations = cache(
 
     // Apply search across text fields
     if (params?.search) {
-      const pattern = `%${params.search}%`
-      query = query.or(
-        `shops.name.ilike.${pattern},bean_type.ilike.${pattern},bean_name.ilike.${pattern},roast_level.ilike.${pattern}`
+      const searchFilter = await resolveCoffeeSearchFilter(
+        supabase,
+        params.search,
+        'コーヒー評価の取得'
       )
+      query = query.or(searchFilter)
     }
 
     // Apply sorting based on sort parameter
@@ -173,16 +214,15 @@ export const searchCoffeeEvaluations = cache(
   async (searchTerm: string): Promise<CoffeeEvaluationDisplay[]> => {
     const supabase = await createClient()
 
-    // Build search pattern for PostgreSQL ILIKE (case-insensitive partial match)
-    const searchPattern = `%${searchTerm}%`
+    let query = supabase.from('coffee_evaluations').select('*, shops!left(name)')
+    const searchFilter = await resolveCoffeeSearchFilter(
+      supabase,
+      searchTerm,
+      'コーヒー評価の検索'
+    )
+    query = query.or(searchFilter)
 
-    const { data, error } = await supabase
-      .from('coffee_evaluations')
-      .select('*, shops!left(name)')
-      .or(
-        `shops.name.ilike.${searchPattern},bean_type.ilike.${searchPattern},bean_name.ilike.${searchPattern},roast_level.ilike.${searchPattern}`
-      )
-      .order('created_at', { ascending: false })
+    const { data, error } = await query.order('created_at', { ascending: false })
 
     if (error) {
       handleDatabaseError(error, 'コーヒー評価の検索')
@@ -219,7 +259,7 @@ export const getCoffeeEvaluationsWithUser = cache(
   ): Promise<CoffeeEvaluationWithUser[]> => {
     const supabase = await createClient()
 
-    const buildBaseQuery = () => {
+    const buildBaseQuery = async () => {
       let query = supabase.from('coffee_evaluations').select('*, shops!left(name)')
 
       if (params?.user_id) {
@@ -231,10 +271,12 @@ export const getCoffeeEvaluationsWithUser = cache(
       }
 
       if (params?.search) {
-        const pattern = `%${params.search}%`
-        query = query.or(
-          `shops.name.ilike.${pattern},bean_type.ilike.${pattern},bean_name.ilike.${pattern},roast_level.ilike.${pattern}`
+        const searchFilter = await resolveCoffeeSearchFilter(
+          supabase,
+          params.search,
+          'ユーザー情報付きコーヒー評価の取得'
         )
+        query = query.or(searchFilter)
       }
 
       query = applySortOrder(query, params?.sort)
@@ -255,10 +297,12 @@ export const getCoffeeEvaluationsWithUser = cache(
       }
 
       if (params?.search) {
-        const pattern = `%${params.search}%`
-        query = query.or(
-          `shops.name.ilike.${pattern},bean_type.ilike.${pattern},bean_name.ilike.${pattern},roast_level.ilike.${pattern}`
+        const searchFilter = await resolveCoffeeSearchFilter(
+          supabase,
+          params.search,
+          'ユーザー情報付きコーヒー評価の取得'
         )
+        query = query.or(searchFilter)
       }
 
       query = applySortOrder(query, params?.sort)

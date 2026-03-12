@@ -70,6 +70,9 @@ describe('Coffee Evaluation Data Fetching', () => {
       order: jest.fn(),
       ilike: jest.fn(),
       or: jest.fn(),
+      in: jest.fn(),
+      limit: jest.fn(),
+      range: jest.fn(),
       single: jest.fn(),
     }
 
@@ -78,8 +81,11 @@ describe('Coffee Evaluation Data Fetching', () => {
     chainableMock.select.mockReturnValue(chainableMock)
     chainableMock.eq.mockReturnValue(chainableMock)
     chainableMock.order.mockReturnValue(chainableMock)
-    chainableMock.ilike.mockReturnValue(chainableMock)
+    chainableMock.ilike.mockResolvedValue({ data: [], error: null })
     chainableMock.or.mockReturnValue(chainableMock)
+    chainableMock.in.mockReturnValue(chainableMock)
+    chainableMock.limit.mockReturnValue(chainableMock)
+    chainableMock.range.mockReturnValue(chainableMock)
 
     mockSupabaseClient = chainableMock
 
@@ -166,6 +172,11 @@ describe('Coffee Evaluation Data Fetching', () => {
     })
 
     it('should apply search filter across shop, bean, and roast_level', async () => {
+      const shopId = 'shop-kenya'
+      mockSupabaseClient.ilike.mockResolvedValueOnce({
+        data: [{ id: shopId }],
+        error: null,
+      })
       mockSupabaseClient.order.mockResolvedValueOnce({
         data: mockEvaluations,
         error: null,
@@ -173,15 +184,13 @@ describe('Coffee Evaluation Data Fetching', () => {
 
       await getCoffeeEvaluations({ search: 'Kenya' })
 
-      expect(mockSupabaseClient.or).toHaveBeenCalledWith(
-        expect.stringContaining('shops.name.ilike.%Kenya%')
-      )
-      expect(mockSupabaseClient.or).toHaveBeenCalledWith(
-        expect.stringContaining('bean_type.ilike.%Kenya%')
-      )
-      expect(mockSupabaseClient.or).toHaveBeenCalledWith(
-        expect.stringContaining('roast_level.ilike.%Kenya%')
-      )
+      expect(mockSupabaseClient.ilike).toHaveBeenCalledWith('name', '%Kenya%')
+      const orCall = mockSupabaseClient.or.mock.calls[0][0]
+      expect(orCall).toContain(`shop_id.in.(${shopId})`)
+      expect(orCall).toContain('bean_type.ilike.%Kenya%')
+      expect(orCall).toContain('bean_name.ilike.%Kenya%')
+      expect(orCall).toContain('roast_level.ilike.%Kenya%')
+      expect(orCall).not.toContain('shops.name.ilike')
     })
 
     it('should use React cache for memoization', () => {
@@ -248,8 +257,12 @@ describe('Coffee Evaluation Data Fetching', () => {
     it('should search evaluations by keyword', async () => {
       // Arrange
       const searchTerm = 'エチオピア'
+      mockSupabaseClient.ilike.mockResolvedValueOnce({
+        data: [{ id: 'shop-ethiopia' }],
+        error: null,
+      })
       mockSupabaseClient.order.mockResolvedValueOnce({
-        data: [mockEvaluation],
+        data: [{ ...mockEvaluation, shop_name: undefined, shops: { name: mockEvaluation.shop_name } }],
         error: null,
       })
 
@@ -258,13 +271,13 @@ describe('Coffee Evaluation Data Fetching', () => {
 
       // Assert
       expect(mockSupabaseClient.from).toHaveBeenCalledWith('coffee_evaluations')
-      expect(mockSupabaseClient.or).toHaveBeenCalledWith(
-        expect.stringContaining('shops.name.ilike')
-      )
-      expect(mockSupabaseClient.or).toHaveBeenCalledWith(
-        expect.stringContaining('bean_type.ilike')
-      )
-      expect(result).toEqual([{ ...mockEvaluation, shop_name: null }])
+      expect(mockSupabaseClient.ilike).toHaveBeenCalledWith('name', `%${searchTerm}%`)
+      const orCall = mockSupabaseClient.or.mock.calls[0][0]
+      expect(orCall).toContain('shop_id.in.(shop-ethiopia)')
+      expect(orCall).toContain('bean_type.ilike')
+      expect(orCall).toContain('bean_name.ilike')
+      expect(orCall).not.toContain('shops.name.ilike')
+      expect(result).toMatchObject([mockEvaluation])
     })
 
     it('should return empty array when no matches found', async () => {
@@ -391,8 +404,12 @@ describe('Coffee Evaluation Data Fetching', () => {
     it('should apply search filter across shop, bean, and roast_level', async () => {
       // Arrange
       const searchTerm = 'エチオピア'
+      mockSupabaseClient.ilike.mockResolvedValueOnce({
+        data: [{ id: 'shop-ethiopia' }],
+        error: null,
+      })
       mockSupabaseClient.order.mockResolvedValueOnce({
-        data: [mockEvaluationWithUser],
+        data: [rawRow1],
         error: null,
       })
 
@@ -400,15 +417,13 @@ describe('Coffee Evaluation Data Fetching', () => {
       await getCoffeeEvaluationsWithUser({ search: searchTerm })
 
       // Assert
-      expect(mockSupabaseClient.or).toHaveBeenCalledWith(
-        expect.stringContaining('shops.name.ilike.%エチオピア%')
-      )
-      expect(mockSupabaseClient.or).toHaveBeenCalledWith(
-        expect.stringContaining('bean_type.ilike.%エチオピア%')
-      )
-      expect(mockSupabaseClient.or).toHaveBeenCalledWith(
-        expect.stringContaining('roast_level.ilike.%エチオピア%')
-      )
+      expect(mockSupabaseClient.ilike).toHaveBeenCalledWith('name', `%${searchTerm}%`)
+      const orCall = mockSupabaseClient.or.mock.calls[0][0]
+      expect(orCall).toContain('shop_id.in.(shop-ethiopia)')
+      expect(orCall).toContain('bean_type.ilike.%エチオピア%')
+      expect(orCall).toContain('bean_name.ilike.%エチオピア%')
+      expect(orCall).toContain('roast_level.ilike.%エチオピア%')
+      expect(orCall).not.toContain('shops.name.ilike')
     })
 
     it('should apply sort order when provided', async () => {
@@ -455,8 +470,12 @@ describe('Coffee Evaluation Data Fetching', () => {
 
     it('should combine multiple filters (user_id + is_public + search)', async () => {
       // Arrange
+      mockSupabaseClient.ilike.mockResolvedValueOnce({
+        data: [{ id: 'shop-cafe' }],
+        error: null,
+      })
       mockSupabaseClient.order.mockResolvedValueOnce({
-        data: [mockEvaluationWithUser],
+        data: [rawRow1],
         error: null,
       })
 
@@ -471,7 +490,10 @@ describe('Coffee Evaluation Data Fetching', () => {
       // Assert
       expect(mockSupabaseClient.eq).toHaveBeenCalledWith('user_id', 'user-123')
       expect(mockSupabaseClient.eq).toHaveBeenCalledWith('is_public', true)
-      expect(mockSupabaseClient.or).toHaveBeenCalled()
+      expect(mockSupabaseClient.ilike).toHaveBeenCalledWith('name', '%カフェ%')
+      expect(mockSupabaseClient.or).toHaveBeenCalledWith(
+        expect.stringContaining('shop_id.in.(shop-cafe)')
+      )
       expect(mockSupabaseClient.order).toHaveBeenCalledWith('created_at', {
         ascending: false,
       })
