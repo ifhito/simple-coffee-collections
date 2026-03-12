@@ -110,7 +110,6 @@ describe('Coffee Evaluation Server Actions', () => {
       expect(mockSupabaseClient.insert).toHaveBeenCalledWith(
         expect.objectContaining({
           user_id: 'user-123',
-          shop_name: 'カフェテスト',
           bean_type: 'エチオピア イルガチェフェ',
           bean_name: 'イルガチェフェ G1',
           roast_level: '中煎り',
@@ -295,7 +294,6 @@ describe('Coffee Evaluation Server Actions', () => {
       expect(mockSupabaseClient.from).toHaveBeenCalledWith('coffee_evaluations')
       expect(mockSupabaseClient.update).toHaveBeenCalledWith(
         expect.objectContaining({
-          shop_name: 'カフェ更新',
           bean_type: 'コロンビア',
           bean_name: '更新豆',
           overall_rating: 7,

@@ -15,7 +15,7 @@ import {
   searchCoffeeEvaluations,
   getCoffeeEvaluationsWithUser,
 } from '@/lib/api/coffee'
-import type { CoffeeEvaluation, CoffeeEvaluationWithUser } from '@/lib/types/coffee'
+import type { CoffeeEvaluationDisplay, CoffeeEvaluationWithUser } from '@/lib/types/coffee'
 
 // Mock Supabase client
 jest.mock('@/lib/supabase/server')
@@ -28,12 +28,14 @@ jest.mock('react', () => ({
 
 describe('Coffee Evaluation Data Fetching', () => {
   // Sample test data
-  const mockEvaluation: CoffeeEvaluation = {
+  const mockEvaluation: CoffeeEvaluationDisplay = {
     id: '123e4567-e89b-12d3-a456-426614174000',
     user_id: 'user-123',
     shop_name: 'カフェテスト',
     bean_type: 'エチオピア イルガチェフェ',
+    bean_name: 'イルガチェフェ G1',
     roast_level: '中煎り',
+    shop_id: null,
     acidity: 8,
     bitterness: 4,
     aroma: 9,
@@ -43,7 +45,7 @@ describe('Coffee Evaluation Data Fetching', () => {
     updated_at: '2025-01-01T00:00:00.000Z',
   }
 
-  const mockEvaluations: CoffeeEvaluation[] = [
+  const mockEvaluations: CoffeeEvaluationDisplay[] = [
     mockEvaluation,
     {
       ...mockEvaluation,
@@ -87,9 +89,13 @@ describe('Coffee Evaluation Data Fetching', () => {
 
   describe('getCoffeeEvaluations', () => {
     it('should fetch all coffee evaluations successfully', async () => {
-      // Arrange: Mock successful response on the final method (order)
+      // Arrange: Raw Supabase JOIN response (shops nested)
+      const rawEvaluations = mockEvaluations.map((e) => ({
+        ...e,
+        shops: { name: e.shop_name },
+      }))
       mockSupabaseClient.order.mockResolvedValueOnce({
-        data: mockEvaluations,
+        data: rawEvaluations,
         error: null,
       })
 
@@ -99,9 +105,9 @@ describe('Coffee Evaluation Data Fetching', () => {
       // Assert: Verify correct behavior
       expect(createClient).toHaveBeenCalled()
       expect(mockSupabaseClient.from).toHaveBeenCalledWith('coffee_evaluations')
-      expect(mockSupabaseClient.select).toHaveBeenCalledWith('*')
+      expect(mockSupabaseClient.select).toHaveBeenCalledWith('*, shops!left(name)')
       expect(mockSupabaseClient.order).toHaveBeenCalledWith('created_at', { ascending: false })
-      expect(result).toEqual(mockEvaluations)
+      expect(result).toMatchObject(mockEvaluations.map(({ id, shop_name }) => ({ id, shop_name })))
     })
 
     it('should handle database errors gracefully', async () => {
@@ -168,7 +174,7 @@ describe('Coffee Evaluation Data Fetching', () => {
       await getCoffeeEvaluations({ search: 'Kenya' })
 
       expect(mockSupabaseClient.or).toHaveBeenCalledWith(
-        expect.stringContaining('shop_name.ilike.%Kenya%')
+        expect.stringContaining('shops.name.ilike.%Kenya%')
       )
       expect(mockSupabaseClient.or).toHaveBeenCalledWith(
         expect.stringContaining('bean_type.ilike.%Kenya%')
@@ -201,10 +207,10 @@ describe('Coffee Evaluation Data Fetching', () => {
 
       // Assert
       expect(mockSupabaseClient.from).toHaveBeenCalledWith('coffee_evaluations')
-      expect(mockSupabaseClient.select).toHaveBeenCalledWith('*')
+      expect(mockSupabaseClient.select).toHaveBeenCalledWith('*, shops!left(name)')
       expect(mockSupabaseClient.eq).toHaveBeenCalledWith('id', evaluationId)
       expect(mockSupabaseClient.single).toHaveBeenCalled()
-      expect(result).toEqual(mockEvaluation)
+      expect(result).toMatchObject({ ...mockEvaluation, shop_name: null })
     })
 
     it('should return null when evaluation is not found', async () => {
@@ -253,12 +259,12 @@ describe('Coffee Evaluation Data Fetching', () => {
       // Assert
       expect(mockSupabaseClient.from).toHaveBeenCalledWith('coffee_evaluations')
       expect(mockSupabaseClient.or).toHaveBeenCalledWith(
-        expect.stringContaining('shop_name.ilike')
+        expect.stringContaining('shops.name.ilike')
       )
       expect(mockSupabaseClient.or).toHaveBeenCalledWith(
         expect.stringContaining('bean_type.ilike')
       )
-      expect(result).toEqual([mockEvaluation])
+      expect(result).toEqual([{ ...mockEvaluation, shop_name: null }])
     })
 
     it('should return empty array when no matches found', async () => {
@@ -293,7 +299,25 @@ describe('Coffee Evaluation Data Fetching', () => {
   })
 
   describe('getCoffeeEvaluationsWithUser', () => {
-    // Sample test data with user information
+    // Raw Supabase JOIN response (nested shops/user_profiles)
+    const rawRow1 = {
+      ...mockEvaluation,
+      shop_name: undefined,
+      shops: { name: 'カフェテスト' },
+      user_profiles: { display_name: 'テストユーザー' },
+      display_name: 'テストユーザー',
+    }
+    const rawRow2 = {
+      ...mockEvaluation,
+      id: '223e4567-e89b-12d3-a456-426614174001',
+      user_id: 'user-456',
+      shop_name: undefined,
+      shops: { name: 'コーヒーショップ' },
+      user_profiles: { display_name: '別のユーザー' },
+      display_name: '別のユーザー',
+    }
+
+    // Expected flat output after mapJoinResponse
     const mockEvaluationWithUser: CoffeeEvaluationWithUser = {
       ...mockEvaluation,
       display_name: 'テストユーザー',
@@ -311,9 +335,9 @@ describe('Coffee Evaluation Data Fetching', () => {
     ]
 
     it('should fetch evaluations with user display names using JOIN', async () => {
-      // Arrange
+      // Arrange: return raw JOIN-shaped data (as Supabase would actually return)
       mockSupabaseClient.order.mockResolvedValueOnce({
-        data: mockEvaluationsWithUser,
+        data: [rawRow1, rawRow2],
         error: null,
       })
 
@@ -324,9 +348,11 @@ describe('Coffee Evaluation Data Fetching', () => {
       expect(createClient).toHaveBeenCalled()
       expect(mockSupabaseClient.from).toHaveBeenCalledWith('coffee_evaluations')
       expect(mockSupabaseClient.select).toHaveBeenCalledWith(
-        '*, user_profiles!inner(display_name)'
+        '*, shops!left(name), user_profiles!inner(display_name)'
       )
-      expect(result).toEqual(mockEvaluationsWithUser)
+      expect(result).toMatchObject(mockEvaluationsWithUser.map(({ shop_name, display_name, id, user_id }) => ({
+        id, user_id, shop_name, display_name,
+      })))
       expect(result[0]).toHaveProperty('display_name')
     })
 
@@ -375,7 +401,7 @@ describe('Coffee Evaluation Data Fetching', () => {
 
       // Assert
       expect(mockSupabaseClient.or).toHaveBeenCalledWith(
-        expect.stringContaining('shop_name.ilike.%エチオピア%')
+        expect.stringContaining('shops.name.ilike.%エチオピア%')
       )
       expect(mockSupabaseClient.or).toHaveBeenCalledWith(
         expect.stringContaining('bean_type.ilike.%エチオピア%')

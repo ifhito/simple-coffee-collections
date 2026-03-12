@@ -421,7 +421,6 @@ export class CoffeeEvaluation {
   toPersistence(): {
     id: string
     user_id: string
-    shop_name: string
     shop_id: string | null
     bean_type: string
     bean_name: string
@@ -433,7 +432,6 @@ export class CoffeeEvaluation {
     return {
       id: this._id,
       user_id: this._userId,
-      shop_name: this._shopInfo.shopName,
       shop_id: this._shopInfo.shopId,
       bean_type: this._beanInfo.beanType,
       bean_name: this._beanInfo.beanName,

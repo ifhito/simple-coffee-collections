@@ -98,11 +98,11 @@ describe('createCoffeeEvaluation', () => {
     expect(mockInsert).toHaveBeenCalledWith(
       expect.objectContaining({
         bean_name: 'Ethiopia Yirgacheffe',
-        shop_name: 'Blue Bottle',
       })
     )
-    // Rating fields should NOT be in the payload at all
+    // Rating fields and shop_name should NOT be in the payload
     const payload = mockInsert.mock.calls[0][0]
+    expect(payload).not.toHaveProperty('shop_name')
     expect(payload).not.toHaveProperty('acidity')
     expect(payload).not.toHaveProperty('bitterness')
     expect(payload).not.toHaveProperty('aroma')
@@ -208,7 +208,6 @@ describe('updateCoffeeEvaluation', () => {
     expect(mockUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
         bean_name: 'Updated Bean Name',
-        shop_name: 'New Shop',
       })
     )
     // Rating keys should NOT be in the payload

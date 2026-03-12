@@ -55,11 +55,11 @@ describe('Coffee API - Search Functionality', () => {
       )
     })
 
-    it('searches across shop_name, bean_type, bean_name, and roast_level', async () => {
+    it('searches across shops.name, bean_type, bean_name, and roast_level', async () => {
       await getCoffeeEvaluations({ search: 'test' })
 
       const orCall = mockOr.mock.calls[0][0]
-      expect(orCall).toContain('shop_name.ilike')
+      expect(orCall).toContain('shops.name.ilike')
       expect(orCall).toContain('bean_type.ilike')
       expect(orCall).toContain('bean_name.ilike')
       expect(orCall).toContain('roast_level.ilike')

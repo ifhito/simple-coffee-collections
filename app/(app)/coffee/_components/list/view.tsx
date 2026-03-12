@@ -1,10 +1,10 @@
 import Link from 'next/link'
-import type { CoffeeEvaluation } from '@/lib/types/coffee'
+import type { CoffeeEvaluationDisplay } from '@/lib/types/coffee'
 import { CoffeeCard } from './card'
 
 type CoffeeListViewProps = {
   evaluations: Pick<
-    CoffeeEvaluation,
+    CoffeeEvaluationDisplay,
     'id' | 'shop_name' | 'bean_type' | 'bean_name' | 'overall_rating' | 'created_at'
   >[]
 }

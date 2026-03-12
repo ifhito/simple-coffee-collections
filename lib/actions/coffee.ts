@@ -153,13 +153,18 @@ function validateRatings(data: ParsedRatings): ValidationResult {
 // Shop Resolution
 // =============================================================================
 
-async function resolveShopId(beanInfo: ParsedBeanInfo): Promise<string | null> {
-  if (beanInfo.shop_id) return beanInfo.shop_id
-  if (!beanInfo.shop_name) return null
+type ShopIdResult = { shopId: string | null } | { error: string }
+
+async function resolveShopId(beanInfo: ParsedBeanInfo): Promise<ShopIdResult> {
+  if (beanInfo.shop_id) return { shopId: beanInfo.shop_id }
+  if (!beanInfo.shop_name) return { shopId: null }
 
   const shopRepo = getShopRepository()
   const result = await shopRepo.findOrCreate(beanInfo.shop_name)
-  return result.ok ? result.value.id : null
+  if (!result.ok) {
+    return { error: '店舗の登録に失敗しました。もう一度お試しください。' }
+  }
+  return { shopId: result.value.id }
 }
 
 // =============================================================================
@@ -216,15 +221,20 @@ export async function createCoffeeEvaluation(
     if (ratingsError) return ratingsError
   }
 
-  const shopId = await resolveShopId(beanInfo)
+  const shopIdResult = await resolveShopId(beanInfo)
+  if ('error' in shopIdResult) return shopIdResult
+  const { shopId } = shopIdResult
 
   const supabase = await createClient()
   const { error: insertError } = await supabase
     .from('coffee_evaluations')
     .insert({
       user_id: user.id,
-      ...beanInfo,
       shop_id: shopId,
+      bean_type: beanInfo.bean_type,
+      bean_name: beanInfo.bean_name,
+      roast_level: beanInfo.roast_level,
+      is_public: beanInfo.is_public,
       ...(ratings ?? {}),
     })
 
@@ -281,11 +291,12 @@ export async function updateCoffeeEvaluation(
     return { error: '評価済みの豆から評価を取り消すことはできません' }
   }
 
-  const shopId = await resolveShopId(beanInfo)
+  const shopIdResult = await resolveShopId(beanInfo)
+  if ('error' in shopIdResult) return shopIdResult
+  const { shopId } = shopIdResult
 
   // Build update payload — only include ratings if present
   const updatePayload: Record<string, unknown> = {
-    shop_name: beanInfo.shop_name,
     shop_id: shopId,
     bean_type: beanInfo.bean_type,
     bean_name: beanInfo.bean_name,

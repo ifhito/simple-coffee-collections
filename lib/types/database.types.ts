@@ -47,7 +47,6 @@ export type Database = {
           overall_rating: number | null
           roast_level: string | null
           shop_id: string | null
-          shop_name: string | null
           updated_at: string
           user_id: string
         }
@@ -63,7 +62,6 @@ export type Database = {
           overall_rating?: number | null
           roast_level?: string | null
           shop_id?: string | null
-          shop_name?: string | null
           updated_at?: string
           user_id: string
         }
@@ -79,7 +77,6 @@ export type Database = {
           overall_rating?: number | null
           roast_level?: string | null
           shop_id?: string | null
-          shop_name?: string | null
           updated_at?: string
           user_id?: string
         }

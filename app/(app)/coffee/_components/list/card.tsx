@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import { memo, type CSSProperties, type ReactNode } from 'react'
-import type { CoffeeEvaluation } from '@/lib/types/coffee'
+import type { CoffeeEvaluationDisplay } from '@/lib/types/coffee'
 import { RatingStars } from '../shared/rating-stars'
 
 type CoffeeCardProps = {
-  evaluation: Pick<CoffeeEvaluation, 'id' | 'shop_name' | 'bean_type' | 'bean_name' | 'created_at'> & {
+  evaluation: Pick<CoffeeEvaluationDisplay, 'id' | 'shop_name' | 'bean_type' | 'bean_name' | 'created_at'> & {
     overall_rating: number | null
   }
   badge?: ReactNode
