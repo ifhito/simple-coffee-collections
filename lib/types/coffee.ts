@@ -32,11 +32,16 @@ export type UserProfileUpdate = Database['public']['Tables']['user_profiles']['U
 // Extended Types (with JOINs)
 // =============================================================================
 
+/** shops JOIN で shop_name を補完した表示用型 */
+export type CoffeeEvaluationDisplay = CoffeeEvaluation & {
+  shop_name: string | null
+}
+
 /**
- * Coffee evaluation with user display name (from JOIN with user_profiles)
+ * Coffee evaluation with shop name (JOIN) and user display name (JOIN with user_profiles)
  * Used in community feed and user profile pages
  */
-export interface CoffeeEvaluationWithUser extends CoffeeEvaluation {
+export type CoffeeEvaluationWithUser = CoffeeEvaluationDisplay & {
   display_name: string | null
 }
 

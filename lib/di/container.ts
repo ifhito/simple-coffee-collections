@@ -12,7 +12,7 @@
  */
 
 import type { CoffeeEvaluationRepository } from '@/lib/domain'
-import { SupabaseCoffeeEvaluationRepository } from '@/lib/infrastructure'
+import { SupabaseCoffeeEvaluationRepository, SupabaseShopRepository } from '@/lib/infrastructure'
 import type { UserLlmSettingsRepository } from '@/lib/domain/llm-settings'
 import { SupabaseUserLlmSettingsRepository } from '@/lib/infrastructure/repositories/supabase-user-llm-settings-repository'
 import type { ApiKeyEncryptor, LlmModelFactory, OcrExecutor } from '@/lib/application/ports'
@@ -69,6 +69,7 @@ export function createCoffeeEvaluationRepository(
  */
 export function resetRepositories(): void {
   coffeeEvaluationRepositoryInstance = null
+  shopRepositoryInstance = null
   userLlmSettingsRepositoryInstance = null
   apiKeyEncryptorInstance = null
   llmModelFactoryInstance = null
@@ -82,6 +83,23 @@ export function resetRepositories(): void {
  */
 export function setCoffeeEvaluationRepository(repo: CoffeeEvaluationRepository): void {
   coffeeEvaluationRepositoryInstance = repo
+}
+
+// =============================================================================
+// ShopRepository (also implements ShopSearchProvider)
+// =============================================================================
+
+let shopRepositoryInstance: SupabaseShopRepository | null = null
+
+export function getShopRepository(): SupabaseShopRepository {
+  if (!shopRepositoryInstance) {
+    shopRepositoryInstance = new SupabaseShopRepository()
+  }
+  return shopRepositoryInstance
+}
+
+export function setShopRepository(repo: SupabaseShopRepository): void {
+  shopRepositoryInstance = repo
 }
 
 // =============================================================================

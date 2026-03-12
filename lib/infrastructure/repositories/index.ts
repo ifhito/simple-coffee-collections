@@ -5,3 +5,4 @@
  */
 
 export { SupabaseCoffeeEvaluationRepository } from './supabase-coffee-evaluation-repository'
+export { SupabaseShopRepository } from './supabase-shop-repository'

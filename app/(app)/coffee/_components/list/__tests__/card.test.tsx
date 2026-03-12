@@ -31,7 +31,7 @@ const sampleEvaluation = {
   id: 'eval-123',
   shop_name: 'Blue Bottle Coffee',
   bean_type: 'Ethiopia Yirgacheffe',
-  bean_name: null,
+  bean_name: '',
   overall_rating: 8,
   created_at: '2025-01-02T12:00:00.000Z',
 }
@@ -117,10 +117,10 @@ describe('CoffeeCard', () => {
       expect(heading).toHaveTextContent(sampleEvaluation.bean_type)
     })
 
-    it('displays "産地不明" in heading when bean_name is null and bean_type is "Unknown"', () => {
+    it('displays "産地不明" in heading when bean_name is empty and bean_type is "Unknown"', () => {
       const evaluationWithUnknownOrigin = {
         ...sampleEvaluation,
-        bean_name: null,
+        bean_name: '',
         bean_type: 'Unknown',
       }
       renderCard({ evaluation: evaluationWithUnknownOrigin })

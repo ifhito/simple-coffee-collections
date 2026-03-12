@@ -13,6 +13,7 @@ import { CoffeeEvaluationValidation } from '@/lib/types/coffee'
 
 export type EvaluationFormDefaultValues = {
   shop_name?: string | null
+  shop_id?: string | null
   bean_type?: string | null
   bean_name?: string | null
   roast_level?: string | null
@@ -40,6 +41,7 @@ export function EvaluationForm({ id, defaultValues }: EvaluationFormProps) {
     beanName: defaultValues?.bean_name ?? '',
     beanType: defaultValues?.bean_type ?? '',
     shopName: defaultValues?.shop_name ?? '',
+    shopId: defaultValues?.shop_id ?? null,
     roastLevel: defaultValues?.roast_level ?? '',
   })
 
@@ -85,6 +87,7 @@ export function EvaluationForm({ id, defaultValues }: EvaluationFormProps) {
     const formData = new FormData(formRef.current)
 
     formData.set('shop_name', beanInfo.shopName.trim())
+    formData.set('shop_id', beanInfo.shopId ?? '')
     formData.set('bean_type', beanInfo.beanType.trim())
     formData.set('bean_name', beanInfo.beanName.trim())
     formData.set('roast_level', beanInfo.roastLevel.trim())

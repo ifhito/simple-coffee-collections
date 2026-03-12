@@ -1,9 +1,9 @@
 /**
  * ShopInfo Value Object
- * 
+ *
  * Represents cafe/shop information for a coffee evaluation.
- * Shop name is optional.
- * 
+ * Shop name is optional. Optionally links to a Shop entity via shopId.
+ *
  * @module lib/domain/coffee-evaluation/value-objects/shop-info
  */
 
@@ -17,22 +17,34 @@ export const SHOP_INFO_CONSTRAINTS = {
 } as const
 
 /**
+ * Primitive representation for serialization
+ */
+export interface ShopInfoPrimitive {
+  shopName: string
+  shopId: string | null
+}
+
+/**
  * ShopInfo Value Object
- * 
+ *
  * Encapsulates shop/cafe metadata with validation.
  * Shop name is optional and can be empty.
  */
 export class ShopInfo {
-  private constructor(private readonly _shopName: string) {
+  private constructor(
+    private readonly _shopName: string,
+    private readonly _shopId: string | null
+  ) {
     Object.freeze(this)
   }
 
   /**
    * Factory method to create ShopInfo with validation
    * @param shopName - Optional shop name
+   * @param shopId - Optional shop entity ID
    * @returns Result containing ShopInfo or validation error
    */
-  static create(shopName?: string): Result<ShopInfo, string> {
+  static create(shopName?: string, shopId?: string | null): Result<ShopInfo, string> {
     const trimmedName = shopName?.trim() ?? ''
 
     if (trimmedName.length > SHOP_INFO_CONSTRAINTS.SHOP_NAME_MAX_LENGTH) {
@@ -41,22 +53,22 @@ export class ShopInfo {
       )
     }
 
-    return ok(new ShopInfo(trimmedName))
+    return ok(new ShopInfo(trimmedName, shopId ?? null))
   }
 
   /**
    * Create ShopInfo from primitive value (e.g., from database)
    * Skips validation for trusted sources
    */
-  static fromPrimitive(shopName: string): ShopInfo {
-    return new ShopInfo(shopName ?? '')
+  static fromPrimitive(shopName: string, shopId?: string | null): ShopInfo {
+    return new ShopInfo(shopName ?? '', shopId ?? null)
   }
 
   /**
    * Create empty ShopInfo (no shop specified)
    */
   static empty(): ShopInfo {
-    return new ShopInfo('')
+    return new ShopInfo('', null)
   }
 
   /**
@@ -67,6 +79,13 @@ export class ShopInfo {
   }
 
   /**
+   * Get the shop entity ID (null if not linked)
+   */
+  get shopId(): string | null {
+    return this._shopId
+  }
+
+  /**
    * Check if shop name is specified
    */
   hasShopName(): boolean {
@@ -74,17 +93,27 @@ export class ShopInfo {
   }
 
   /**
-   * Check equality with another ShopInfo
+   * Check if linked to a shop entity
    */
-  equals(other: ShopInfo): boolean {
-    return this._shopName === other._shopName
+  hasShopId(): boolean {
+    return this._shopId !== null
   }
 
   /**
-   * Convert to primitive string for serialization
+   * Check equality with another ShopInfo
    */
-  toPrimitive(): string {
-    return this._shopName
+  equals(other: ShopInfo): boolean {
+    return this._shopName === other._shopName && this._shopId === other._shopId
+  }
+
+  /**
+   * Convert to primitive object for serialization
+   */
+  toPrimitive(): ShopInfoPrimitive {
+    return {
+      shopName: this._shopName,
+      shopId: this._shopId,
+    }
   }
 
   /**

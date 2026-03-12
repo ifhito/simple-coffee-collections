@@ -2,12 +2,12 @@
 
 import { useTransition } from 'react'
 import Link from 'next/link'
-import type { CoffeeEvaluation } from '@/lib/types/coffee'
+import type { CoffeeEvaluationDisplay } from '@/lib/types/coffee'
 import { RatingStars } from '@/app/(app)/coffee/_components/shared/rating-stars'
 import { deleteCoffeeEvaluation } from '@/lib/actions/coffee'
 
 type EvaluationDetailViewProps = {
-  evaluation: CoffeeEvaluation
+  evaluation: CoffeeEvaluationDisplay
   currentUserId?: string
 }
 

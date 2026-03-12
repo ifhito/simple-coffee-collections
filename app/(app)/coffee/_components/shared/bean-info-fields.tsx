@@ -1,11 +1,13 @@
 'use client'
 
 import { Input } from '@/components/ui/Input'
+import { ShopAutocomplete } from './shop-autocomplete'
 
 export type BeanInfoState = {
   beanName: string
   beanType: string
   shopName: string
+  shopId: string | null
   roastLevel: string
 }
 
@@ -27,7 +29,7 @@ const ROAST_LEVELS = [
 ]
 
 export function BeanInfoFields({ values, onChange, errors }: BeanInfoFieldsProps) {
-  const update = (field: keyof BeanInfoState, value: string) =>
+  const update = (field: keyof BeanInfoState, value: string | null) =>
     onChange({ ...values, [field]: value })
 
   return (
@@ -45,10 +47,12 @@ export function BeanInfoFields({ values, onChange, errors }: BeanInfoFieldsProps
         value={values.beanType}
         onChange={(e) => update('beanType', e.target.value)}
       />
-      <Input
-        label="店名"
+      <ShopAutocomplete
         value={values.shopName}
-        onChange={(e) => update('shopName', e.target.value)}
+        shopId={values.shopId}
+        onChange={(name, shopId) =>
+          onChange({ ...values, shopName: name, shopId })
+        }
       />
       <div className="flex flex-col gap-2">
         <label htmlFor="roast-level" className="text-sm font-medium text-neutral-800">
