@@ -6,6 +6,7 @@ import { addEvaluation } from '@/lib/actions/coffee'
 import { Button } from '@/components/ui/Button'
 import { RatingSliders } from './shared/rating-sliders'
 import type { RatingsState } from './shared/rating-sliders'
+import { CoffeeEvaluationValidation } from '@/lib/types/coffee'
 
 type EvaluateFormProps = {
   evaluationId: string
@@ -14,6 +15,7 @@ type EvaluateFormProps = {
     acidity?: number
     bitterness?: number
     aroma?: number
+    notes?: string | null
   }
 }
 
@@ -28,6 +30,8 @@ export function EvaluateForm({ evaluationId, defaultValues }: EvaluateFormProps)
     bitterness: defaultValues?.bitterness ?? 5,
     aroma: defaultValues?.aroma ?? 5,
   })
+  const [notes, setNotes] = useState(defaultValues?.notes ?? '')
+  const normalizedNotesLength = notes.trim().length
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -38,6 +42,7 @@ export function EvaluateForm({ evaluationId, defaultValues }: EvaluateFormProps)
     formData.set('bitterness', ratings.bitterness.toString())
     formData.set('aroma', ratings.aroma.toString())
     formData.set('overall_rating', ratings.overall_rating.toString())
+    formData.set('notes', notes.trim())
 
     startTransition(async () => {
       const response = await addEvaluation(evaluationId, formData)
@@ -59,6 +64,22 @@ export function EvaluateForm({ evaluationId, defaultValues }: EvaluateFormProps)
       <p className="text-xs text-neutral-500">
         スライダーは1〜10の範囲で入力できます。
       </p>
+
+      <label className="block text-sm font-medium text-neutral-800">
+        感想
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          rows={4}
+          maxLength={CoffeeEvaluationValidation.notes.maxLength}
+          placeholder="感想を入力してください（任意）"
+          className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm text-neutral-800 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+          aria-label="感想"
+        />
+        <div className="mt-1 flex justify-end text-xs text-neutral-500">
+          {normalizedNotesLength}/{CoffeeEvaluationValidation.notes.maxLength}
+        </div>
+      </label>
 
       {error && (
         <p className="text-sm text-red-600" role="alert" aria-live="assertive">

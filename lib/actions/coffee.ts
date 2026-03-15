@@ -381,6 +381,11 @@ export async function addEvaluation(
     }
   }
 
+  const notes = getStringField(formData, 'notes').trim()
+  if (notes.length > CoffeeEvaluationValidation.notes.maxLength) {
+    return { error: `notes: notes must be ${CoffeeEvaluationValidation.notes.maxLength} characters or less` }
+  }
+
   const supabase = await createClient()
   const { error: updateError } = await supabase
     .from('coffee_evaluations')
@@ -389,6 +394,7 @@ export async function addEvaluation(
       bitterness,
       aroma,
       overall_rating: overallRating,
+      notes: notes || null,
     })
     .eq('id', id)
 

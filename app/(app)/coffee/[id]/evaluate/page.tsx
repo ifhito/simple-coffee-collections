@@ -62,8 +62,11 @@ export default async function EvaluatePage({
                 acidity: evaluation.acidity ?? undefined,
                 bitterness: evaluation.bitterness ?? undefined,
                 aroma: evaluation.aroma ?? undefined,
+                notes: evaluation.notes,
               }
-            : undefined
+            : {
+                notes: evaluation.notes,
+              }
         }
       />
     </section>
