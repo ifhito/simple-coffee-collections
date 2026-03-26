@@ -2,6 +2,8 @@
 
 コーヒー体験を記録・共有するためのアプリです。Supabase を使った認証とデータ管理、Next.js App Router を採用しています。
 
+**Production**: https://coffee-collections.uk/
+
 ## Tech Stack
 
 - Next.js 15 (App Router)
@@ -11,6 +13,15 @@
 - Jest + React Testing Library
 - Playwright (E2E)
 - Storybook
+
+## Infrastructure
+
+| 役割 | サービス |
+|------|----------|
+| Hosting / Deploy | [Vercel](https://vercel.com) |
+| Database / Auth | [Supabase](https://supabase.com) |
+| DNS | [Cloudflare](https://cloudflare.com) |
+| Domain | [coffee-collections.uk](https://coffee-collections.uk/) |
 
 ## Getting Started
 

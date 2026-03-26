@@ -21,6 +21,32 @@
 
 ## コアドメイン概念
 
+### Shop（店舗）
+
+**定義**: コーヒーを購入・飲食した店舗の独立エンティティ
+
+**日本語**: 店舗
+
+**コード**: `Shop` エンティティ
+**場所**: `lib/domain/shop/entity.ts`
+**役割**: 独立エンティティ（CoffeeEvaluation とは別集約）
+
+**属性**:
+- `id`: UUID
+- `name`: 店舗名（表示用）
+- `normalizedName`: 正規化名（DB重複排除キー）
+
+**リポジトリ**: `ShopRepository`（`lib/domain/shop/repository.ts`）
+- `findById(id)` — ID で取得
+- `findOrCreate(name)` — 存在すれば取得、なければ作成
+
+**ビジネスルール**:
+- 同名の店舗は `normalizedName` で一意管理
+- 評価フォームではオートコンプリートで既存店舗を候補表示
+- 新規店舗は `findOrCreate` で自動登録
+
+---
+
 ### Coffee Evaluation（コーヒー評価）
 
 **定義**: ユーザーがコーヒー体験を記録した評価記録
@@ -52,7 +78,7 @@
 
 ### 1. Shop Info（店舗情報）
 
-**定義**: コーヒーを購入・飲食した店舗の情報
+**定義**: CoffeeEvaluation が保持する店舗への参照情報
 
 **日本語**: 店舗情報
 
@@ -62,23 +88,31 @@
 **属性**:
 | 属性名 | 型 | 制約 | 説明 |
 |--------|-------|------|------|
-| `shopName` | `string` | 255文字以内 | 店舗名（カフェ名） |
+| `shopName` | `string` | 255文字以内 | 店舗名（表示用） |
+| `shopId` | `string \| null` | UUID | Shop エンティティへの参照（オプショナル） |
 
 **特性**:
 - **オプショナル**: 空文字列可（店舗未設定）
 - **不変**: 一度作成したら変更不可
 - **自己検証**: 作成時に文字数制限を検証
+- **二重保持**: オートコンプリート選択時は shopName + shopId 両方セット、自由入力時は shopName のみ
 
 **ファクトリメソッド**:
 ```typescript
-ShopInfo.create("スターバックス 渋谷店")  // 成功: Result<ShopInfo>
-ShopInfo.create("あ".repeat(300))        // 失敗: エラー
-ShopInfo.empty()                         // 空の店舗情報
+// オートコンプリートで既存店舗を選択した場合
+ShopInfo.create("スターバックス 渋谷店", "uuid-xxx")  // 成功: Result<ShopInfo>
+
+// 自由入力の場合
+ShopInfo.create("新しいカフェ")
+
+// 未設定
+ShopInfo.empty()
 ```
 
 **表示**:
 ```typescript
 shopInfo.toDisplayString("店舗未設定")  // 店名 or プレースホルダー
+shopInfo.hasShopId()  // Shop エンティティと紐付いているか
 ```
 
 ---
@@ -488,10 +522,18 @@ return evaluation.userId === userId
     ├──▶ ShopInfo (店舗情報)
     │    ┌──────────────────────────────┐
     │    │ - shopName: string           │
-    │    ├──────────────────────────────┤
-    │    │ + hasShopName(): boolean     │
-    │    │ + toDisplayString(): string  │
-    │    └──────────────────────────────┘
+    │    │ - shopId: string | null      │◆──────────────────────────────────┐
+    │    ├──────────────────────────────┤                                   │
+    │    │ + hasShopName(): boolean     │                                   │
+    │    │ + hasShopId(): boolean       │                                   ▼
+    │    │ + toDisplayString(): string  │      ┌──────────────────────────────────┐
+    │    └──────────────────────────────┘      │     Shop (独立エンティティ)       │
+    │                                          │ - id: string                     │
+    │                                          │ - name: string                   │
+    │                                          │ - normalizedName: string         │
+    │                                          ├──────────────────────────────────┤
+    │                                          │ + reconstruct(props): Shop       │
+    │                                          └──────────────────────────────────┘
     │
     ├──▶ BeanInfo (豆情報)
     │    ┌─────────────────────────────────┐
@@ -633,5 +675,5 @@ test('create coffee evaluation', async ({ coffeeFormPage }) => {
 
 ---
 
-**最終更新**: 2026-01-30
-**バージョン**: 1.0.0
+**最終更新**: 2026-03-26
+**バージョン**: 1.1.0
