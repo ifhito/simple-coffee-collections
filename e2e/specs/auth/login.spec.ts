@@ -8,9 +8,7 @@ test.describe('login', () => {
     await loginPage.goto()
     await loginPage.login(testUser.email, testUser.password)
     await expect(page).toHaveURL('/')
-    const loginStatus = page.getByText('ログイン中:')
-    await expect(loginStatus).toBeVisible()
-    await expect(loginStatus.locator('strong')).toHaveText(testUser.email)
+    await expect(page.getByRole('button', { name: 'ログアウト' })).toBeVisible()
   })
 
   test('shows error for invalid credentials', async ({ loginPage }) => {

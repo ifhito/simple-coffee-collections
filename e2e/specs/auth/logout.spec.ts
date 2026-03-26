@@ -2,7 +2,7 @@ import { test, expect } from '../../fixtures'
 
 test('logout redirects to login', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByText('ログイン中:')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'ログアウト' })).toBeVisible()
 
   await page.getByRole('button', { name: 'ログアウト' }).click()
 
