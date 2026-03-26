@@ -1,7 +1,6 @@
-import Link from 'next/link'
 import type { CoffeeEvaluationWithUser } from '@/lib/types/coffee'
-import { CoffeeCard } from '../../_components/list/card'
 import { EmptyState } from '../../_components/shared/empty-state'
+import { FeedCard } from './feed-card'
 
 type CommunityViewProps = {
   evaluations: CoffeeEvaluationWithUser[]
@@ -14,23 +13,12 @@ export function CommunityView({ evaluations }: CommunityViewProps) {
 
   return (
     <div
-      data-testid="coffee-grid"
-      className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+      data-testid="community-feed"
+      className="mx-auto flex max-w-2xl flex-col gap-6"
     >
       {evaluations.map((evaluation) => (
         <div key={evaluation.id} className="animate-card">
-          <CoffeeCard
-            evaluation={evaluation}
-            meta={
-              <Link
-                href={`/users/${evaluation.user_id}`}
-                className="inline-flex items-center gap-1 text-neutral-600 hover:text-amber-600 transition-colors"
-              >
-                <span aria-hidden>👤</span>
-                <span>{evaluation.display_name || '匿名ユーザー'}</span>
-              </Link>
-            }
-          />
+          <FeedCard evaluation={evaluation} />
         </div>
       ))}
     </div>
