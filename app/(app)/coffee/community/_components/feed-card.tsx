@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { memo, type CSSProperties } from 'react'
 import type { CoffeeEvaluationWithUser } from '@/lib/types/coffee'
+import { RatingStars } from '../../_components/shared/rating-stars'
 
 type FeedCardProps = {
   evaluation: CoffeeEvaluationWithUser
@@ -107,7 +108,7 @@ function FeedCardComponent({ evaluation }: FeedCardProps) {
             <RatingBadge label="香り" value={aroma} className="bg-green-50 text-green-700" />
           )}
           {overall_rating !== null && (
-            <RatingBadge label="総合" value={overall_rating} className="bg-amber-100 text-amber-800 font-semibold" />
+            <RatingStars rating={overall_rating} size="sm" />
           )}
         </div>
       )}

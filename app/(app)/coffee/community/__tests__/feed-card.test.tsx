@@ -63,9 +63,9 @@ describe('FeedCard', () => {
     expect(screen.queryByText('香り')).not.toBeInTheDocument()
   })
 
-  it('overall_ratingがnullの場合に総合バッジを表示しない', () => {
+  it('overall_ratingがnullの場合に星評価を表示しない', () => {
     render(<FeedCard evaluation={{ ...baseEvaluation, overall_rating: null }} />)
-    expect(screen.queryByText('総合')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/総合評価/i)).not.toBeInTheDocument()
   })
 
   it('ユーザーリンクが/users/{user_id}に向く', () => {
