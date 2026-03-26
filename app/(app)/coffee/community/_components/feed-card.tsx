@@ -84,7 +84,7 @@ function FeedCardComponent({ evaluation }: FeedCardProps) {
         <h3 className="text-lg font-semibold text-neutral-900">{displayBeanName}</h3>
         {roast_level && (
           <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
-            {formatRoastLevel(roast_level)}
+            焙煎度: {formatRoastLevel(roast_level)}
           </span>
         )}
       </div>

@@ -33,19 +33,19 @@ describe('FeedCard', () => {
     expect(screen.queryByText(/フローラル/)).not.toBeInTheDocument()
   })
 
-  it('roast_levelがある場合に日本語ラベルのバッジを表示する', () => {
+  it('roast_levelがある場合に焙煎度ラベル付きバッジを表示する', () => {
     render(<FeedCard evaluation={baseEvaluation} />)
-    expect(screen.getByText('浅煎り')).toBeInTheDocument()
+    expect(screen.getByText('焙煎度: 浅煎り')).toBeInTheDocument()
   })
 
   it('roast_levelがnullの場合にバッジを表示しない', () => {
     render(<FeedCard evaluation={{ ...baseEvaluation, roast_level: null }} />)
-    expect(screen.queryByText('浅煎り')).not.toBeInTheDocument()
+    expect(screen.queryByText(/焙煎度/)).not.toBeInTheDocument()
   })
 
   it('roast_levelが未知の値の場合そのまま表示する', () => {
     render(<FeedCard evaluation={{ ...baseEvaluation, roast_level: 'カスタム焙煎' }} />)
-    expect(screen.getByText('カスタム焙煎')).toBeInTheDocument()
+    expect(screen.getByText('焙煎度: カスタム焙煎')).toBeInTheDocument()
   })
 
   it('acidityがnullの場合に酸味バッジを表示しない', () => {
