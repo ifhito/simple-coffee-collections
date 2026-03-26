@@ -101,6 +101,12 @@
 - Why: 小さな修正も同じ粒度で残せるようにするため
 - Rejected: issue や PR 本文だけを記録源にする案。検索しづらく、日常運用で抜けやすいため不採用
 
+### 2026-03-26 - E2E テスト: 'ログイン中:' テキスト削除に追従
+- What: PR #36 でホームページが LP 風に改修されて `'ログイン中:'` が削除されたため、3つの E2E テストを修正
+- Why: auth.setup.ts / login.spec.ts / logout.spec.ts が存在しないテキストを参照して CI が失敗
+- Rejected: ページに 'ログイン中:' テキストを復活させる案 — UI 改善を元に戻すのは不適切
+- Next: なし
+
 ### 2026-03-11 - CLAUDE.md に継続記録ルールを追加、progress.md テンプレートに Next フィールドを追加
 - What: CLAUDE.md v1.2.0 に「Continuous Recording」セクション追加。progress.md の Entry Template に `Next:` フィールドを追加
 - Why: 小さな修正を意味単位で記録し、Claude が毎回同じルールで作業できるようにするため

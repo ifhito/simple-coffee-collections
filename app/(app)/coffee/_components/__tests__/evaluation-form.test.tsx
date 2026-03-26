@@ -138,7 +138,7 @@ describe('EvaluationForm', () => {
     setSliderValue(/総合評価/i, 9)
 
     // PublicToggle defaults to false (非公開), so we don't need to toggle it
-    const visibilityToggle = screen.getByRole('checkbox', { name: /🔒 非公開/i })
+    const visibilityToggle = screen.getByRole('checkbox', { name: /公開する/i })
     expect(visibilityToggle).not.toBeChecked() // Verify it's unchecked (private)
 
     await user.click(screen.getByRole('button', { name: /保存/i }))
@@ -340,33 +340,33 @@ describe('EvaluationForm', () => {
       const publicToggle = screen.getByTestId('public-toggle')
       expect(publicToggle).toBeInTheDocument()
 
-      const checkbox = screen.getByRole('checkbox', { name: /🔒 非公開/i })
+      const checkbox = screen.getByRole('checkbox', { name: /公開する/i })
       expect(checkbox).not.toBeChecked()
-      expect(screen.getByText(/🔒 非公開/i)).toBeInTheDocument()
+      expect(screen.getByText('公開する')).toBeInTheDocument()
     })
 
     it('renders PublicToggle with checked state when defaultValues.is_public is true', () => {
       render(<EvaluationForm id="eval-123" defaultValues={sampleDefaultValues} />)
 
-      const checkbox = screen.getByRole('checkbox', { name: /🌐 公開/i })
+      const checkbox = screen.getByRole('checkbox', { name: /公開する/i })
       expect(checkbox).toBeChecked()
-      expect(screen.getByText(/🌐 公開/i)).toBeInTheDocument()
+      expect(screen.getByText('公開する')).toBeInTheDocument()
     })
 
-    it('toggles PublicToggle and updates label dynamically', async () => {
+    it('toggles PublicToggle (label stays "公開する")', async () => {
       const user = userEvent.setup()
       render(<EvaluationForm />)
 
-      let checkbox = screen.getByRole('checkbox', { name: /🔒 非公開/i })
+      const checkbox = screen.getByRole('checkbox', { name: /公開する/i })
       expect(checkbox).not.toBeChecked()
 
       await user.click(checkbox)
-      checkbox = screen.getByRole('checkbox', { name: /🌐 公開/i })
       expect(checkbox).toBeChecked()
+      expect(screen.getByText('公開する')).toBeInTheDocument()
 
       await user.click(checkbox)
-      checkbox = screen.getByRole('checkbox', { name: /🔒 非公開/i })
       expect(checkbox).not.toBeChecked()
+      expect(screen.getByText('公開する')).toBeInTheDocument()
     })
 
     it('includes PublicToggle value in form submission (create mode)', async () => {
@@ -379,9 +379,9 @@ describe('EvaluationForm', () => {
       await user.type(screen.getByLabelText(/豆の産地/i), 'Test Bean')
       await user.type(screen.getByLabelText(/豆の名前/i), 'Test Bean Name')
 
-      const checkbox = screen.getByRole('checkbox', { name: /🔒 非公開/i })
+      const checkbox = screen.getByRole('checkbox', { name: /公開する/i })
       await user.click(checkbox)
-      expect(screen.getByRole('checkbox', { name: /🌐 公開/i })).toBeChecked()
+      expect(screen.getByRole('checkbox', { name: /公開する/i })).toBeChecked()
 
       await user.click(screen.getByRole('button', { name: /保存/i }))
 
@@ -399,11 +399,11 @@ describe('EvaluationForm', () => {
       const user = userEvent.setup()
       render(<EvaluationForm id="eval-123" defaultValues={sampleDefaultValues} />)
 
-      const checkbox = screen.getByRole('checkbox', { name: /🌐 公開/i })
+      const checkbox = screen.getByRole('checkbox', { name: /公開する/i })
       expect(checkbox).toBeChecked()
 
       await user.click(checkbox)
-      expect(screen.getByRole('checkbox', { name: /🔒 非公開/i })).not.toBeChecked()
+      expect(screen.getByRole('checkbox', { name: /公開する/i })).not.toBeChecked()
 
       await user.click(screen.getByRole('button', { name: /更新/i }))
 
@@ -418,13 +418,13 @@ describe('EvaluationForm', () => {
       expect(formData.get('is_public')).toBe('false')
     })
 
-    it('displays PublicToggle with dynamic emoji label based on initial state', () => {
+    it('displays PublicToggle with "公開する" label in all states', () => {
       const { unmount } = render(<EvaluationForm />)
-      expect(screen.getByText(/🔒 非公開/i)).toBeInTheDocument()
+      expect(screen.getByText('公開する')).toBeInTheDocument()
       unmount()
 
       render(<EvaluationForm id="eval-123" defaultValues={sampleDefaultValues} />)
-      expect(screen.getByText(/🌐 公開/i)).toBeInTheDocument()
+      expect(screen.getByText('公開する')).toBeInTheDocument()
     })
   })
 })

@@ -3,82 +3,71 @@ import userEvent from '@testing-library/user-event'
 import { PublicToggle } from '../public-toggle'
 
 describe('PublicToggle', () => {
+  it('always shows "公開する" label regardless of state (unchecked)', () => {
+    render(<PublicToggle defaultChecked={false} name="is_public" />)
+
+    expect(screen.getByText('公開する')).toBeInTheDocument()
+  })
+
+  it('always shows "公開する" label regardless of state (checked)', () => {
+    render(<PublicToggle defaultChecked={true} name="is_public" />)
+
+    expect(screen.getByText('公開する')).toBeInTheDocument()
+  })
+
   it('initial state matches defaultChecked prop (true)', () => {
     render(<PublicToggle defaultChecked={true} name="is_public" />)
 
-    const checkbox = screen.getByRole('checkbox', { name: /公開/i })
+    const checkbox = screen.getByRole('checkbox', { name: '公開する' })
     expect(checkbox).toBeChecked()
   })
 
   it('initial state matches defaultChecked prop (false)', () => {
     render(<PublicToggle defaultChecked={false} name="is_public" />)
 
-    const checkbox = screen.getByRole('checkbox', { name: /公開/i })
+    const checkbox = screen.getByRole('checkbox', { name: '公開する' })
     expect(checkbox).not.toBeChecked()
   })
 
-  it('label shows "🌐 公開" emoji when checked', () => {
-    render(<PublicToggle defaultChecked={true} name="is_public" />)
-
-    expect(screen.getByText(/🌐.*公開/i)).toBeInTheDocument()
-  })
-
-  it('label shows "🔒 非公開" emoji when unchecked', () => {
-    render(<PublicToggle defaultChecked={false} name="is_public" />)
-
-    expect(screen.getByText(/🔒.*非公開/i)).toBeInTheDocument()
-  })
-
-  it('clicking toggle updates state and label from unchecked to checked', async () => {
+  it('clicking toggle changes checked state', async () => {
     const user = userEvent.setup()
     render(<PublicToggle defaultChecked={false} name="is_public" />)
 
-    const checkbox = screen.getByRole('checkbox', { name: /公開/i })
-    
-    // Initially unchecked with private label
+    const checkbox = screen.getByRole('checkbox', { name: '公開する' })
     expect(checkbox).not.toBeChecked()
-    expect(screen.getByText(/🔒.*非公開/i)).toBeInTheDocument()
 
-    // Click to toggle
     await user.click(checkbox)
 
-    // Now checked with public label
     expect(checkbox).toBeChecked()
-    expect(screen.getByText(/🌐.*公開/i)).toBeInTheDocument()
+    // Label remains "公開する" after toggling
+    expect(screen.getByText('公開する')).toBeInTheDocument()
   })
 
-  it('clicking toggle updates state and label from checked to unchecked', async () => {
+  it('clicking toggle from checked to unchecked', async () => {
     const user = userEvent.setup()
     render(<PublicToggle defaultChecked={true} name="is_public" />)
 
-    const checkbox = screen.getByRole('checkbox', { name: /公開/i })
-    
-    // Initially checked with public label
+    const checkbox = screen.getByRole('checkbox', { name: '公開する' })
     expect(checkbox).toBeChecked()
-    expect(screen.getByText(/🌐.*公開/i)).toBeInTheDocument()
 
-    // Click to toggle
     await user.click(checkbox)
 
-    // Now unchecked with private label
     expect(checkbox).not.toBeChecked()
-    expect(screen.getByText(/🔒.*非公開/i)).toBeInTheDocument()
+    // Label remains "公開する" after toggling
+    expect(screen.getByText('公開する')).toBeInTheDocument()
   })
 
   it('hidden input value updates on state change', async () => {
     const user = userEvent.setup()
     const { container } = render(<PublicToggle defaultChecked={false} name="is_public" />)
 
-    // Find hidden input by name
     const hiddenInput = container.querySelector('input[type="hidden"][name="is_public"]') as HTMLInputElement
     expect(hiddenInput).toBeInTheDocument()
     expect(hiddenInput.value).toBe('false')
 
-    // Click checkbox to toggle
-    const checkbox = screen.getByRole('checkbox', { name: /公開/i })
+    const checkbox = screen.getByRole('checkbox', { name: '公開する' })
     await user.click(checkbox)
 
-    // Hidden input should now be 'true'
     expect(hiddenInput.value).toBe('true')
   })
 
@@ -86,16 +75,12 @@ describe('PublicToggle', () => {
     const user = userEvent.setup()
     render(<PublicToggle defaultChecked={false} name="is_public" />)
 
-    const checkbox = screen.getByRole('checkbox', { name: /公開/i })
-    
-    // Focus on checkbox
+    const checkbox = screen.getByRole('checkbox', { name: '公開する' })
     checkbox.focus()
     expect(checkbox).toHaveFocus()
 
-    // Press Space to toggle
     await user.keyboard(' ')
 
-    // Should be checked now
     expect(checkbox).toBeChecked()
   })
 

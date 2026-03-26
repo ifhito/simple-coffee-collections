@@ -310,6 +310,7 @@ describe('addEvaluation', () => {
       bitterness: 5,
       aroma: 8,
       overall_rating: 9,
+      notes: null,
     })
     expect(redirect).toHaveBeenCalledWith('/coffee/eval-1')
   })
@@ -336,7 +337,52 @@ describe('addEvaluation', () => {
       bitterness: 9,
       aroma: 4,
       overall_rating: 6,
+      notes: null,
     })
+  })
+
+  it('should save notes when provided', async () => {
+    setupSupabaseMock({
+      selectResult: {
+        data: { user_id: 'user-1', overall_rating: null },
+        error: null,
+      },
+    })
+
+    const fd = buildFormData({
+      acidity: '7',
+      bitterness: '5',
+      aroma: '8',
+      overall_rating: '9',
+      notes: '柑橘の香りが印象的だった',
+    })
+
+    await addEvaluation('eval-1', fd)
+
+    expect(mockUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ notes: '柑橘の香りが印象的だった' })
+    )
+  })
+
+  it('should reject notes longer than 500 characters', async () => {
+    setupSupabaseMock({
+      selectResult: {
+        data: { user_id: 'user-1', overall_rating: null },
+        error: null,
+      },
+    })
+
+    const fd = buildFormData({
+      acidity: '7',
+      bitterness: '5',
+      aroma: '8',
+      overall_rating: '9',
+      notes: 'a'.repeat(501),
+    })
+
+    const result = await addEvaluation('eval-1', fd)
+    expect(result).toEqual({ error: 'notes: notes must be 500 characters or less' })
+    expect(mockUpdate).not.toHaveBeenCalled()
   })
 
   it('should reject invalid rating values', async () => {

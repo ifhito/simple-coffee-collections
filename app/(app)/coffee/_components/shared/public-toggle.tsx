@@ -15,7 +15,6 @@
  */
 
 import { useState, useId } from 'react'
-import { getVisibilityText } from '@/lib/constants/visibility'
 
 interface PublicToggleProps {
   defaultChecked: boolean
@@ -35,11 +34,11 @@ export function PublicToggle({ defaultChecked, name }: PublicToggleProps) {
         checked={isPublic}
         onChange={(e) => setIsPublic(e.target.checked)}
         className="cursor-pointer h-5 w-5 rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
-        aria-label={getVisibilityText(isPublic)}
+        aria-label="公開する"
         aria-describedby={`${id}-description`}
       />
       <label htmlFor={id} className="cursor-pointer font-medium text-gray-900">
-        {getVisibilityText(isPublic)}
+        公開する
       </label>
       <input type="hidden" name={name} value={isPublic.toString()} />
       <span id={`${id}-description`} className="sr-only">
