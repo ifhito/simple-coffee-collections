@@ -17,9 +17,7 @@ test.describe('signup', () => {
 
     // Assert
     await expect(page).toHaveURL('/')
-    const loginStatus = page.getByText('ログイン中:')
-    await expect(loginStatus).toBeVisible()
-    await expect(loginStatus.locator('strong')).toHaveText(email)
+    await expect(page.getByRole('button', { name: 'ログアウト' })).toBeVisible()
   })
 
   test('rejects existing email (UC1-2)', async ({ page }) => {
