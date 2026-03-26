@@ -9,7 +9,7 @@ const baseEvaluation: CoffeeEvaluationWithUser = {
   display_name: '珈琲太郎',
   bean_name: 'エチオピア イルガチェフェ',
   bean_type: 'Ethiopia',
-  roast_level: 'Light',
+  roast_level: 'light',
   shop_name: 'Blue Bottle Coffee',
   acidity: 8,
   bitterness: 4,
@@ -33,14 +33,19 @@ describe('FeedCard', () => {
     expect(screen.queryByText(/フローラル/)).not.toBeInTheDocument()
   })
 
-  it('roast_levelがある場合にバッジを表示する', () => {
+  it('roast_levelがある場合に日本語ラベルのバッジを表示する', () => {
     render(<FeedCard evaluation={baseEvaluation} />)
-    expect(screen.getByText('Light')).toBeInTheDocument()
+    expect(screen.getByText('浅煎り')).toBeInTheDocument()
   })
 
   it('roast_levelがnullの場合にバッジを表示しない', () => {
     render(<FeedCard evaluation={{ ...baseEvaluation, roast_level: null }} />)
-    expect(screen.queryByText('Light')).not.toBeInTheDocument()
+    expect(screen.queryByText('浅煎り')).not.toBeInTheDocument()
+  })
+
+  it('roast_levelが未知の値の場合そのまま表示する', () => {
+    render(<FeedCard evaluation={{ ...baseEvaluation, roast_level: 'カスタム焙煎' }} />)
+    expect(screen.getByText('カスタム焙煎')).toBeInTheDocument()
   })
 
   it('acidityがnullの場合に酸味バッジを表示しない', () => {

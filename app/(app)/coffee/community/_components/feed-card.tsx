@@ -8,6 +8,18 @@ type FeedCardProps = {
 
 const formatDate = (iso: string) => iso.slice(0, 10)
 
+const ROAST_LEVEL_LABELS: Record<string, string> = {
+  light: '浅煎り',
+  cinnamon: '浅中煎り',
+  medium: '中煎り',
+  high: '中深煎り',
+  city: 'やや深煎り',
+  full_city: '深煎り',
+  french: '極深煎り',
+}
+
+const formatRoastLevel = (value: string) => ROAST_LEVEL_LABELS[value] ?? value
+
 const clampFourLines: CSSProperties = {
   display: '-webkit-box',
   WebkitLineClamp: 4,
@@ -72,7 +84,7 @@ function FeedCardComponent({ evaluation }: FeedCardProps) {
         <h3 className="text-lg font-semibold text-neutral-900">{displayBeanName}</h3>
         {roast_level && (
           <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
-            {roast_level}
+            {formatRoastLevel(roast_level)}
           </span>
         )}
       </div>
