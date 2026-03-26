@@ -4,7 +4,7 @@
 
 > 開発者とドメインエキスパートが共有する用語の定義と使用ガイド
 
-**最終更新**: 2026-01-30
+**最終更新**: 2026-03-26
 **管理者**: 開発チーム
 
 ---
@@ -28,6 +28,43 @@
 ---
 
 ## 📚 コアエンティティ
+
+### Shop
+
+| 項目 | 内容 |
+|------|------|
+| **単語** | 店舗 |
+| **英語（コード）** | Shop / shops |
+| **よくある間違い** | ✗ カフェ、ストア、店 |
+| **プロダクト内文言** | 店名 |
+| **タグ** | #エンティティ |
+| **意味** | コーヒーを購入・飲食した店舗の独立エンティティ。正規化名（normalizedName）でDB重複排除。CoffeeEvaluation から shop_id で参照される。 |
+| **モデル名** | `Shop` (lib/domain/shop/entity.ts) |
+| **関連モデル** | CoffeeEvaluation（ShopInfo 経由） |
+
+**属性**:
+- `id`: UUID
+- `name`: 店舗名（表示用）
+- `normalizedName`: 正規化名（重複排除キー）
+
+**リポジトリ操作**:
+- `findById(id)` — ID で取得
+- `findOrCreate(name)` — 存在すれば取得、なければ作成
+
+**ビジネスルール**:
+- 同名の店舗は `normalizedName` で一意管理される
+- 評価フォームではオートコンプリートで既存店舗を選択可能
+- 店舗名は自由入力でも可（新規 Shop として登録される）
+
+```typescript
+// ✓ 正しい
+Shop.reconstruct({ id, name: "スターバックス 渋谷店", normalizedName: "スターバックス 渋谷店", ... })
+
+// ✗ 避ける
+const cafe = { name: "..." }  // Shop エンティティを使う
+```
+
+---
 
 ### Coffee Evaluation
 
@@ -70,13 +107,17 @@ const memo = await getCoffeeMemos()  // "Memo"は使わない
 | 項目 | 内容 |
 |------|------|
 | **単語** | 店舗情報 |
-| **英語（コード）** | ShopInfo / shop_name |
+| **英語（コード）** | ShopInfo / shop_name, shop_id |
 | **よくある間違い** | ✗ 店情報、カフェ情報、ストア情報 |
 | **プロダクト内文言** | 店名 |
 | **タグ** | #値オブジェクト |
-| **意味** | コーヒーを購入・飲食した店舗の情報。店名のみを保持。 |
+| **意味** | CoffeeEvaluation が保持する店舗への参照。店名文字列（shopName）と Shop エンティティの ID（shopId）を持つ。オートコンプリートで既存店舗を選択した場合は両方セット、自由入力の場合は shopName のみ。 |
 | **モデル名** | `ShopInfo` (shop-info.ts) |
-| **関連モデル** | CoffeeEvaluation |
+| **関連モデル** | CoffeeEvaluation, Shop |
+
+**属性**:
+- `shopName`: 店名文字列（255文字以内、オプショナル）
+- `shopId`: Shop エンティティの UUID（オプショナル）
 
 **制約**:
 - 255文字以内
@@ -85,9 +126,14 @@ const memo = await getCoffeeMemos()  // "Memo"は使わない
 
 **使用例**:
 ```typescript
-// ✓ 正しい
-ShopInfo.create("スターバックス 渋谷店")
-ShopInfo.empty()  // 店舗未設定
+// ✓ 正しい（既存店舗を選択した場合）
+ShopInfo.create("スターバックス 渋谷店", "uuid-xxx")
+
+// ✓ 正しい（自由入力の場合）
+ShopInfo.create("新しいカフェ")
+
+// ✓ 正しい（未設定）
+ShopInfo.empty()
 
 // ✗ 避ける
 "店舗: スターバックス"  // プレフィックス不要
@@ -709,6 +755,7 @@ query: "エチオピア"      // "search"を使う
 | 2026-01-30 | 初版作成 | ユビキタス言語の確立 |
 | 2026-03-10 | AI設定・OCRコンテキスト追加 | LLM/OCR機能の新規実装 |
 | 2026-03-10 | 評価ステータス・評価追加の用語追加、CoffeeEvaluationの意味更新 | 豆登録と評価の分離機能 |
+| 2026-03-11 | Shop エンティティ追加、ShopInfo に shopId 追加 | 店舗を独立エンティティとして分離（shops テーブル） |
 
 ---
 
