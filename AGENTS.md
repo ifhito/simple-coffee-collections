@@ -6,9 +6,11 @@ README はセットアップ、CLAUDE.md は背景と設計方針、AGENTS.md �
 ## Project Snapshot
 
 - プロダクト: コーヒー体験を記録・共有する Next.js アプリ
+- Production URL: https://coffee-collections.uk/
 - UI 言語: 日本語
 - 主な技術: Next.js App Router, TypeScript, Tailwind CSS, Supabase, Jest, Playwright
 - アーキテクチャ: Clean Architecture + DDD
+- インフラ: Vercel (Hosting) / Supabase (DB & Auth) / Cloudflare (DNS)
 - 主要ディレクトリ:
   - `app/`: 画面と API ルート
   - `components/`: 汎用 UI
