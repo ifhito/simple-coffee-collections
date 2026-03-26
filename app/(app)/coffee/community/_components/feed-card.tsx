@@ -97,18 +97,25 @@ function FeedCardComponent({ evaluation }: FeedCardProps) {
 
       {/* Rating badges */}
       {hasRatings && (
-        <div className="mt-3 flex flex-wrap gap-2">
-          {acidity !== null && (
-            <RatingBadge label="酸味" value={acidity} className="bg-blue-50 text-blue-700" />
-          )}
-          {bitterness !== null && (
-            <RatingBadge label="苦味" value={bitterness} className="bg-orange-50 text-orange-700" />
-          )}
-          {aroma !== null && (
-            <RatingBadge label="香り" value={aroma} className="bg-green-50 text-green-700" />
+        <div className="mt-3 space-y-2">
+          {(acidity !== null || bitterness !== null || aroma !== null) && (
+            <div className="flex flex-wrap gap-2">
+              {acidity !== null && (
+                <RatingBadge label="酸味" value={acidity} className="bg-blue-50 text-blue-700" />
+              )}
+              {bitterness !== null && (
+                <RatingBadge label="苦味" value={bitterness} className="bg-orange-50 text-orange-700" />
+              )}
+              {aroma !== null && (
+                <RatingBadge label="香り" value={aroma} className="bg-green-50 text-green-700" />
+              )}
+            </div>
           )}
           {overall_rating !== null && (
-            <RatingStars rating={overall_rating} size="sm" />
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-neutral-500">総合評価</span>
+              <RatingStars rating={overall_rating} size="sm" />
+            </div>
           )}
         </div>
       )}
