@@ -1,3 +1,5 @@
+import { ContactForm } from './_components/contact-form'
+
 export const metadata = {
   title: 'お問い合わせ | Coffee Collections',
   description: 'Simple Coffee Collections へのお問い合わせ方法',
@@ -9,7 +11,7 @@ export default function ContactPage() {
       <h1 className="text-3xl font-bold text-gray-900">お問い合わせ</h1>
 
       <p className="text-gray-600">
-        本サービスに関するご質問・ご要望・不具合のご報告は、GitHub Issues よりご連絡ください。
+        本サービスに関するご質問・ご要望・不具合のご報告は、以下よりご連絡ください。
       </p>
 
       <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 space-y-4">
@@ -26,9 +28,9 @@ export default function ContactPage() {
         </a>
       </div>
 
-      <div className="space-y-2">
-        <p className="text-sm text-gray-700">メールでのお問い合わせ:</p>
-        <p className="text-sm text-gray-700">hito01010101[at]gmail.com</p>
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold text-gray-900">メールで直接お問い合わせ</h2>
+        <ContactForm />
       </div>
 
       <p className="text-sm text-gray-500">
