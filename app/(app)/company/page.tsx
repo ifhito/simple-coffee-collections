@@ -18,7 +18,17 @@ export default function CompanyPage() {
           </div>
           <div className="grid grid-cols-3 gap-4 px-6 py-4">
             <dt className="text-sm font-medium text-gray-600">運営者</dt>
-            <dd className="col-span-2 text-sm text-gray-900">ifhito（個人運営）</dd>
+            <dd className="col-span-2 text-sm text-gray-900">
+              <a
+                href="https://x.com/ifhito"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-amber-600 hover:underline"
+              >
+                ifhito
+              </a>
+              （個人運営）
+            </dd>
           </div>
           <div className="grid grid-cols-3 gap-4 px-6 py-4 bg-gray-50">
             <dt className="text-sm font-medium text-gray-600">所在地</dt>
