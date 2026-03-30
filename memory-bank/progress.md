@@ -2,6 +2,12 @@
 
 実装のたびに追記する短いログです。長い議事録にはしません。
 
+### 2026-03-30 - お問い合わせページにメール送信フォームを追加
+- What: Resend + Server Action + useActionState でメール送信フォームを実装（PR #43 に追加）
+- Why: GitHub Issues リンクだけでなくフォームからメール送信できるようにするため
+- Rejected: mailto: リンク（UX不良）、Nodemailer（設定複雑）
+- Next: RESEND_API_KEY を Vercel 環境変数に設定すること
+
 ## Entry Template
 
 ### YYYY-MM-DD - 変更の要点（一行）
@@ -12,6 +18,11 @@
 - Decision: `docs/decisions/...` があれば記載。なければ省略
 
 ## Entries
+
+### 2026-03-30 - 企業情報・お問い合わせページ追加（Google ADS 対応）
+- What: `/company`（企業情報）と `/contact`（お問い合わせ）ページを新設、フッターコンポーネントを追加し全 `(app)` ページに表示。middleware の公開パスに両ルートを追加
+- Why: Google ADS 審査に必要な透明性確保のため（issue #42）
+- Next: プライバシーポリシーページの追加も検討する
 
 ### 2026-03-12 - cmux handoff skill に対象 task / agent の確認手順を追加
 - What: `.agents/skills/cmux-handoff-orchestrator/SKILL.md` に、続ける作業内容や対象エージェントが未指定なら探索前に確認する手順を追加し、引き継ぎで使った `plan/2026-03-12-cmux-resume-plan.md` も保存
