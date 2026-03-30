@@ -2,6 +2,12 @@
 
 実装のたびに追記する短いログです。長い議事録にはしません。
 
+### 2026-03-30 - お問い合わせページにメール送信フォームを追加
+- What: Resend + Server Action + useActionState でメール送信フォームを実装（PR #43 に追加）
+- Why: GitHub Issues リンクだけでなくフォームからメール送信できるようにするため
+- Rejected: mailto: リンク（UX不良）、Nodemailer（設定複雑）
+- Next: RESEND_API_KEY を Vercel 環境変数に設定すること
+
 ## Entry Template
 
 ### YYYY-MM-DD - 変更の要点（一行）
