@@ -17,4 +17,9 @@ describe('ContactPage', () => {
     const link = screen.getByRole('link', { name: /GitHub Issues/i })
     expect(link).toBeInTheDocument()
   })
+
+  it('メールアドレスを表示する', () => {
+    render(<ContactPage />)
+    expect(screen.getByText(/hito01010101\[at\]gmail\.com/i)).toBeInTheDocument()
+  })
 })

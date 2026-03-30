@@ -26,6 +26,11 @@ export default function ContactPage() {
         </a>
       </div>
 
+      <div className="space-y-2">
+        <p className="text-sm text-gray-700">メールでのお問い合わせ:</p>
+        <p className="text-sm text-gray-700">hito01010101[at]gmail.com</p>
+      </div>
+
       <p className="text-sm text-gray-500">
         ※ 本サービスは個人が運営しています。返答までお時間をいただく場合がございます。
       </p>
