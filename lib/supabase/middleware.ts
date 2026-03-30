@@ -50,6 +50,8 @@ export async function updateSession(request: NextRequest) {
     (p) => p.startsWith('/login'),
     (p) => p.startsWith('/signup'),
     (p) => p.startsWith('/auth'),
+    (p) => p.startsWith('/company'),
+    (p) => p.startsWith('/contact'),
     (p) => p.startsWith('/_next'),
   ]
   const isPublic = publicMatchers.some((match) => match(pathname))

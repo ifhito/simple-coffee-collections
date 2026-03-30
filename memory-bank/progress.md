@@ -13,6 +13,11 @@
 
 ## Entries
 
+### 2026-03-30 - 企業情報・お問い合わせページ追加（Google ADS 対応）
+- What: `/company`（企業情報）と `/contact`（お問い合わせ）ページを新設、フッターコンポーネントを追加し全 `(app)` ページに表示。middleware の公開パスに両ルートを追加
+- Why: Google ADS 審査に必要な透明性確保のため（issue #42）
+- Next: プライバシーポリシーページの追加も検討する
+
 ### 2026-03-12 - cmux handoff skill に対象 task / agent の確認手順を追加
 - What: `.agents/skills/cmux-handoff-orchestrator/SKILL.md` に、続ける作業内容や対象エージェントが未指定なら探索前に確認する手順を追加し、引き継ぎで使った `plan/2026-03-12-cmux-resume-plan.md` も保存
 - Why: cmux ログ探索で対象 task や agent を早い段階で絞り、`codex` と `Claude Code` などの取り違えを減らすため
