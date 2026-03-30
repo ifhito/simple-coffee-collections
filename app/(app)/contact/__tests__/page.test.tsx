@@ -1,25 +1,38 @@
 import { render, screen } from '@testing-library/react'
 import ContactPage from '../page'
 
+// resend が TextEncoder を使うため jsdom 環境でモックが必要
+jest.mock('@/lib/actions/contact', () => ({
+  sendContactEmail: jest.fn(),
+}))
+
+jest.mock('../_components/contact-form', () => ({
+  ContactForm: () => <div data-testid="contact-form">contact form</div>,
+}))
+
 describe('ContactPage', () => {
   it('ページタイトルを表示する', () => {
     render(<ContactPage />)
-    expect(screen.getByRole('heading', { name: /お問い合わせ/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /お問い合わせ/i, level: 1 })).toBeInTheDocument()
   })
 
-  it('連絡先の説明を表示する', () => {
+  it('説明文を表示する', () => {
     render(<ContactPage />)
-    expect(screen.getAllByText(/GitHub/i).length).toBeGreaterThan(0)
+    expect(screen.getByText(/フォームよりご連絡ください/i)).toBeInTheDocument()
   })
 
-  it('GitHub Issues へのリンクを表示する', () => {
+  it('メール問い合わせセクションの見出しを表示する', () => {
     render(<ContactPage />)
-    const link = screen.getByRole('link', { name: /GitHub Issues/i })
-    expect(link).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /メールで直接お問い合わせ/i })).toBeInTheDocument()
   })
 
-  it('メールアドレスを表示する', () => {
+  it('お問い合わせフォームを表示する', () => {
     render(<ContactPage />)
-    expect(screen.getByText(/hito01010101\[at\]gmail\.com/i)).toBeInTheDocument()
+    expect(screen.getByTestId('contact-form')).toBeInTheDocument()
+  })
+
+  it('注意書きを表示する', () => {
+    render(<ContactPage />)
+    expect(screen.getByText(/個人が運営/i)).toBeInTheDocument()
   })
 })
