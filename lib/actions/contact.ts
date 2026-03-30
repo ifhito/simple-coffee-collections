@@ -27,7 +27,8 @@ export async function sendContactEmail(
   }
 
   const apiKey = process.env.RESEND_API_KEY
-  if (!apiKey) {
+  const toEmail = process.env.CONTACT_EMAIL_TO
+  if (!apiKey || !toEmail) {
     return { error: 'メール送信の設定が完了していません。' }
   }
 
@@ -35,7 +36,7 @@ export async function sendContactEmail(
 
   const { error } = await resend.emails.send({
     from: 'お問い合わせ <noreply@mail.coffee-collections.uk>',
-    to: ['hito01010101@gmail.com'],
+    to: [toEmail],
     replyTo: email,
     subject: `[Simple Coffee Collections] お問い合わせ: ${name || '名前なし'}`,
     text: `お名前: ${name || '未入力'}\nメールアドレス: ${email}\n\n${message}`,
