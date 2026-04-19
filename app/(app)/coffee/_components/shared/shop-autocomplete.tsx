@@ -29,7 +29,7 @@ export function ShopAutocomplete({
 
   return (
     <div ref={containerRef} className="relative">
-      <label htmlFor="shop-autocomplete-input" className="mb-1 block text-sm font-medium text-neutral-800">
+      <label htmlFor="shop-autocomplete-input" className="mb-1 block text-sm font-medium text-[var(--ink-2)]">
         {label}
       </label>
       <input
@@ -39,7 +39,7 @@ export function ShopAutocomplete({
         onChange={handleInputElementChange}
         onKeyDown={handleInputKeyDown}
         onFocus={openSuggestions}
-        className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+        className="w-full rounded-sm border border-[var(--rule)] bg-[var(--paper)] px-3 py-2 text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] focus:border-[var(--espresso)] focus:outline-none focus:ring-2 focus:ring-[var(--espresso)]/30"
         role="combobox"
         aria-expanded={isOpen}
         aria-autocomplete="list"
@@ -50,7 +50,7 @@ export function ShopAutocomplete({
         <ul
           id="shop-suggestions"
           role="listbox"
-          className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-neutral-200 bg-white shadow-lg"
+          className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-sm border border-[var(--rule)] bg-[var(--paper)] shadow-[0_8px_24px_-8px_rgba(60,30,10,0.2)]"
         >
           {suggestions.map((s, index) => (
             <li
@@ -59,8 +59,8 @@ export function ShopAutocomplete({
               aria-selected={index === activeIndex}
               className={`cursor-pointer px-3 py-2 text-sm ${
                 index === activeIndex
-                  ? 'bg-amber-100 text-amber-800'
-                  : 'text-neutral-800 hover:bg-neutral-50'
+                  ? 'bg-[var(--background-2)] text-[var(--espresso)]'
+                  : 'text-[var(--ink)] hover:bg-[var(--background-2)]'
               }`}
               onMouseDown={() => handleSelect(s)}
               onMouseEnter={() => highlightSuggestion(index)}

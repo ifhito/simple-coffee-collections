@@ -55,14 +55,14 @@ export function BeanInfoFields({ values, onChange, errors }: BeanInfoFieldsProps
         }
       />
       <div className="flex flex-col gap-2">
-        <label htmlFor="roast-level" className="text-sm font-medium text-neutral-800">
+        <label htmlFor="roast-level" className="text-sm font-medium text-[var(--ink-2)]">
           焙煎度
         </label>
         <select
           id="roast-level"
           value={values.roastLevel}
           onChange={(e) => update('roastLevel', e.target.value)}
-          className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+          className="rounded-sm border border-[var(--rule)] bg-[var(--paper)] px-3 py-2 text-sm text-[var(--ink)] focus:border-[var(--espresso)] focus:outline-none focus:ring-2 focus:ring-[var(--espresso)]/30"
           aria-label="焙煎度"
         >
           {ROAST_LEVELS.map((option) => (

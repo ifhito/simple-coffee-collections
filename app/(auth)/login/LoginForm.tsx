@@ -66,9 +66,9 @@ export function LoginForm() {
         </Button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-gray-600">
+      <p className="mt-4 text-center text-sm text-[var(--ink-3)]">
         アカウントをお持ちでない方は{' '}
-        <Link href="/signup" className="text-blue-600 hover:underline">
+        <Link href="/signup" className="text-[var(--espresso)] hover:underline">
           アカウント作成はこちら
         </Link>
       </p>

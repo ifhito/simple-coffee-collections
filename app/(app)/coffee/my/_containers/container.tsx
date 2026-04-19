@@ -1,7 +1,7 @@
 import { headers } from 'next/headers'
 import type { CoffeeEvaluationSearchParams } from '@/lib/types/coffee'
 import { getCurrentUser } from '@/lib/api/auth'
-import { getCoffeeEvaluations } from '@/lib/api/coffee'
+import { getCoffeeEvaluationsWithUser } from '@/lib/api/coffee'
 import { buildProfileShareUrl } from '@/lib/utils/url'
 import { MyPageView } from '../_components/view'
 
@@ -14,7 +14,7 @@ export async function MyPageContainer({ searchParams }: MyPageContainerProps) {
   const user = await getCurrentUser()
 
   // Fetch all evaluations for the current user (both public and private)
-  const evaluations = await getCoffeeEvaluations({
+  const evaluations = await getCoffeeEvaluationsWithUser({
     ...searchParams,
     user_id: user.id,
   })

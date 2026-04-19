@@ -4,70 +4,83 @@ import React, { useState, useCallback } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { LogoutButton } from '@/components/LogoutButton'
+import { BeanMark } from '@/app/(app)/coffee/_components/shared/bean-mark'
 
 type NavBarProps = {
   userEmail?: string | null
 }
 
 const navItems = [
-  { href: '/coffee/my', label: '📝 マイページ', match: '/coffee/my' },
-  { href: '/coffee/community', label: '🌐 コミュニティ', match: '/coffee/community' },
-  { href: '/shops', label: '🏪 店舗', match: '/shops' },
+  { href: '/coffee/my', label: 'My Collection', match: '/coffee/my' },
+  { href: '/coffee/community', label: 'Community', match: '/coffee/community' },
+  { href: '/shops', label: 'Shops', match: '/shops' },
 ]
 
 export function NavBar({ userEmail }: NavBarProps) {
   const pathname = usePathname() || '/'
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  // Memoized toggle handler to prevent unnecessary re-renders
   const toggleMobileMenu = useCallback(() => {
     setIsMobileMenuOpen((prev) => !prev)
   }, [])
 
-  // Memoized handler to close menu after navigation
   const closeMobileMenu = useCallback(() => {
     setIsMobileMenuOpen(false)
   }, [])
 
   return (
     <>
-      <div className="flex w-full items-center justify-between">
-        {/* Left side: Brand + Navigation */}
-        <div className="flex items-center gap-6">
-          <Link href="/" className="text-2xl font-bold text-gray-900 hover:text-gray-700 transition">
-            Coffee Collections
-          </Link>
-          <nav aria-label="メインナビゲーション" className="hidden sm:flex items-center gap-1">
-            {navItems.map((item) => {
-              const isActive = pathname.startsWith(item.match)
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`rounded-md px-3 py-2 text-sm font-medium transition ${
-                    isActive
-                      ? 'bg-amber-100 text-amber-800'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  {item.label}
-                </Link>
-              )
-            })}
-          </nav>
-        </div>
+      <div className="flex w-full items-center justify-between gap-6">
+        {/* Brand */}
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <BeanMark size={28} />
+          <div className="text-left leading-none">
+            <div className="font-serif-display text-[19px] text-[var(--ink)] group-hover:text-[var(--espresso)] transition-colors">
+              Coffee Collections
+            </div>
+            <div className="font-mono-caps text-[9.5px] mt-1 text-[var(--ink-3)]">
+              TASTING · NOTES · SINCE 2026
+            </div>
+          </div>
+        </Link>
 
-        {/* Right side: User menu + Actions */}
-        <div className="flex items-center gap-3">
+        {/* Desktop nav */}
+        <nav
+          aria-label="メインナビゲーション"
+          className="hidden sm:flex items-center gap-1"
+        >
+          {navItems.map((item) => {
+            const isActive = pathname.startsWith(item.match)
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`relative rounded-md px-3.5 py-2 text-sm transition ${
+                  isActive
+                    ? 'font-semibold text-[var(--ink)]'
+                    : 'text-[var(--ink-3)] hover:text-[var(--ink)]'
+                }`}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                {item.label}
+                {isActive && (
+                  <span className="absolute bottom-0.5 left-3.5 right-3.5 h-px bg-[var(--ink)]" />
+                )}
+              </Link>
+            )
+          })}
+        </nav>
+
+        {/* Actions */}
+        <div className="flex items-center gap-2">
           {userEmail && (
-            <div className="hidden sm:flex items-center gap-3 border-l border-gray-200 pl-3">
+            <div className="hidden sm:flex items-center gap-1 border-l border-[var(--rule)] pl-2">
               <Link
                 href="/profile"
-                className={`rounded-md px-3 py-2 text-sm font-medium transition ${
+                className={`rounded-md px-3 py-2 text-sm transition ${
                   pathname === '/profile'
-                    ? 'bg-amber-100 text-amber-800'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'font-semibold text-[var(--ink)]'
+                    : 'text-[var(--ink-3)] hover:text-[var(--ink)]'
                 }`}
                 aria-current={pathname === '/profile' ? 'page' : undefined}
               >
@@ -75,43 +88,38 @@ export function NavBar({ userEmail }: NavBarProps) {
               </Link>
               <Link
                 href="/ai"
-                className={`rounded-md px-3 py-2 text-sm font-medium transition ${
+                className={`rounded-md px-3 py-2 text-sm transition ${
                   pathname.startsWith('/ai')
-                    ? 'bg-amber-100 text-amber-800'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'font-semibold text-[var(--ink)]'
+                    : 'text-[var(--ink-3)] hover:text-[var(--ink)]'
                 }`}
                 aria-current={pathname.startsWith('/ai') ? 'page' : undefined}
               >
-                AI機能
+                AI
               </Link>
               <LogoutButton variant="text" />
             </div>
           )}
           <Link
             href="/coffee/new"
-            className="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700 shadow-sm"
+            className="inline-flex items-center gap-2 rounded-full bg-[var(--ink)] px-4 py-2 text-sm font-medium text-[var(--background)] transition hover:bg-[var(--espresso)]"
           >
-            New Evaluation
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+            New Entry
           </Link>
 
           {/* Mobile menu button */}
           <button
             type="button"
             onClick={toggleMobileMenu}
-            className="sm:hidden inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition"
+            className="sm:hidden inline-flex items-center justify-center rounded-md p-2 text-[var(--ink-2)] hover:bg-[var(--background-2)] transition"
             aria-expanded={isMobileMenuOpen}
             aria-label="メニュー"
           >
             {isMobileMenuOpen ? (
-              // Close icon (X)
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
             ) : (
-              // Hamburger icon
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-              </svg>
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
             )}
           </button>
         </div>
@@ -119,8 +127,7 @@ export function NavBar({ userEmail }: NavBarProps) {
 
       {/* Mobile menu */}
       {isMobileMenuOpen && (
-        <div className="sm:hidden mt-4 space-y-2 border-t border-gray-200 pt-4">
-          {/* Navigation links */}
+        <div className="sm:hidden mt-4 space-y-2 border-t border-[var(--rule)] pt-4">
           <nav className="space-y-1">
             {navItems.map((item) => {
               const isActive = pathname.startsWith(item.match)
@@ -131,8 +138,8 @@ export function NavBar({ userEmail }: NavBarProps) {
                   onClick={closeMobileMenu}
                   className={`block rounded-md px-3 py-2 text-base font-medium transition ${
                     isActive
-                      ? 'bg-amber-100 text-amber-800'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-[var(--background-2)] text-[var(--ink)]'
+                      : 'text-[var(--ink-2)] hover:bg-[var(--background-2)]'
                   }`}
                 >
                   {item.label}
@@ -140,31 +147,19 @@ export function NavBar({ userEmail }: NavBarProps) {
               )
             })}
           </nav>
-          
-          {/* User menu */}
           {userEmail && (
-            <div className="space-y-1 border-t border-gray-200 pt-2">
+            <div className="space-y-1 border-t border-[var(--rule)] pt-2">
               <Link
                 href="/profile"
                 onClick={closeMobileMenu}
-                className={`block rounded-md px-3 py-2 text-base font-medium transition ${
-                  pathname === '/profile'
-                    ? 'bg-amber-100 text-amber-800'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                aria-current={pathname === '/profile' ? 'page' : undefined}
+                className="block rounded-md px-3 py-2 text-base font-medium text-[var(--ink-2)] hover:bg-[var(--background-2)]"
               >
                 プロフィール
               </Link>
               <Link
                 href="/ai"
                 onClick={closeMobileMenu}
-                className={`block rounded-md px-3 py-2 text-base font-medium transition ${
-                  pathname.startsWith('/ai')
-                    ? 'bg-amber-100 text-amber-800'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                aria-current={pathname.startsWith('/ai') ? 'page' : undefined}
+                className="block rounded-md px-3 py-2 text-base font-medium text-[var(--ink-2)] hover:bg-[var(--background-2)]"
               >
                 AI機能
               </Link>

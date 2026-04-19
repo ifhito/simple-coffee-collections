@@ -21,7 +21,7 @@ export function LogoutButton({ variant = 'button' }: LogoutButtonProps) {
       <button
         onClick={handleLogout}
         disabled={isPending}
-        className="text-sm font-medium text-gray-700 hover:text-gray-900 transition disabled:opacity-50"
+        className="text-sm font-medium text-[var(--ink-3)] hover:text-[var(--ink)] transition disabled:opacity-50"
       >
         {isPending ? 'ログアウト中...' : 'ログアウト'}
       </button>
@@ -32,7 +32,7 @@ export function LogoutButton({ variant = 'button' }: LogoutButtonProps) {
     <button
       onClick={handleLogout}
       disabled={isPending}
-      className="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      className="inline-flex items-center justify-center rounded-full border border-[var(--rule)] px-4 py-2 text-sm font-medium text-[var(--ink)] transition hover:bg-[var(--background-2)] disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {isPending ? '処理中...' : 'ログアウト'}
     </button>

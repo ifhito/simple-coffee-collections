@@ -23,7 +23,7 @@ describe('LogoutButton', () => {
     it('renders with secondary variant by default', () => {
       render(<LogoutButton />)
       const button = screen.getByRole('button')
-      expect(button).toHaveClass('bg-gray-600')
+      expect(button).toHaveClass('rounded-full')
     })
   })
 

@@ -34,32 +34,30 @@ export function LlmSettingsPanel({
 
   return (
     <div className="space-y-5">
-      {/* Provider selection */}
       <div>
-        <p className="mb-3 text-sm font-medium text-neutral-800">プロバイダーを選択</p>
+        <p className="mb-3 text-sm font-medium text-[var(--ink)]">プロバイダーを選択</p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {KNOWN_PROVIDERS.map((p) => (
             <button
               key={p.template}
               type="button"
               onClick={() => onProviderSelect(p.template)}
-              className={`rounded-lg border p-3 text-left transition ${
+              className={`rounded-sm border p-3 text-left transition ${
                 selectedTemplate === p.template
-                  ? 'border-amber-500 bg-amber-50 ring-1 ring-amber-400'
-                  : 'border-neutral-200 hover:border-amber-300 hover:bg-amber-50/50'
+                  ? 'border-[var(--espresso)] bg-[var(--background-2)] ring-1 ring-[var(--espresso)]/50'
+                  : 'border-[var(--rule)] hover:border-[var(--espresso)] hover:bg-[var(--background-2)]'
               }`}
             >
-              <p className="text-xs font-semibold text-neutral-800">{p.label}</p>
-              <p className="mt-0.5 text-xs text-neutral-500">{p.description}</p>
+              <p className="text-xs font-semibold text-[var(--ink)]">{p.label}</p>
+              <p className="mt-0.5 text-xs text-[var(--ink-3)]">{p.description}</p>
             </button>
           ))}
         </div>
       </div>
 
-      {/* API URL */}
       {showApiUrl && (
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-neutral-800">API URL</label>
+          <label className="text-sm font-medium text-[var(--ink)]">API URL</label>
           <input
             type="url"
             value={apiUrl}
@@ -69,23 +67,22 @@ export function LlmSettingsPanel({
                 ? 'http://localhost:11434/v1（Ollama）または https://api.example.com/v1'
                 : 'https://api.example.com/v1'
             }
-            className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+            className="rounded-sm border border-[var(--rule)] bg-[var(--paper)] px-3 py-2 text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] focus:border-[var(--espresso)] focus:outline-none focus:ring-2 focus:ring-[var(--espresso)]/30"
           />
         </div>
       )}
 
-      {/* API Key */}
       {showApiKey && (
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-neutral-800">APIキー</label>
+          <label className="text-sm font-medium text-[var(--ink)]">APIキー</label>
           <input
             type="password"
             value={apiKey}
             onChange={(e) => onApiKeyChange(e.target.value)}
             placeholder={hasExistingKey ? '設定済み（変更する場合のみ入力）' : 'sk-...'}
-            className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+            className="rounded-sm border border-[var(--rule)] bg-[var(--paper)] px-3 py-2 text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] focus:border-[var(--espresso)] focus:outline-none focus:ring-2 focus:ring-[var(--espresso)]/30"
           />
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-[var(--ink-3)]">
             {selectedTemplate === 'custom'
               ? 'Ollama等APIキー不要のサービスは入力不要。クラウドAPIの場合は入力してください。'
               : 'APIキーはAES-256-GCMで暗号化して保存されます'}
@@ -93,15 +90,14 @@ export function LlmSettingsPanel({
         </div>
       )}
 
-      {/* Model name */}
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-neutral-800">モデル名</label>
+        <label className="text-sm font-medium text-[var(--ink)]">モデル名</label>
         <input
           type="text"
           value={modelName}
           onChange={(e) => onModelNameChange(e.target.value)}
           placeholder="例: meta-llama/Llama-Vision-Free"
-          className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+          className="rounded-sm border border-[var(--rule)] bg-[var(--paper)] px-3 py-2 text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] focus:border-[var(--espresso)] focus:outline-none focus:ring-2 focus:ring-[var(--espresso)]/30"
         />
       </div>
     </div>

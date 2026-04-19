@@ -7,8 +7,8 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   const { data: { user } } = await supabase.auth.getUser()
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b border-gray-200">
+    <div className="min-h-screen bg-[var(--background)]">
+      <header className="bg-[var(--paper)] border-b border-[var(--rule)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <NavBar userEmail={user?.email} />
         </div>

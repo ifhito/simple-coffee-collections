@@ -12,13 +12,13 @@ describe('Button', () => {
     it('renders with primary variant by default', () => {
       render(<Button>Primary Button</Button>)
       const button = screen.getByRole('button')
-      expect(button).toHaveClass('bg-blue-600')
+      expect(button).toHaveClass('rounded-full')
     })
 
     it('renders with secondary variant when specified', () => {
       render(<Button variant="secondary">Secondary Button</Button>)
       const button = screen.getByRole('button')
-      expect(button).toHaveClass('bg-gray-600')
+      expect(button).toHaveClass('rounded-full', 'border')
     })
 
     it('renders with full width when specified', () => {

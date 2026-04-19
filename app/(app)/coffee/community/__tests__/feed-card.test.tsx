@@ -3,6 +3,10 @@ import { render, screen } from '@testing-library/react'
 import { FeedCard } from '../_components/feed-card'
 import type { CoffeeEvaluationWithUser } from '@/lib/types/coffee'
 
+jest.mock('@/app/(app)/coffee/_components/shared/radar-chart', () => ({
+  RadarChart: () => <div data-testid="radar-chart" />,
+}))
+
 const baseEvaluation: CoffeeEvaluationWithUser = {
   id: 'eval-1',
   user_id: 'user-123',
@@ -25,7 +29,7 @@ const baseEvaluation: CoffeeEvaluationWithUser = {
 describe('FeedCard', () => {
   it('notesがある場合に感想テキストを表示する', () => {
     render(<FeedCard evaluation={baseEvaluation} />)
-    expect(screen.getByText(baseEvaluation.notes!)).toBeInTheDocument()
+    expect(screen.getByText(/フローラルな香りが際立つ/)).toBeInTheDocument()
   })
 
   it('notesがnullの場合に感想エリアを表示しない', () => {
@@ -48,24 +52,24 @@ describe('FeedCard', () => {
     expect(screen.getByText('焙煎度: カスタム焙煎')).toBeInTheDocument()
   })
 
-  it('acidityがnullの場合に酸味バッジを表示しない', () => {
+  it('acidityがnullの場合に酸味軸を表示しない', () => {
     render(<FeedCard evaluation={{ ...baseEvaluation, acidity: null }} />)
-    expect(screen.queryByText('酸味')).not.toBeInTheDocument()
+    expect(screen.queryByText('ACID')).not.toBeInTheDocument()
   })
 
-  it('bitternessがnullの場合に苦味バッジを表示しない', () => {
+  it('bitternessがnullの場合に苦味軸を表示しない', () => {
     render(<FeedCard evaluation={{ ...baseEvaluation, bitterness: null }} />)
-    expect(screen.queryByText('苦味')).not.toBeInTheDocument()
+    expect(screen.queryByText('BITTER')).not.toBeInTheDocument()
   })
 
-  it('aromaがnullの場合に香りバッジを表示しない', () => {
+  it('aromaがnullの場合に香り軸を表示しない', () => {
     render(<FeedCard evaluation={{ ...baseEvaluation, aroma: null }} />)
-    expect(screen.queryByText('香り')).not.toBeInTheDocument()
+    expect(screen.queryByText('AROMA')).not.toBeInTheDocument()
   })
 
-  it('overall_ratingがnullの場合に星評価を表示しない', () => {
+  it('overall_ratingがnullの場合に総合評価軸を表示しない', () => {
     render(<FeedCard evaluation={{ ...baseEvaluation, overall_rating: null }} />)
-    expect(screen.queryByLabelText(/総合評価/i)).not.toBeInTheDocument()
+    expect(screen.queryByText('OVERALL')).not.toBeInTheDocument()
   })
 
   it('ユーザーリンクが/users/{user_id}に向く', () => {
@@ -74,9 +78,9 @@ describe('FeedCard', () => {
     expect(userLink).toHaveAttribute('href', '/users/user-123')
   })
 
-  it('詳細リンクが/coffee/{id}に向く', () => {
+  it('シートリンクが/coffee/{id}に向く', () => {
     render(<FeedCard evaluation={baseEvaluation} />)
-    const detailLink = screen.getByRole('link', { name: /詳細を見る/i })
+    const detailLink = screen.getByRole('link', { name: /シートを見る/i })
     expect(detailLink).toHaveAttribute('href', '/coffee/eval-1')
   })
 

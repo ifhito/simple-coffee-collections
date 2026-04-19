@@ -8,7 +8,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 const mockGetCurrentUser = jest.fn()
-const mockGetCoffeeEvaluations = jest.fn()
+const mockGetCoffeeEvaluationsWithUser = jest.fn()
 const mockRedirect = jest.fn(() => {
   throw new Error('NEXT_REDIRECT')
 })
@@ -19,7 +19,7 @@ jest.mock('@/lib/api/auth', () => ({
 }))
 
 jest.mock('@/lib/api/coffee', () => ({
-  getCoffeeEvaluations: (...args: any[]) => mockGetCoffeeEvaluations(...args),
+  getCoffeeEvaluationsWithUser: (...args: any[]) => mockGetCoffeeEvaluationsWithUser(...args),
 }))
 
 jest.mock('next/navigation', () => ({
@@ -90,6 +90,7 @@ const sampleEvaluations = [
     overall_rating: 8,
     is_public: true,
     user_id: 'user-123',
+    display_name: 'Test User',
     created_at: '2025-01-01T00:00:00.000Z',
     updated_at: '2025-01-01T00:00:00.000Z',
   },
@@ -102,8 +103,9 @@ const sampleEvaluations = [
     bitterness: 3,
     aroma: 8,
     overall_rating: 9,
-    is_public: false, // Private evaluation
+    is_public: false,
     user_id: 'user-123',
+    display_name: 'Test User',
     created_at: '2025-01-02T00:00:00.000Z',
     updated_at: '2025-01-02T00:00:00.000Z',
   },
@@ -130,24 +132,24 @@ describe('My Page (/coffee/my)', () => {
 
   it('displays authenticated user\'s evaluations (both public and private)', async () => {
     mockGetCurrentUser.mockResolvedValue(sampleUser)
-    mockGetCoffeeEvaluations.mockResolvedValue(sampleEvaluations)
+    mockGetCoffeeEvaluationsWithUser.mockResolvedValue(sampleEvaluations)
 
     render(<MyPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Blue Bottle')).toBeInTheDocument()
-      expect(screen.getByText('Verve Coffee')).toBeInTheDocument()
+      expect(screen.getByText(/Blue Bottle/)).toBeInTheDocument()
+      expect(screen.getByText(/Verve Coffee/)).toBeInTheDocument()
     })
 
     // Verify both public and private evaluations are shown
-    expect(mockGetCoffeeEvaluations).toHaveBeenCalledWith(
+    expect(mockGetCoffeeEvaluationsWithUser).toHaveBeenCalledWith(
       expect.objectContaining({ user_id: 'user-123' })
     )
   })
 
   it('shows PublicBadge (🌐 公開) on public evaluation cards', async () => {
     mockGetCurrentUser.mockResolvedValue(sampleUser)
-    mockGetCoffeeEvaluations.mockResolvedValue(sampleEvaluations)
+    mockGetCoffeeEvaluationsWithUser.mockResolvedValue(sampleEvaluations)
 
     render(<MyPage />)
 
@@ -159,7 +161,7 @@ describe('My Page (/coffee/my)', () => {
 
   it('shows PublicBadge (🔒 非公開) on private evaluation cards', async () => {
     mockGetCurrentUser.mockResolvedValue(sampleUser)
-    mockGetCoffeeEvaluations.mockResolvedValue(sampleEvaluations)
+    mockGetCoffeeEvaluationsWithUser.mockResolvedValue(sampleEvaluations)
 
     render(<MyPage />)
 
@@ -171,7 +173,7 @@ describe('My Page (/coffee/my)', () => {
 
   it('displays search and sort functionality', async () => {
     mockGetCurrentUser.mockResolvedValue(sampleUser)
-    mockGetCoffeeEvaluations.mockResolvedValue(sampleEvaluations)
+    mockGetCoffeeEvaluationsWithUser.mockResolvedValue(sampleEvaluations)
 
     render(<MyPage />)
 
@@ -187,19 +189,19 @@ describe('My Page (/coffee/my)', () => {
   it('filters evaluations based on search input', async () => {
     const user = userEvent.setup()
     mockGetCurrentUser.mockResolvedValue(sampleUser)
-    mockGetCoffeeEvaluations.mockResolvedValue(sampleEvaluations)
+    mockGetCoffeeEvaluationsWithUser.mockResolvedValue(sampleEvaluations)
 
     render(<MyPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Blue Bottle')).toBeInTheDocument()
+      expect(screen.getByText(/Blue Bottle/)).toBeInTheDocument()
     })
 
     const searchInput = screen.getByPlaceholderText(/検索/i)
     await user.type(searchInput, 'Blue')
 
     await waitFor(() => {
-      expect(mockGetCoffeeEvaluations).toHaveBeenCalledWith(
+      expect(mockGetCoffeeEvaluationsWithUser).toHaveBeenCalledWith(
         expect.objectContaining({ search: 'Blue' })
       )
     })

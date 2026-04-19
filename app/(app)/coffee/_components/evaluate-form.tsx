@@ -57,15 +57,15 @@ export function EvaluateForm({ evaluationId, defaultValues }: EvaluateFormProps)
       onSubmit={handleSubmit}
       ref={formRef}
       noValidate
-      className="space-y-6 rounded-lg border border-neutral-200 bg-white p-6 shadow-sm"
+      className="space-y-6 rounded-sm border border-[var(--rule)] bg-[var(--paper)] p-6"
       aria-live="polite"
     >
       <RatingSliders values={ratings} onChange={setRatings} />
-      <p className="text-xs text-neutral-500">
+      <p className="text-xs text-[var(--ink-3)]">
         スライダーは1〜10の範囲で入力できます。
       </p>
 
-      <label className="block text-sm font-medium text-neutral-800">
+      <label className="block text-sm font-medium text-[var(--ink-2)]">
         感想
         <textarea
           value={notes}
@@ -73,10 +73,10 @@ export function EvaluateForm({ evaluationId, defaultValues }: EvaluateFormProps)
           rows={4}
           maxLength={CoffeeEvaluationValidation.notes.maxLength}
           placeholder="感想を入力してください（任意）"
-          className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm text-neutral-800 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+          className="mt-1 w-full rounded-sm border border-[var(--rule)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] focus:border-[var(--espresso)] focus:outline-none focus:ring-2 focus:ring-[var(--espresso)]/30"
           aria-label="感想"
         />
-        <div className="mt-1 flex justify-end text-xs text-neutral-500">
+        <div className="mt-1 flex justify-end text-xs text-[var(--ink-3)]">
           {normalizedNotesLength}/{CoffeeEvaluationValidation.notes.maxLength}
         </div>
       </label>

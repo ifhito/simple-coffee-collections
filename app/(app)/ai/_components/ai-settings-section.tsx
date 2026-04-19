@@ -10,12 +10,12 @@ type Props = {
 
 export function AiSettingsSection({ settings, providerLabel }: Props) {
   return (
-    <section className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
-      <h2 className="mb-4 text-lg font-semibold text-neutral-900">AIプロバイダー設定</h2>
+    <section className="rounded-sm border border-[var(--rule)] bg-[var(--paper)] p-6">
+      <h2 className="mb-4 text-lg font-semibold text-[var(--ink)]">AIプロバイダー設定</h2>
 
       {settings.mode === 'view' && settings.currentSettings && (
         <div className="space-y-4">
-          <div className="rounded-md bg-neutral-50 px-4 py-3 text-sm text-neutral-700">
+          <div className="rounded-sm bg-[var(--background-2)] px-4 py-3 text-sm text-[var(--ink-2)]">
             <p>
               <span className="font-medium">プロバイダー:</span> {providerLabel}
             </p>
@@ -32,7 +32,7 @@ export function AiSettingsSection({ settings, providerLabel }: Props) {
             <button
               type="button"
               onClick={settings.handleEnterEdit}
-              className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
+              className="rounded-sm border border-[var(--rule)] bg-[var(--paper)] px-4 py-2 text-sm font-medium text-[var(--ink-2)] transition hover:border-[var(--ink)]"
             >
               変更する
             </button>
@@ -40,7 +40,7 @@ export function AiSettingsSection({ settings, providerLabel }: Props) {
               type="button"
               onClick={settings.handleDeleteSettings}
               disabled={settings.isPending}
-              className="rounded-md border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+              className="rounded-sm border border-red-200 bg-[var(--paper)] px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50"
             >
               削除する
             </button>
@@ -68,14 +68,14 @@ export function AiSettingsSection({ settings, providerLabel }: Props) {
               type="button"
               onClick={settings.handleSaveSettings}
               disabled={settings.isPending}
-              className="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:opacity-50"
+              className="rounded-sm border border-[var(--rule)] bg-[var(--paper)] px-4 py-2 text-sm font-medium text-[var(--ink-2)] transition hover:border-[var(--ink)] disabled:opacity-50"
             >
               {settings.isPending ? '保存中...' : '保存する'}
             </button>
             <button
               type="button"
               onClick={settings.handleCancelEdit}
-              className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
+              className="rounded-sm border border-[var(--rule)] bg-[var(--paper)] px-4 py-2 text-sm font-medium text-[var(--ink-2)] transition hover:border-[var(--ink)]"
             >
               キャンセル
             </button>
@@ -98,14 +98,14 @@ export function AiSettingsSection({ settings, providerLabel }: Props) {
             onModelNameChange={settings.setModelName}
           />
           {settings.actionError && <p className="text-sm text-red-600">{settings.actionError}</p>}
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-[var(--ink-3)]">
             設定を保存しなくても、このまま解析ボタンを押して一時利用できます。
           </p>
           <button
             type="button"
             onClick={settings.openSaveConfirm}
             disabled={settings.isPending}
-            className="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:opacity-50"
+            className="rounded-full bg-[var(--ink)] px-4 py-2 text-sm font-medium text-[var(--background)] transition hover:bg-[var(--espresso)] disabled:opacity-50"
           >
             この設定を保存する
           </button>

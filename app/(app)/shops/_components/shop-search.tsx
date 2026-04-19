@@ -55,14 +55,14 @@ export function ShopSearch() {
   }, [search, router, buildUrl])
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm">
-      <label className="flex w-full items-center gap-2 text-sm text-neutral-700">
+    <div className="flex flex-col gap-3 rounded-sm border border-[var(--rule)] bg-[var(--paper)] p-4">
+      <label className="flex w-full items-center gap-2 text-sm text-[var(--ink-2)]">
         <span className="whitespace-nowrap">検索</span>
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+          className="w-full rounded-sm border border-[var(--rule)] bg-[var(--paper)] px-3 py-2 text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] focus:border-[var(--espresso)] focus:outline-none focus:ring-2 focus:ring-[var(--espresso)]/30"
           placeholder="店名で検索"
           aria-label="店舗検索"
         />

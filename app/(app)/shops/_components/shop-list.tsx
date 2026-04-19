@@ -22,7 +22,7 @@ export async function ShopList({ search }: ShopListProps) {
 
   if (!shops || shops.length === 0) {
     return (
-      <p className="text-sm text-neutral-500">
+      <p className="text-sm text-[var(--ink-3)]">
         {search ? `「${search}」に一致する店舗はありません` : '登録されている店舗はありません'}
       </p>
     )

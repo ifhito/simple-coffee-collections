@@ -1,10 +1,12 @@
 import Link from 'next/link'
-import { memo, type CSSProperties } from 'react'
+import { memo, type CSSProperties, type ReactNode } from 'react'
 import type { CoffeeEvaluationWithUser } from '@/lib/types/coffee'
-import { RatingStars } from '../../_components/shared/rating-stars'
+import { RadarChart } from '@/app/(app)/coffee/_components/shared/radar-chart'
 
 type FeedCardProps = {
   evaluation: CoffeeEvaluationWithUser
+  showUserHeader?: boolean
+  badge?: ReactNode
 }
 
 const formatDate = (iso: string) => iso.slice(0, 10)
@@ -19,7 +21,8 @@ const ROAST_LEVEL_LABELS: Record<string, string> = {
   french: '極深煎り',
 }
 
-const formatRoastLevel = (value: string) => ROAST_LEVEL_LABELS[value] ?? value
+const formatRoastLevel = (value: string) =>
+  ROAST_LEVEL_LABELS[value] ?? value
 
 const clampFourLines: CSSProperties = {
   display: '-webkit-box',
@@ -28,22 +31,34 @@ const clampFourLines: CSSProperties = {
   overflow: 'hidden',
 }
 
-type RatingBadgeProps = {
+function AxisTick({
+  label,
+  value,
+  color,
+}: {
   label: string
-  value: number
-  className: string
-}
-
-function RatingBadge({ label, value, className }: RatingBadgeProps) {
+  value: number | null
+  color: string
+}) {
+  if (value === null) return null
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${className}`}>
-      {label}
-      <span className="font-semibold">{value}</span>
-    </span>
+    <div className="flex items-baseline gap-1.5">
+      <span
+        className="inline-block h-2 w-2 shrink-0 rounded-full"
+        style={{ background: color }}
+        aria-hidden
+      />
+      <span className="font-mono-caps text-[10px] text-[var(--ink-3)]">
+        {label}
+      </span>
+      <span className="font-mono-num text-sm font-semibold text-[var(--ink)]">
+        {value}
+      </span>
+    </div>
   )
 }
 
-function FeedCardComponent({ evaluation }: FeedCardProps) {
+function FeedCardComponent({ evaluation, showUserHeader = true, badge }: FeedCardProps) {
   const {
     id,
     user_id,
@@ -60,80 +75,114 @@ function FeedCardComponent({ evaluation }: FeedCardProps) {
     created_at,
   } = evaluation
 
-  const displayBeanName = bean_name || (bean_type === 'Unknown' ? '産地不明' : bean_type)
-  const hasRatings = acidity !== null || bitterness !== null || aroma !== null || overall_rating !== null
+  const displayBeanName =
+    bean_name || (bean_type === 'Unknown' ? '産地不明' : bean_type)
+
+  const hasAnyRating =
+    acidity !== null ||
+    bitterness !== null ||
+    aroma !== null ||
+    overall_rating !== null
+
+  const radarValues = {
+    overall: overall_rating,
+    acidity: acidity,
+    aroma: aroma,
+    bitter: bitterness,
+  }
+
+  const userInitial = (display_name || '匿').trim().charAt(0).toUpperCase()
 
   return (
     <article
       data-testid="feed-card"
-      className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+      className="rounded-sm border border-[var(--rule)] bg-[var(--paper)] p-6 transition-shadow hover:shadow-[0_16px_30px_-20px_rgba(60,30,10,0.25)]"
     >
-      {/* Header: user + date */}
-      <div className="flex items-center justify-between">
-        <Link
-          href={`/users/${user_id}`}
-          className="inline-flex items-center gap-1.5 text-sm text-neutral-600 hover:text-amber-600 transition-colors"
-        >
-          <span aria-hidden>👤</span>
-          <span>{display_name || '匿名ユーザー'}</span>
-        </Link>
-        <time className="text-xs text-neutral-400">{formatDate(created_at)}</time>
-      </div>
-
-      {/* Bean info */}
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <h3 className="text-lg font-semibold text-neutral-900">{displayBeanName}</h3>
-        {roast_level && (
-          <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
-            焙煎度: {formatRoastLevel(roast_level)}
+      {/* Header */}
+      <header className="flex items-center justify-between">
+        {showUserHeader ? (
+          <Link
+            href={`/users/${user_id}`}
+            className="group inline-flex items-center gap-2.5"
+          >
+            <span
+              aria-hidden
+              className="font-serif-display grid h-9 w-9 place-items-center rounded-full bg-[var(--espresso)] text-sm text-[var(--background)]"
+            >
+              {userInitial}
+            </span>
+            <span>
+              <span className="font-mono-num block text-[12.5px] font-semibold text-[var(--ink)] group-hover:text-[var(--espresso)] transition-colors">
+                {display_name || '匿名ユーザー'}
+              </span>
+              <span className="font-mono-caps block text-[10px] text-[var(--ink-3)]">
+                {formatDate(created_at)}
+                {shop_name ? ` · ${shop_name}` : ''}
+              </span>
+            </span>
+          </Link>
+        ) : (
+          <span className="font-mono-caps text-[10px] text-[var(--ink-3)]">
+            {formatDate(created_at)}
+            {shop_name ? ` · ${shop_name}` : ''}
           </span>
         )}
-      </div>
+        {badge && <div>{badge}</div>}
+      </header>
 
-      {/* Shop name */}
-      {shop_name && (
-        <p className="mt-0.5 text-sm text-neutral-500">{shop_name}</p>
-      )}
+      {/* Body */}
+      <div className="mt-4 grid gap-5 md:grid-cols-[1fr_200px] md:gap-6">
+        <div>
+          <h3 className="font-serif-display text-balance text-[28px] leading-[1.15] tracking-tight text-[var(--ink)]">
+            {displayBeanName}
+          </h3>
+          <div className="mt-1 text-[12.5px] text-[var(--ink-3)]">
+            {roast_level && `焙煎度: ${formatRoastLevel(roast_level)}`}
+          </div>
 
-      {/* Rating badges */}
-      {hasRatings && (
-        <div className="mt-3 space-y-2">
-          {overall_rating !== null && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-neutral-500">総合評価</span>
-              <RatingStars rating={overall_rating} size="sm" />
-            </div>
+          {notes && (
+            <p
+              style={clampFourLines}
+              className="font-serif-display text-pretty mt-3 text-[17px] italic leading-[1.6] text-[var(--ink)]"
+            >
+              &ldquo;{notes}&rdquo;
+            </p>
           )}
-          {(acidity !== null || bitterness !== null || aroma !== null) && (
-            <div className="flex flex-wrap gap-2">
-              {acidity !== null && (
-                <RatingBadge label="酸味" value={acidity} className="bg-blue-50 text-blue-700" />
-              )}
-              {bitterness !== null && (
-                <RatingBadge label="苦味" value={bitterness} className="bg-orange-50 text-orange-700" />
-              )}
-              {aroma !== null && (
-                <RatingBadge label="香り" value={aroma} className="bg-green-50 text-green-700" />
-              )}
+
+          {hasAnyRating && (
+            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
+              <AxisTick label="OVERALL" value={overall_rating} color="var(--rating-overall)" />
+              <AxisTick label="ACID"    value={acidity}        color="var(--rating-acidity)" />
+              <AxisTick label="AROMA"   value={aroma}          color="var(--rating-aroma)" />
+              <AxisTick label="BITTER"  value={bitterness}     color="var(--rating-bitter)" />
             </div>
           )}
         </div>
-      )}
 
-      {/* Notes */}
-      {notes && (
-        <p style={clampFourLines} className="mt-3 text-sm leading-relaxed text-neutral-700">
-          {notes}
-        </p>
-      )}
+        {hasAnyRating && (
+          <div className="grid place-items-center">
+            <RadarChart
+              values={radarValues}
+              size={190}
+              color="var(--espresso)"
+            />
+          </div>
+        )}
+      </div>
 
       {/* Footer */}
-      <div className="mt-4 flex justify-end">
+      <div className="mt-5 flex items-center justify-between border-t border-[var(--rule-2)] pt-4">
+        <span className="font-mono-caps text-[10.5px] text-[var(--ink-3)]">
+          TASTING SHEET · #{String(id).slice(0, 6)}
+        </span>
         <Link
           href={`/coffee/${id}`}
-          className="text-sm font-medium text-amber-600 hover:text-amber-700 transition-colors"
+          className="inline-flex items-center gap-1.5 text-[13px] text-[var(--ink)] hover:text-[var(--espresso)] transition-colors"
         >
-          詳細を見る →
+          シートを見る
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+            <path d="M5 12h14m-6-6 6 6-6 6" />
+          </svg>
         </Link>
       </div>
     </article>

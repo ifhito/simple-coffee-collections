@@ -44,13 +44,13 @@ export function CopyProfileLinkButton({ url, className }: CopyProfileLinkButtonP
         aria-label="プロフィールリンクをコピー"
         onClick={copyToClipboard}
         onKeyDown={handleKeyDown}
-        className={`inline-flex items-center gap-2 rounded-md bg-amber-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:ring-offset-1 ${className ?? ''}`}
+        className={`inline-flex items-center gap-2 rounded-sm border border-[var(--rule)] bg-[var(--paper)] px-3 py-2 text-sm font-medium text-[var(--ink-2)] transition hover:border-[var(--ink)] focus:outline-none focus:ring-2 focus:ring-[var(--espresso)]/30 focus:ring-offset-1 ${className ?? ''}`}
       >
-        📋 プロフィールリンクをコピー
+        プロフィールリンクをコピー
       </button>
 
       {state === 'success' && (
-        <p className="text-sm text-green-700" role="status">
+        <p className="text-sm text-[var(--espresso)]" role="status">
           コピーしました
         </p>
       )}
@@ -65,7 +65,7 @@ export function CopyProfileLinkButton({ url, className }: CopyProfileLinkButtonP
             type="text"
             readOnly
             value={url}
-            className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm text-neutral-800"
+            className="w-full rounded-sm border border-[var(--rule)] bg-[var(--paper)] px-3 py-2 text-sm text-[var(--ink)]"
           />
         </div>
       )}
