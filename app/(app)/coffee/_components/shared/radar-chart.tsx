@@ -135,7 +135,7 @@ function RadarChartComponent({
                 fontWeight="600"
                 fill="var(--ink)"
               >
-                {(values[ax.key] ?? 0).toFixed(1)}
+                {values[ax.key] === null ? '—' : values[ax.key]}
               </text>
             </g>
           )

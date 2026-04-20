@@ -111,7 +111,7 @@ export default function HomePage() {
               </div>
               <div className="text-right">
                 <div className="font-mono-caps text-[10px] text-[var(--ink-3)]">
-                  OVERALL
+                  総合
                 </div>
                 <div className="font-serif-display mt-0.5 text-[44px] leading-none">
                   {exampleProfile.overall}
@@ -126,10 +126,10 @@ export default function HomePage() {
               />
             </div>
             <div className="space-y-2.5 border-t border-[var(--rule-2)] pt-4">
-              <ScoreBar label="OVERALL" value={exampleProfile.overall} color="var(--rating-overall)" />
-              <ScoreBar label="ACIDITY" value={exampleProfile.acidity} color="var(--rating-acidity)" />
-              <ScoreBar label="AROMA"   value={exampleProfile.aroma}   color="var(--rating-aroma)" />
-              <ScoreBar label="BITTER"  value={exampleProfile.bitter}  color="var(--rating-bitter)" />
+              <ScoreBar label="総合" value={exampleProfile.overall} color="var(--rating-overall)" />
+              <ScoreBar label="酸味" value={exampleProfile.acidity} color="var(--rating-acidity)" />
+              <ScoreBar label="香り"   value={exampleProfile.aroma}   color="var(--rating-aroma)" />
+              <ScoreBar label="苦味"  value={exampleProfile.bitter}  color="var(--rating-bitter)" />
             </div>
           </aside>
         </div>
@@ -181,10 +181,10 @@ export default function HomePage() {
               総合・酸味・苦味・香り——それぞれ1〜10でスライダー評価。記録が積み上がるほど、テイスティングの地図は輪郭をくっきりさせていきます。
             </p>
             <div className="grid gap-2.5">
-              <ScoreBar label="OVERALL" value={exampleProfile.overall} color="var(--rating-overall)" />
-              <ScoreBar label="ACIDITY" value={exampleProfile.acidity} color="var(--rating-acidity)" />
-              <ScoreBar label="AROMA"   value={exampleProfile.aroma}   color="var(--rating-aroma)" />
-              <ScoreBar label="BITTER"  value={exampleProfile.bitter}  color="var(--rating-bitter)" />
+              <ScoreBar label="総合" value={exampleProfile.overall} color="var(--rating-overall)" />
+              <ScoreBar label="酸味" value={exampleProfile.acidity} color="var(--rating-acidity)" />
+              <ScoreBar label="香り"   value={exampleProfile.aroma}   color="var(--rating-aroma)" />
+              <ScoreBar label="苦味"  value={exampleProfile.bitter}  color="var(--rating-bitter)" />
             </div>
           </div>
           <div className="grid place-items-center">

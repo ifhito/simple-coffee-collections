@@ -21,7 +21,7 @@ function ScoreBarComponent({ label, value, color, max = 10 }: ScoreBarProps) {
         />
       </div>
       <span className="font-mono-num text-right text-xs font-semibold text-[var(--ink)]">
-        {value === null ? '—' : value.toFixed(1)}
+        {value === null ? '—' : value}
       </span>
     </div>
   )

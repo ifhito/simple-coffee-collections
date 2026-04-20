@@ -44,11 +44,11 @@ describe('EvaluationDetailView', () => {
     expect(screen.getByText(sampleEvaluation.bean_type)).toBeInTheDocument()
     expect(screen.getByText(sampleEvaluation.roast_level!)).toBeInTheDocument()
 
-    // Numeric ratings are displayed (toFixed(1) format).
-    // RadarChart SVG labels also render the same values, so multiple "8.0" nodes exist.
-    expect(screen.getAllByText('8.0').length).toBeGreaterThanOrEqual(2)
-    expect(screen.getAllByText('4.0').length).toBeGreaterThanOrEqual(1)
-    expect(screen.getAllByText('9.0').length).toBeGreaterThanOrEqual(1)
+    // Numeric ratings are displayed as integers.
+    // RadarChart SVG labels also render the same values, so multiple nodes exist.
+    expect(screen.getAllByText('8').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getAllByText('4').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('9').length).toBeGreaterThanOrEqual(1)
 
     expect(screen.getByRole('heading', { level: 2, name: /感想/i })).toBeInTheDocument()
     expect(screen.getByText(sampleEvaluation.notes!)).toBeInTheDocument()

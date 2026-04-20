@@ -16,10 +16,10 @@ type RatingSlidersProps = {
 }
 
 const ratingFields = [
-  { key: 'overall_rating', label: '総合評価' },
-  { key: 'acidity', label: '酸味' },
-  { key: 'bitterness', label: '苦味' },
-  { key: 'aroma', label: '香り' },
+  { key: 'overall_rating', label: '総合評価', axis: 'overall' },
+  { key: 'acidity',        label: '酸味',     axis: 'acidity' },
+  { key: 'bitterness',     label: '苦味',     axis: 'bitter'  },
+  { key: 'aroma',          label: '香り',     axis: 'aroma'   },
 ] as const
 
 export function RatingSliders({ values, onChange }: RatingSlidersProps) {
@@ -29,6 +29,7 @@ export function RatingSliders({ values, onChange }: RatingSlidersProps) {
         <CoffeeSlider
           key={field.key}
           label={field.label}
+          axis={field.axis}
           value={values[field.key]}
           onChange={(value) =>
             onChange({ ...values, [field.key]: value })
