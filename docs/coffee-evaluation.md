@@ -5,7 +5,7 @@
 
 ## User Guide
 - 一覧: `/coffee` で評価をカード表示。検索ボックスで店名/豆/焙煎度を部分一致検索、並び替えで作成日/評価/店名を切り替え。カードをクリックすると詳細へ。
-- 作成: `/coffee/new` で評価を新規作成。スライダー(1-10)で酸味/苦味/香り/総合を入力、公開設定も可能。
+- 作成: `/coffee/new` で評価を新規作成。スライダー(1-10)で酸味/苦味/香り/総合を入力、公開設定も可能。店名はオートコンプリートで既存店舗を選択可能（自由入力も可）。
 - 詳細: `/coffee/[id]` で全フィールドを表示。所有者のみ「編集」「削除」ボタンが表示。
 - 編集: `/coffee/[id]/edit` で既存評価を編集。権限チェック済み。
 - 削除: 詳細ページで削除ボタン→確認ダイアログ→削除。
@@ -22,7 +22,8 @@
 - Types: `lib/types/coffee.ts` (CoffeeEvaluation, UserProfile, search params)
 - Data fetching: `lib/api/coffee.ts` (`getCoffeeEvaluations` supports search/sort, `getCoffeeEvaluation`, `searchCoffeeEvaluations`)
 - Server Actions: `lib/actions/coffee.ts` (create/update/delete evaluation), `lib/actions/profile.ts` (update profile)
-- Supabase: auth + tables `coffee_evaluations`, `user_profiles`
+- Shop search API: `app/api/shops/search/route.ts` (オートコンプリート用エンドポイント)
+- Supabase: auth + tables `coffee_evaluations`, `user_profiles`, `shops`
 
 ## Architecture
 - Server Components First (containers fetch data), Presentational components for UI
