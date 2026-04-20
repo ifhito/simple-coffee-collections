@@ -1,7 +1,7 @@
 import { headers } from 'next/headers'
 import type { CoffeeEvaluationSearchParams } from '@/lib/types/coffee'
 import { getCurrentUser } from '@/lib/api/auth'
-import { getCoffeeEvaluationsWithUser } from '@/lib/api/coffee'
+import { getCoffeeEvaluations } from '@/lib/api/coffee'
 import { buildProfileShareUrl } from '@/lib/utils/url'
 import { MyPageView } from '../_components/view'
 
@@ -14,7 +14,7 @@ export async function MyPageContainer({ searchParams }: MyPageContainerProps) {
   const user = await getCurrentUser()
 
   // Fetch all evaluations for the current user (both public and private)
-  const evaluations = await getCoffeeEvaluationsWithUser({
+  const evaluations = await getCoffeeEvaluations({
     ...searchParams,
     user_id: user.id,
   })
@@ -27,5 +27,8 @@ export async function MyPageContainer({ searchParams }: MyPageContainerProps) {
     profileShareUrl = buildProfileShareUrl(user.id)
   }
 
-  return <MyPageView evaluations={evaluations} profileShareUrl={profileShareUrl} />
+  // display_name is not rendered (showUserHeader=false) but FeedCard requires the field
+  const evaluationsWithUser = evaluations.map((e) => ({ ...e, display_name: null }))
+
+  return <MyPageView evaluations={evaluationsWithUser} profileShareUrl={profileShareUrl} />
 }

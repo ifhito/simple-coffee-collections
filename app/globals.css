@@ -96,3 +96,37 @@ body {
  * use these color names directly in className (bg-[var(--paper)] etc.)
  * Nothing here needs to touch tailwind.config.ts.
  * ============================================================ */
+
+/* ============================================================
+ * Range slider thumb — cross-browser styled thumb for CoffeeSlider.
+ * The track color is set via inline background style on the element.
+ * --slider-color is set inline by CoffeeSlider via the trackStyle prop.
+ * ============================================================ */
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--slider-color, var(--espresso));
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--slider-color, var(--espresso));
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+input[type='range']:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--slider-color, var(--espresso));
+}
+input[type='range']::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--slider-color, var(--espresso));
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--slider-color, var(--espresso));
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+input[type='range']:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--slider-color, var(--espresso));
+}

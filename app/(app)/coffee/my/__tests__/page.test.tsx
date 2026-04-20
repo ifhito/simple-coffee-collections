@@ -8,7 +8,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 const mockGetCurrentUser = jest.fn()
-const mockGetCoffeeEvaluationsWithUser = jest.fn()
+const mockGetCoffeeEvaluations = jest.fn()
 const mockRedirect = jest.fn(() => {
   throw new Error('NEXT_REDIRECT')
 })
@@ -19,7 +19,7 @@ jest.mock('@/lib/api/auth', () => ({
 }))
 
 jest.mock('@/lib/api/coffee', () => ({
-  getCoffeeEvaluationsWithUser: (...args: any[]) => mockGetCoffeeEvaluationsWithUser(...args),
+  getCoffeeEvaluations: (...args: any[]) => mockGetCoffeeEvaluations(...args),
 }))
 
 jest.mock('next/navigation', () => ({
@@ -132,7 +132,7 @@ describe('My Page (/coffee/my)', () => {
 
   it('displays authenticated user\'s evaluations (both public and private)', async () => {
     mockGetCurrentUser.mockResolvedValue(sampleUser)
-    mockGetCoffeeEvaluationsWithUser.mockResolvedValue(sampleEvaluations)
+    mockGetCoffeeEvaluations.mockResolvedValue(sampleEvaluations)
 
     render(<MyPage />)
 
@@ -142,14 +142,14 @@ describe('My Page (/coffee/my)', () => {
     })
 
     // Verify both public and private evaluations are shown
-    expect(mockGetCoffeeEvaluationsWithUser).toHaveBeenCalledWith(
+    expect(mockGetCoffeeEvaluations).toHaveBeenCalledWith(
       expect.objectContaining({ user_id: 'user-123' })
     )
   })
 
   it('shows PublicBadge (🌐 公開) on public evaluation cards', async () => {
     mockGetCurrentUser.mockResolvedValue(sampleUser)
-    mockGetCoffeeEvaluationsWithUser.mockResolvedValue(sampleEvaluations)
+    mockGetCoffeeEvaluations.mockResolvedValue(sampleEvaluations)
 
     render(<MyPage />)
 
@@ -161,7 +161,7 @@ describe('My Page (/coffee/my)', () => {
 
   it('shows PublicBadge (🔒 非公開) on private evaluation cards', async () => {
     mockGetCurrentUser.mockResolvedValue(sampleUser)
-    mockGetCoffeeEvaluationsWithUser.mockResolvedValue(sampleEvaluations)
+    mockGetCoffeeEvaluations.mockResolvedValue(sampleEvaluations)
 
     render(<MyPage />)
 
@@ -173,7 +173,7 @@ describe('My Page (/coffee/my)', () => {
 
   it('displays search and sort functionality', async () => {
     mockGetCurrentUser.mockResolvedValue(sampleUser)
-    mockGetCoffeeEvaluationsWithUser.mockResolvedValue(sampleEvaluations)
+    mockGetCoffeeEvaluations.mockResolvedValue(sampleEvaluations)
 
     render(<MyPage />)
 
@@ -189,7 +189,7 @@ describe('My Page (/coffee/my)', () => {
   it('filters evaluations based on search input', async () => {
     const user = userEvent.setup()
     mockGetCurrentUser.mockResolvedValue(sampleUser)
-    mockGetCoffeeEvaluationsWithUser.mockResolvedValue(sampleEvaluations)
+    mockGetCoffeeEvaluations.mockResolvedValue(sampleEvaluations)
 
     render(<MyPage />)
 
@@ -201,7 +201,7 @@ describe('My Page (/coffee/my)', () => {
     await user.type(searchInput, 'Blue')
 
     await waitFor(() => {
-      expect(mockGetCoffeeEvaluationsWithUser).toHaveBeenCalledWith(
+      expect(mockGetCoffeeEvaluations).toHaveBeenCalledWith(
         expect.objectContaining({ search: 'Blue' })
       )
     })

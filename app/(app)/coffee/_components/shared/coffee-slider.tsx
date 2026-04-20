@@ -71,6 +71,7 @@ function CoffeeSliderComponent({
   const pct = ((value - min) / (max - min)) * 100
   const trackStyle: CSSProperties = {
     background: `linear-gradient(to right, ${color} 0%, ${color} ${pct}%, var(--rule-2) ${pct}%, var(--rule-2) 100%)`,
+    ['--slider-color' as string]: color,
   }
 
   return (

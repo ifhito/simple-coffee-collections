@@ -104,7 +104,7 @@ describe('NavBar - Navigation links (Requirement 5)', () => {
   it('renders My Collection link pointing to /coffee/my', () => {
     render(<NavBar userEmail="test@example.com" />)
 
-    const myPageLink = screen.getByRole('link', { name: 'My Collection' })
+    const myPageLink = screen.getByRole('link', { name: 'マイコレクション' })
     expect(myPageLink).toBeInTheDocument()
     expect(myPageLink).toHaveAttribute('href', '/coffee/my')
   })
@@ -112,7 +112,7 @@ describe('NavBar - Navigation links (Requirement 5)', () => {
   it('renders Community link pointing to /coffee/community', () => {
     render(<NavBar userEmail="test@example.com" />)
 
-    const communityLink = screen.getByRole('link', { name: 'Community' })
+    const communityLink = screen.getByRole('link', { name: 'コミュニティ' })
     expect(communityLink).toBeInTheDocument()
     expect(communityLink).toHaveAttribute('href', '/coffee/community')
   })
@@ -121,8 +121,8 @@ describe('NavBar - Navigation links (Requirement 5)', () => {
     mockUsePathname.mockReturnValue('/coffee/my')
     render(<NavBar userEmail="test@example.com" />)
 
-    const myPageLink = screen.getByRole('link', { name: 'My Collection' })
-    const communityLink = screen.getByRole('link', { name: 'Community' })
+    const myPageLink = screen.getByRole('link', { name: 'マイコレクション' })
+    const communityLink = screen.getByRole('link', { name: 'コミュニティ' })
 
     expect(myPageLink).toHaveAttribute('aria-current', 'page')
     expect(myPageLink.className).toContain('font-semibold')
@@ -136,8 +136,8 @@ describe('NavBar - Navigation links (Requirement 5)', () => {
     const menuButton = screen.getByRole('button', { name: 'メニュー' })
     await user.click(menuButton)
 
-    expect(screen.getAllByRole('link', { name: 'My Collection' }).length).toBeGreaterThanOrEqual(2)
-    expect(screen.getAllByRole('link', { name: 'Community' }).length).toBeGreaterThanOrEqual(2)
+    expect(screen.getAllByRole('link', { name: 'マイコレクション' }).length).toBeGreaterThanOrEqual(2)
+    expect(screen.getAllByRole('link', { name: 'コミュニティ' }).length).toBeGreaterThanOrEqual(2)
   })
 
   it('renders desktop navigation horizontally with new links', () => {
@@ -145,8 +145,8 @@ describe('NavBar - Navigation links (Requirement 5)', () => {
 
     const nav = screen.getByRole('navigation', { name: 'メインナビゲーション' })
     expect(nav).toHaveClass('sm:flex')
-    expect(screen.getByRole('link', { name: 'My Collection' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Community' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'マイコレクション' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'コミュニティ' })).toBeInTheDocument()
   })
 })
 
@@ -163,7 +163,7 @@ describe('NavBar - Menu Toggle (Requirement 2)', () => {
       const hamburgerButton = screen.getByRole('button', { name: 'メニュー' })
       await user.click(hamburgerButton)
 
-      const openLinks = screen.getAllByRole('link', { name: /Community|My Collection/ })
+      const openLinks = screen.getAllByRole('link', { name: /コミュニティ|マイコレクション/ })
       expect(openLinks.length).toBeGreaterThan(2)
     })
 
@@ -174,11 +174,11 @@ describe('NavBar - Menu Toggle (Requirement 2)', () => {
       const hamburgerButton = screen.getByRole('button', { name: 'メニュー' })
 
       await user.click(hamburgerButton)
-      const openLinks = screen.getAllByRole('link', { name: /Community|My Collection/ })
+      const openLinks = screen.getAllByRole('link', { name: /コミュニティ|マイコレクション/ })
       expect(openLinks.length).toBeGreaterThan(2)
 
       await user.click(hamburgerButton)
-      expect(screen.getAllByText(/Community/).length).toBe(1)
+      expect(screen.getAllByText(/コミュニティ/).length).toBe(1)
     })
   })
 
@@ -190,7 +190,7 @@ describe('NavBar - Menu Toggle (Requirement 2)', () => {
       const hamburgerButton = screen.getByRole('button', { name: 'メニュー' })
       await user.click(hamburgerButton)
 
-      const links = screen.getAllByRole('link', { name: /Community|My Collection/ })
+      const links = screen.getAllByRole('link', { name: /コミュニティ|マイコレクション/ })
       expect(links.length).toBeGreaterThan(2)
     })
 
@@ -217,11 +217,11 @@ describe('NavBar - Menu Toggle (Requirement 2)', () => {
       const hamburgerButton = screen.getByRole('button', { name: 'メニュー' })
       await user.click(hamburgerButton)
 
-      const communityLinks = screen.getAllByText(/Community/)
+      const communityLinks = screen.getAllByText(/コミュニティ/)
       const mobileCommunityLink = communityLinks[1]
       await user.click(mobileCommunityLink)
 
-      const communityLinksAfter = screen.getAllByText(/Community/)
+      const communityLinksAfter = screen.getAllByText(/コミュニティ/)
       expect(communityLinksAfter.length).toBe(1)
     })
 
