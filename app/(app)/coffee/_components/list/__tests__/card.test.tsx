@@ -47,7 +47,7 @@ describe('CoffeeCard', () => {
 
   it('displays overall_rating as numeric value with OVERALL label', () => {
     renderCard()
-    expect(screen.getByText('8.0')).toBeInTheDocument()
+    expect(screen.getByText('8')).toBeInTheDocument()
     expect(screen.getByText('OVERALL')).toBeInTheDocument()
   })
 

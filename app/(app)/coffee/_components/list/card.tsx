@@ -82,7 +82,7 @@ function CoffeeCardComponent({ evaluation, badge, meta }: CoffeeCardProps) {
             {overall_rating !== null ? (
               <>
                 <div className="font-serif-display text-[34px] leading-none tracking-tight text-[var(--ink)]">
-                  {overall_rating.toFixed(1)}
+                  {overall_rating}
                 </div>
                 <div className="font-mono-caps mt-0.5 text-[9.5px] text-[var(--ink-3)]">
                   OVERALL

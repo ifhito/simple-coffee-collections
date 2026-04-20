@@ -151,10 +151,10 @@ function FeedCardComponent({ evaluation, showUserHeader = true, badge }: FeedCar
 
           {hasAnyRating && (
             <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
-              <AxisTick label="OVERALL" value={overall_rating} color="var(--rating-overall)" />
-              <AxisTick label="ACID"    value={acidity}        color="var(--rating-acidity)" />
-              <AxisTick label="AROMA"   value={aroma}          color="var(--rating-aroma)" />
-              <AxisTick label="BITTER"  value={bitterness}     color="var(--rating-bitter)" />
+              <AxisTick label="総合" value={overall_rating} color="var(--rating-overall)" />
+              <AxisTick label="酸味" value={acidity}        color="var(--rating-acidity)" />
+              <AxisTick label="香り" value={aroma}          color="var(--rating-aroma)" />
+              <AxisTick label="苦味" value={bitterness}     color="var(--rating-bitter)" />
             </div>
           )}
         </div>

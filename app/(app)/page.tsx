@@ -48,10 +48,10 @@ const steps = [
 ]
 
 const exampleProfile = {
-  overall: 8.3,
-  acidity: 7.6,
-  aroma: 8.1,
-  bitter: 4.4,
+  overall: 8,
+  acidity: 8,
+  aroma: 8,
+  bitter: 4,
 }
 
 export default function HomePage() {
@@ -114,7 +114,7 @@ export default function HomePage() {
                   OVERALL
                 </div>
                 <div className="font-serif-display mt-0.5 text-[44px] leading-none">
-                  {exampleProfile.overall.toFixed(1)}
+                  {exampleProfile.overall}
                 </div>
               </div>
             </div>

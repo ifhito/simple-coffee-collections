@@ -85,7 +85,7 @@ export function EvaluationDetailView({ evaluation, currentUserId }: EvaluationDe
                   className="font-mono-num mt-1 text-3xl"
                   style={{ color: colorMap[key] }}
                 >
-                  {evaluation[key]!.toFixed(1)}
+                  {evaluation[key]!}
                 </p>
               </div>
             ))}

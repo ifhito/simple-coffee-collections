@@ -92,7 +92,7 @@ function CoffeeSliderComponent({
         </div>
         <div className="flex items-baseline gap-1">
           <span className="font-serif-display text-3xl leading-none tracking-tight text-[var(--ink)]">
-            {value.toFixed(1)}
+            {value}
           </span>
           <span className="font-mono-num text-[11px] text-[var(--ink-3)]">
             /{max}
