@@ -31,16 +31,16 @@ test.describe('Coffee Evaluation Detailed Ratings', () => {
     // Assert
     await expect(page.getByText('full_city')).toBeVisible()
 
-    const overallCard = page.getByText('総合評価').locator('..')
-    await expect(overallCard.getByTestId('rating-stars')).toHaveAttribute('aria-label', '5 out of 5 stars')
+    const overallCard = page.locator('p', { hasText: /^総合評価$/ }).locator('..')
+    await expect(overallCard).toContainText('10')
 
-    const acidityCard = page.getByText('酸味').locator('..')
-    await expect(acidityCard.getByTestId('rating-stars')).toHaveAttribute('aria-label', '4 out of 5 stars')
+    const acidityCard = page.locator('p', { hasText: /^酸味$/ }).locator('..')
+    await expect(acidityCard).toContainText('8')
 
-    const bitternessCard = page.getByText('苦味').locator('..')
-    await expect(bitternessCard.getByTestId('rating-stars')).toHaveAttribute('aria-label', '3 out of 5 stars')
+    const bitternessCard = page.locator('p', { hasText: /^苦味$/ }).locator('..')
+    await expect(bitternessCard).toContainText('6')
 
-    const aromaCard = page.getByText('香り').locator('..')
-    await expect(aromaCard.getByTestId('rating-stars')).toHaveAttribute('aria-label', '2 out of 5 stars')
+    const aromaCard = page.locator('p', { hasText: /^香り$/ }).locator('..')
+    await expect(aromaCard).toContainText('4')
   })
 })
