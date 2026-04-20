@@ -94,7 +94,7 @@ test.describe('Community Feed', () => {
     await page.goto('/coffee/my')
     await page.getByRole('textbox', { name: '検索' }).fill(beanName)
     await page.waitForURL((url) => new URL(url).searchParams.get('search') === beanName)
-    const card = page.locator('[data-testid="coffee-card"]', {
+    const card = page.locator('[data-testid="feed-card"]', {
       has: page.getByRole('heading', { name: beanName }),
     })
     await expect(card.getByTestId('public-badge')).toHaveText(/公開/)

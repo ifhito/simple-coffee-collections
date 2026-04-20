@@ -62,9 +62,9 @@ test.describe('Coffee List Search and Sort', () => {
 
     // Assert
     await page.waitForURL((url) => new URL(url).searchParams.get('search') === originKeyword)
-    const cards = page.locator('[data-testid="coffee-card"]')
+    const cards = page.locator('[data-testid="feed-card"]')
     await expect(cards).toHaveCount(1, { timeout: 10000 })
-    const titles = await page.locator('[data-testid="coffee-card"] h3').allTextContents()
+    const titles = await page.locator('[data-testid="feed-card"] h3').allTextContents()
     expect(titles).toEqual([targetBean])
   })
 
@@ -94,9 +94,9 @@ test.describe('Coffee List Search and Sort', () => {
 
     // Assert
     await page.waitForURL((url) => new URL(url).searchParams.get('search') === shopKeyword)
-    const cards = page.locator('[data-testid="coffee-card"]')
+    const cards = page.locator('[data-testid="feed-card"]')
     await expect(cards).toHaveCount(1, { timeout: 10000 })
-    const titles = await page.locator('[data-testid="coffee-card"] h3').allTextContents()
+    const titles = await page.locator('[data-testid="feed-card"] h3').allTextContents()
     expect(titles).toEqual([targetBean])
   })
 
@@ -131,7 +131,7 @@ test.describe('Coffee List Search and Sort', () => {
 
     // Assert rating order
     await page.waitForURL((url) => new URL(url).searchParams.get('sort') === 'rating_desc')
-    const ratingOrder = await page.locator('[data-testid="coffee-card"] h3').allTextContents()
+    const ratingOrder = await page.locator('[data-testid="feed-card"] h3').allTextContents()
     expect(ratingOrder[0]).toBe(highRatingBean)
 
     // Act: Sort by oldest first
@@ -139,7 +139,7 @@ test.describe('Coffee List Search and Sort', () => {
 
     // Assert date order (older first)
     await page.waitForURL((url) => new URL(url).searchParams.get('sort') === 'created_at_asc')
-    const dateOrderAsc = await page.locator('[data-testid="coffee-card"] h3').allTextContents()
+    const dateOrderAsc = await page.locator('[data-testid="feed-card"] h3').allTextContents()
     expect(dateOrderAsc[0]).toBe(highRatingBean)
 
     // Act: Sort by newest first
@@ -147,7 +147,7 @@ test.describe('Coffee List Search and Sort', () => {
 
     // Assert date order (newer first)
     await page.waitForURL((url) => new URL(url).searchParams.get('sort') === 'created_at_desc')
-    const dateOrderDesc = await page.locator('[data-testid="coffee-card"] h3').allTextContents()
+    const dateOrderDesc = await page.locator('[data-testid="feed-card"] h3').allTextContents()
     expect(dateOrderDesc[0]).toBe(lowRatingBean)
   })
 })

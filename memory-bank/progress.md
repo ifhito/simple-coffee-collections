@@ -2,6 +2,11 @@
 
 実装のたびに追記する短いログです。長い議事録にはしません。
 
+### 2026-04-19 - E2E テスト修正: coffee-card → feed-card セレクター更新
+- What: `e2e/fixtures/coffee-list.ts` の `openEvaluationDetail` セレクターを `[data-testid="coffee-card"], [data-testid="feed-card"]` に変更。`community.spec.ts` と `search-and-sort.spec.ts` のインラインセレクターも `feed-card` に更新
+- Why: My Collection が FeedCard（`data-testid="feed-card"`）に切り替わったため、旧 `coffee-card` セレクターが 13 テストで Not Found エラーになっていた
+- Next: E2E テストが全パスすることを確認
+
 ### 2026-04-19 - エディトリアル風デザインリニューアル (pr-package 2 適用)
 - What: globals.css に OKLCH デザイントークン追加、layout.tsx に Instrument Serif/Geist フォント追加、新規共有コンポーネント (radar-chart/bean-mark/roast-dots/score-bar) 作成、LP/NavBar/card/feed-card/coffee-slider を全面刷新
 - Why: pr-package 2 のエディトリアル風テイスティングジャーナルデザインを適用
