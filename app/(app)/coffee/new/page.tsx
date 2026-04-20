@@ -31,9 +31,9 @@ export default async function NewCoffeeEvaluationPage({
   return (
     <section className="mx-auto w-full max-w-4xl px-4 py-6 sm:py-10">
       <header className="mb-6 space-y-1">
-        <p className="text-xs font-semibold uppercase tracking-wide text-amber-600">New</p>
-        <h1 className="text-2xl font-bold text-neutral-900">コーヒー評価を作成</h1>
-        <p className="text-sm text-neutral-600">
+        <p className="font-mono-caps text-[11px] text-[var(--espresso)]">NEW ENTRY</p>
+        <h1 className="font-serif-display text-2xl text-[var(--ink)]">コーヒー評価を作成</h1>
+        <p className="text-sm text-[var(--ink-3)]">
           香り・酸味・苦味・総合評価をスライダーで入力し、感想を残しましょう。
         </p>
       </header>

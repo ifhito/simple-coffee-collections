@@ -58,7 +58,7 @@ describe('Visibility & sharing flows (mocked E2E)', () => {
   it('private evaluation visible only on My Page, not in Community', async () => {
     // My Page view shows private eval with lock badge
     render(<MyPageView evaluations={[privateEval as any]} />)
-    expect(screen.getByText(privateEval.shop_name)).toBeInTheDocument()
+    expect(screen.getByText(/Private Beans/)).toBeInTheDocument()
     expect(screen.getByText('🔒 非公開')).toBeInTheDocument()
 
     cleanup()
@@ -71,7 +71,7 @@ describe('Visibility & sharing flows (mocked E2E)', () => {
   it('toggling to public shows in Community with user link', async () => {
     render(<CommunityView evaluations={[publicEval as any]} />)
 
-    expect(screen.getByText(publicEval.shop_name)).toBeInTheDocument()
+    expect(screen.getByText(/Private Beans/)).toBeInTheDocument()
     expect(screen.getByText('Alice')).toBeInTheDocument()
   })
 

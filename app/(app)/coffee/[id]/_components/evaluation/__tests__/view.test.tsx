@@ -3,12 +3,6 @@ import { EvaluationDetailView } from '../view'
 
 const mockDeleteCoffeeEvaluation = jest.fn()
 
-jest.mock('../../../../_components/shared/rating-stars', () => ({
-  RatingStars: ({ rating }: any) => (
-    <div data-testid="rating-stars" data-rating={rating} />
-  ),
-}))
-
 jest.mock('@/lib/actions/coffee', () => ({
   deleteCoffeeEvaluation: (id: string) => mockDeleteCoffeeEvaluation(id),
 }))
@@ -49,11 +43,13 @@ describe('EvaluationDetailView', () => {
     expect(screen.getByText(sampleEvaluation.shop_name)).toBeInTheDocument()
     expect(screen.getByText(sampleEvaluation.bean_type)).toBeInTheDocument()
     expect(screen.getByText(sampleEvaluation.roast_level!)).toBeInTheDocument()
-    expect(screen.getAllByTestId('rating-stars')).toHaveLength(4)
-    expect(screen.getAllByTestId('rating-stars')[0]).toHaveAttribute(
-      'data-rating',
-      sampleEvaluation.overall_rating.toString()
-    )
+
+    // Numeric ratings are displayed as integers.
+    // RadarChart SVG labels also render the same values, so multiple nodes exist.
+    expect(screen.getAllByText('8').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getAllByText('4').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('9').length).toBeGreaterThanOrEqual(1)
+
     expect(screen.getByRole('heading', { level: 2, name: /感想/i })).toBeInTheDocument()
     expect(screen.getByText(sampleEvaluation.notes!)).toBeInTheDocument()
   })
@@ -76,7 +72,7 @@ describe('EvaluationDetailView', () => {
 
       const heading = screen.getByRole('heading', { level: 1 })
       expect(heading).toHaveTextContent(sampleEvaluation.bean_name!)
-      
+
       // bean_type should be displayed separately, not in heading
       expect(screen.getByText(sampleEvaluation.bean_type)).toBeInTheDocument()
       expect(heading).not.toHaveTextContent(sampleEvaluation.bean_type)

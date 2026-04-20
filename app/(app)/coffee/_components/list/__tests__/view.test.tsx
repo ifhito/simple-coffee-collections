@@ -51,7 +51,7 @@ describe('CoffeeListView', () => {
     render(<CoffeeListView evaluations={[]} />)
 
     expect(screen.getByText(/まだ評価がありません/i)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /新規作成/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /新規評価/i })).toHaveAttribute(
       'href',
       '/coffee/new'
     )

@@ -41,7 +41,7 @@ describe('Input', () => {
     it('applies error styles', () => {
       render(<Input error="Invalid email" />)
       const input = screen.getByRole('textbox')
-      expect(input).toHaveClass('border-red-500')
+      expect(input).toHaveClass('border-red-400')
     })
 
     it('displays error with aria-invalid', () => {

@@ -40,16 +40,16 @@ export default async function EvaluatePage({
   return (
     <section className="mx-auto w-full max-w-5xl px-4 py-6 sm:py-10">
       <div className="mb-6 space-y-2">
-        <h1 className="text-2xl font-bold text-neutral-900">
+        <h1 className="font-serif-display text-2xl text-[var(--ink)]">
           {isReEvaluation ? '再評価' : '評価を追加'}
         </h1>
-        <div className="rounded-md border border-neutral-100 bg-neutral-50 p-4">
-          <p className="text-lg font-semibold text-neutral-900">{evaluation.bean_name}</p>
+        <div className="rounded-sm border border-[var(--rule)] bg-[var(--background-2)] p-4">
+          <p className="text-lg font-semibold text-[var(--ink)]">{evaluation.bean_name}</p>
           {evaluation.shop_name && (
-            <p className="text-sm text-neutral-600">{evaluation.shop_name}</p>
+            <p className="text-sm text-[var(--ink-3)]">{evaluation.shop_name}</p>
           )}
           {evaluation.roast_level && (
-            <p className="text-xs text-neutral-500">{evaluation.roast_level}</p>
+            <p className="text-xs text-[var(--ink-3)]">{evaluation.roast_level}</p>
           )}
         </div>
       </div>

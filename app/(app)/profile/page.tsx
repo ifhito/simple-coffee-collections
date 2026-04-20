@@ -22,8 +22,8 @@ export default async function ProfilePage() {
   return (
     <section className="mx-auto w-full max-w-3xl px-4 py-6 sm:py-10">
       <header className="mb-6">
-        <h1 className="text-2xl font-bold text-neutral-900">プロフィール</h1>
-        <p className="text-sm text-neutral-600">表示名と自己紹介を更新できます。</p>
+        <h1 className="font-serif-display text-2xl text-[var(--ink)]">プロフィール</h1>
+        <p className="text-sm text-[var(--ink-3)]">表示名と自己紹介を更新できます。</p>
       </header>
       <ProfileForm
         initialDisplayName={profile?.display_name ?? ''}

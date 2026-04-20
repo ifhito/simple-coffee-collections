@@ -1,12 +1,12 @@
 import Link from 'next/link'
-import type { CoffeeEvaluationDisplay } from '@/lib/types/coffee'
-import { CoffeeCard } from '../../_components/list/card'
+import type { CoffeeEvaluationWithUser } from '@/lib/types/coffee'
+import { FeedCard } from '../../community/_components/feed-card'
 import { PublicBadge } from '../../_components/shared/public-badge'
 import { EmptyState } from '../../_components/shared/empty-state'
 import { CopyProfileLinkButton } from './copy-profile-link-button'
 
 type MyPageViewProps = {
-  evaluations: CoffeeEvaluationDisplay[]
+  evaluations: CoffeeEvaluationWithUser[]
   profileShareUrl?: string
 }
 
@@ -18,9 +18,9 @@ export function MyPageView({ evaluations, profileShareUrl }: MyPageViewProps) {
         action={
           <Link
             href="/coffee/new"
-            className="inline-flex items-center justify-center rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700"
+            className="inline-flex items-center justify-center rounded-sm border border-[var(--rule)] bg-[var(--paper)] px-4 py-2 text-sm font-medium text-[var(--ink-2)] transition hover:border-[var(--ink)]"
           >
-            新規作成
+            新規評価
           </Link>
         }
       />
@@ -30,11 +30,11 @@ export function MyPageView({ evaluations, profileShareUrl }: MyPageViewProps) {
   return (
     <div className="space-y-4">
       {profileShareUrl && (
-        <div className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm">
+        <div className="rounded-sm border border-[var(--rule)] bg-[var(--paper)] p-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-neutral-900">プロフィールを共有</p>
-              <p className="text-xs text-neutral-600">あなたのプロフィールURLをコピーして共有できます。</p>
+              <p className="text-sm font-semibold text-[var(--ink)]">プロフィールを共有</p>
+              <p className="text-xs text-[var(--ink-3)]">あなたのプロフィールURLをコピーして共有できます。</p>
             </div>
             <CopyProfileLinkButton url={profileShareUrl} />
           </div>
@@ -43,15 +43,15 @@ export function MyPageView({ evaluations, profileShareUrl }: MyPageViewProps) {
 
       <div
         data-testid="coffee-grid"
-        className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        className="mx-auto flex max-w-2xl flex-col gap-6"
       >
         {evaluations.map((evaluation) => (
-          <div key={evaluation.id} className="animate-card h-full">
-            <CoffeeCard
-              evaluation={evaluation}
-              badge={<PublicBadge isPublic={evaluation.is_public} />}
-            />
-          </div>
+          <FeedCard
+            key={evaluation.id}
+            evaluation={evaluation}
+            showUserHeader={false}
+            badge={<PublicBadge isPublic={evaluation.is_public} />}
+          />
         ))}
       </div>
     </div>

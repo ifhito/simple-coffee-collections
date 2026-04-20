@@ -12,9 +12,9 @@ export default async function AiPage() {
   return (
     <section className="mx-auto w-full max-w-4xl px-4 py-6 sm:py-10">
       <header className="mb-6 space-y-1">
-        <p className="text-xs font-semibold uppercase tracking-wide text-amber-600">AI</p>
-        <h1 className="text-2xl font-bold text-neutral-900">AI機能</h1>
-        <p className="text-sm text-neutral-600">
+        <p className="font-mono-caps text-[11px] text-[var(--espresso)]">AI</p>
+        <h1 className="font-serif-display text-2xl text-[var(--ink)]">AI機能</h1>
+        <p className="text-sm text-[var(--ink-3)]">
           AIプロバイダーを設定して、コーヒーパッケージ画像を自動解析します。
         </p>
       </header>

@@ -6,7 +6,7 @@ describe('My Page empty state', () => {
     render(<MyPageView evaluations={[]} />)
 
     expect(screen.getByText('まだ評価がありません')).toBeInTheDocument()
-    const createLink = screen.getByRole('link', { name: '新規作成' })
+    const createLink = screen.getByRole('link', { name: '新規評価' })
     expect(createLink).toHaveAttribute('href', '/coffee/new')
   })
 })

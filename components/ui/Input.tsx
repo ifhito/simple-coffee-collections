@@ -17,19 +17,18 @@ export function Input({
   const inputId = id || label?.toLowerCase().replace(/\s+/g, '-')
   const errorId = error ? `${inputId}-error` : undefined
 
-  const baseStyles = 'w-full px-3 py-2 border rounded-md bg-white text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 autofill:bg-white autofill:text-gray-800 autofill:shadow-[inset_0_0_0px_1000px_rgb(255,255,255)]'
-  const errorStyles = error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'
-  const disabledStyles = disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+  const baseStyles =
+    'w-full px-3 py-2 border rounded-sm bg-[var(--paper)] text-[var(--ink)] placeholder:text-[var(--ink-3)] focus:outline-none focus:ring-2 focus:ring-[var(--espresso)]/30 focus:border-[var(--espresso)]'
+  const errorStyles = error ? 'border-red-400 focus:ring-red-300' : 'border-[var(--rule)]'
+  const disabledStyles = disabled ? 'opacity-50 cursor-not-allowed bg-[var(--background-2)]' : ''
 
-  const combinedClassName = `${baseStyles} ${errorStyles} ${disabledStyles} ${className}`.trim()
+  const combinedClassName =
+    `${baseStyles} ${errorStyles} ${disabledStyles} ${className}`.trim()
 
   return (
     <div className="w-full">
       {label && (
-        <label
-          htmlFor={inputId}
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
+        <label htmlFor={inputId} className="block text-sm font-medium text-[var(--ink-2)] mb-1">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>

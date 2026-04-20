@@ -128,7 +128,7 @@ export function EvaluationForm({ id, defaultValues }: EvaluationFormProps) {
       onSubmit={handleSubmit}
       ref={formRef}
       noValidate
-      className="space-y-6 rounded-lg border border-neutral-200 bg-white p-6 shadow-sm"
+      className="space-y-6 rounded-sm border border-[var(--rule)] bg-[var(--paper)] p-6"
       aria-live="polite"
     >
       <BeanInfoFields
@@ -148,15 +148,15 @@ export function EvaluationForm({ id, defaultValues }: EvaluationFormProps) {
                 setErrors((prev) => ({ ...prev, notes: undefined }))
               }
             }}
-            className="h-4 w-4 rounded border-neutral-300 text-amber-600 focus:ring-amber-500"
+            className="h-4 w-4 rounded-sm border-[var(--rule)] accent-[var(--espresso)] focus:ring-2 focus:ring-[var(--espresso)]/30"
           />
-          <span className="text-sm text-neutral-700">評価は後で追加する</span>
+          <span className="text-sm text-[var(--ink-2)]">評価は後で追加する</span>
         </label>
       )}
 
       {showEvaluationFields && (
         <>
-          <label className="block text-sm font-medium text-neutral-800">
+          <label className="block text-sm font-medium text-[var(--ink-2)]">
             感想
             <textarea
               value={notes}
@@ -173,21 +173,21 @@ export function EvaluationForm({ id, defaultValues }: EvaluationFormProps) {
               rows={4}
               maxLength={CoffeeEvaluationValidation.notes.maxLength}
               placeholder="例: 柑橘の香りが強く、後味がすっきりしていた"
-              className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm text-neutral-800 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+              className="mt-1 w-full rounded-sm border border-[var(--rule)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] focus:border-[var(--espresso)] focus:outline-none focus:ring-2 focus:ring-[var(--espresso)]/30"
               aria-label="感想"
             />
             <div className="mt-1 flex justify-between text-xs">
               <span className="text-red-600" role={errors.notes ? 'alert' : undefined}>
                 {errors.notes}
               </span>
-              <span className="text-neutral-500">
+              <span className="text-[var(--ink-3)]">
                 {normalizedNotesLength}/{CoffeeEvaluationValidation.notes.maxLength}
               </span>
             </div>
           </label>
 
           <RatingSliders values={ratings} onChange={setRatings} />
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-[var(--ink-3)]">
             スライダーは1〜10の範囲で入力できます（初期値は5）。後からいつでも編集できます。
           </p>
         </>

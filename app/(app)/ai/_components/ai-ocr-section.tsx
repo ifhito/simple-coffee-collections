@@ -8,17 +8,17 @@ type Props = {
 
 export function AiOcrSection({ ocr }: Props) {
   return (
-    <section className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
-      <h2 className="mb-1 text-lg font-semibold text-neutral-900">AI画像分析</h2>
-      <p className="mb-4 text-sm text-neutral-500">
+    <section className="rounded-sm border border-[var(--rule)] bg-[var(--paper)] p-6">
+      <h2 className="mb-1 text-lg font-semibold text-[var(--ink)]">AI画像分析</h2>
+      <p className="mb-4 text-sm text-[var(--ink-3)]">
         コーヒーパッケージの画像を解析して、フォームへ自動入力します。
       </p>
 
       <div
-        className={`mb-4 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 p-8 transition ${
+        className={`mb-4 flex flex-col items-center justify-center rounded-sm border-2 border-dashed border-[var(--rule)] bg-[var(--background-2)] p-8 transition ${
           ocr.isAnalyzing
             ? 'cursor-not-allowed opacity-60'
-            : 'cursor-pointer hover:border-amber-400 hover:bg-amber-50/40'
+            : 'cursor-pointer hover:border-[var(--espresso)] hover:bg-[var(--background-2)]'
         }`}
         role="button"
         tabIndex={ocr.isAnalyzing ? -1 : 0}
@@ -43,21 +43,21 @@ export function AiOcrSection({ ocr }: Props) {
           <img
             src={ocr.previewUrl}
             alt="プレビュー"
-            className="max-h-48 max-w-full rounded-md object-contain"
+            className="max-h-48 max-w-full rounded-sm object-contain"
             onError={ocr.handlePreviewError}
           />
         ) : ocr.selectedFile ? (
           <div className="flex flex-col items-center gap-2 text-center">
-            <p className="text-sm font-medium text-neutral-700">画像を選択しました</p>
-            <p className="max-w-full break-all text-xs text-neutral-500">{ocr.selectedFile.name}</p>
-            <p className="text-xs text-neutral-400">
+            <p className="text-sm font-medium text-[var(--ink-2)]">画像を選択しました</p>
+            <p className="max-w-full break-all text-xs text-[var(--ink-3)]">{ocr.selectedFile.name}</p>
+            <p className="text-xs text-[var(--ink-3)]">
               このブラウザではプレビューできない形式ですが、解析は実行できます。
             </p>
           </div>
         ) : (
           <>
             <svg
-              className="mb-2 h-10 w-10 text-neutral-400"
+              className="mb-2 h-10 w-10 text-[var(--ink-3)]"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -70,8 +70,8 @@ export function AiOcrSection({ ocr }: Props) {
               />
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <p className="text-sm text-neutral-500">画像をドロップ、またはクリックして選択</p>
-            <p className="mt-1 text-xs text-neutral-400">JPEG / PNG / WEBP / HEIC 対応</p>
+            <p className="text-sm text-[var(--ink-3)]">画像をドロップ、またはクリックして選択</p>
+            <p className="mt-1 text-xs text-[var(--ink-3)]">JPEG / PNG / WEBP / HEIC 対応</p>
           </>
         )}
         <input
@@ -89,7 +89,7 @@ export function AiOcrSection({ ocr }: Props) {
           type="button"
           onClick={ocr.handleAnalyze}
           disabled={ocr.isAnalyzeDisabled}
-          className="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:opacity-50"
+          className="rounded-sm border border-[var(--rule)] bg-[var(--paper)] px-4 py-2 text-sm font-medium text-[var(--ink-2)] transition hover:border-[var(--ink)] disabled:opacity-50"
         >
           {ocr.isAnalyzing ? '解析中...' : '解析する'}
         </button>

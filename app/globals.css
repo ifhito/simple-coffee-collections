@@ -2,22 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+ * Design Tokens — Editorial Tasting Journal
+ * - Warm paper background + deep-roast ink
+ * - Accents tuned for the 4 tasting axes
+ * ============================================================ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Surfaces */
+  --background: oklch(0.96 0.012 80);
+  --background-2: oklch(0.93 0.018 75);
+  --paper: oklch(0.98 0.008 80);
+  --foreground: oklch(0.18 0.015 50);
+
+  /* Ink ramp */
+  --ink: oklch(0.18 0.015 50);
+  --ink-2: oklch(0.35 0.02 50);
+  --ink-3: oklch(0.55 0.02 55);
+
+  /* Rules */
+  --rule: oklch(0.82 0.02 65);
+  --rule-2: oklch(0.88 0.015 70);
+
+  /* Brand accents */
+  --espresso: oklch(0.32 0.08 40);
+  --crema: oklch(0.72 0.11 65);
+
+  /* 4-axis rating colors */
+  --rating-overall: oklch(0.50 0.12 45);
+  --rating-acidity: oklch(0.68 0.15 55);
+  --rating-bitter:  oklch(0.38 0.06 35);
+  --rating-aroma:   oklch(0.62 0.09 140);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Dark mode is intentionally the same warm tone (editorial feel) */
+    /* If the app later supports true dark mode, swap the values here. */
   }
 }
 
 body {
   color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--background);
+  background-image:
+    radial-gradient(circle at 20% 20%, oklch(0.94 0.02 70) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 70% 60%, oklch(0.94 0.02 70) 0 1px, transparent 1.5px);
+  background-size: 7px 7px, 11px 11px;
+  font-family: var(--font-geist-sans), "Noto Sans JP", ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
 }
 
 @layer base {
@@ -26,14 +59,74 @@ body {
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus,
   input:-webkit-autofill:active {
-    -webkit-text-fill-color: #1f2937 !important;
-    -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+    -webkit-text-fill-color: var(--ink) !important;
+    -webkit-box-shadow: 0 0 0px 1000px var(--paper) inset !important;
     transition: background-color 5000s ease-in-out 0s;
+  }
+  ::selection {
+    background: var(--espresso);
+    color: var(--background);
   }
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+
+  /* Typography primitives */
+  .font-serif-display {
+    font-family: "Instrument Serif", "Noto Serif JP", serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
   }
+  .font-mono-caps {
+    font-family: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .font-mono-num {
+    font-family: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ============================================================
+ * Tailwind theme extensions via arbitrary utilities —
+ * use these color names directly in className (bg-[var(--paper)] etc.)
+ * Nothing here needs to touch tailwind.config.ts.
+ * ============================================================ */
+
+/* ============================================================
+ * Range slider thumb — cross-browser styled thumb for CoffeeSlider.
+ * The track color is set via inline background style on the element.
+ * --slider-color is set inline by CoffeeSlider via the trackStyle prop.
+ * ============================================================ */
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--slider-color, var(--espresso));
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--slider-color, var(--espresso));
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+input[type='range']:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--slider-color, var(--espresso));
+}
+input[type='range']::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--slider-color, var(--espresso));
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--slider-color, var(--espresso));
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+input[type='range']:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--slider-color, var(--espresso));
 }

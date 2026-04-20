@@ -20,8 +20,8 @@ export default async function MyPage({ searchParams }: MyPageProps) {
     <section className="mx-auto w-full max-w-6xl px-4 py-6 sm:py-10 animate-fade-in">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900 animate-slide-up">マイページ</h1>
-          <p className="text-sm text-neutral-600 animate-slide-up" style={{ animationDelay: '80ms' }}>
+          <h1 className="font-serif-display text-2xl text-[var(--ink)] animate-slide-up">マイコレクション</h1>
+          <p className="text-sm text-[var(--ink-3)] animate-slide-up" style={{ animationDelay: '80ms' }}>
             あなたの評価を管理しましょう。
           </p>
         </div>

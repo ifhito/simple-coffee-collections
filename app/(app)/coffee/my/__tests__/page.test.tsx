@@ -90,6 +90,7 @@ const sampleEvaluations = [
     overall_rating: 8,
     is_public: true,
     user_id: 'user-123',
+    display_name: 'Test User',
     created_at: '2025-01-01T00:00:00.000Z',
     updated_at: '2025-01-01T00:00:00.000Z',
   },
@@ -102,8 +103,9 @@ const sampleEvaluations = [
     bitterness: 3,
     aroma: 8,
     overall_rating: 9,
-    is_public: false, // Private evaluation
+    is_public: false,
     user_id: 'user-123',
+    display_name: 'Test User',
     created_at: '2025-01-02T00:00:00.000Z',
     updated_at: '2025-01-02T00:00:00.000Z',
   },
@@ -135,8 +137,8 @@ describe('My Page (/coffee/my)', () => {
     render(<MyPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Blue Bottle')).toBeInTheDocument()
-      expect(screen.getByText('Verve Coffee')).toBeInTheDocument()
+      expect(screen.getByText(/Blue Bottle/)).toBeInTheDocument()
+      expect(screen.getByText(/Verve Coffee/)).toBeInTheDocument()
     })
 
     // Verify both public and private evaluations are shown
@@ -192,7 +194,7 @@ describe('My Page (/coffee/my)', () => {
     render(<MyPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Blue Bottle')).toBeInTheDocument()
+      expect(screen.getByText(/Blue Bottle/)).toBeInTheDocument()
     })
 
     const searchInput = screen.getByPlaceholderText(/検索/i)

@@ -104,8 +104,8 @@ describe('Community Feed Page (/coffee/community)', () => {
     render(<CommunityPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Blue Bottle')).toBeInTheDocument()
-      expect(screen.getByText('Verve Coffee')).toBeInTheDocument()
+      expect(screen.getByText(/Blue Bottle/)).toBeInTheDocument()
+      expect(screen.getByText(/Verve Coffee/)).toBeInTheDocument()
     })
 
     // Verify API called with is_public: true filter
@@ -178,7 +178,7 @@ describe('Community Feed Page (/coffee/community)', () => {
     render(<CommunityPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Blue Bottle')).toBeInTheDocument()
+      expect(screen.getByText(/Blue Bottle/)).toBeInTheDocument()
     })
 
     const searchInput = screen.getByPlaceholderText(/検索/i)

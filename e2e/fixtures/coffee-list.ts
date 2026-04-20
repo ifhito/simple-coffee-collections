@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test'
 import { expect } from '@playwright/test'
 
 export async function openEvaluationDetail(page: Page, beanName: string) {
-  const card = page.locator('[data-testid="coffee-card"]', {
+  const card = page.locator('[data-testid="coffee-card"], [data-testid="feed-card"]', {
     has: page.getByRole('heading', { name: beanName }),
   })
 

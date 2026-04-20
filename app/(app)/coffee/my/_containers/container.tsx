@@ -27,5 +27,8 @@ export async function MyPageContainer({ searchParams }: MyPageContainerProps) {
     profileShareUrl = buildProfileShareUrl(user.id)
   }
 
-  return <MyPageView evaluations={evaluations} profileShareUrl={profileShareUrl} />
+  // display_name is not rendered (showUserHeader=false) but FeedCard requires the field
+  const evaluationsWithUser = evaluations.map((e) => ({ ...e, display_name: null }))
+
+  return <MyPageView evaluations={evaluationsWithUser} profileShareUrl={profileShareUrl} />
 }

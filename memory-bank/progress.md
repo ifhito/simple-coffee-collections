@@ -2,6 +2,16 @@
 
 実装のたびに追記する短いログです。長い議事録にはしません。
 
+### 2026-04-19 - E2E テスト修正: coffee-card → feed-card セレクター更新
+- What: `e2e/fixtures/coffee-list.ts` の `openEvaluationDetail` セレクターを `[data-testid="coffee-card"], [data-testid="feed-card"]` に変更。`community.spec.ts` と `search-and-sort.spec.ts` のインラインセレクターも `feed-card` に更新
+- Why: My Collection が FeedCard（`data-testid="feed-card"`）に切り替わったため、旧 `coffee-card` セレクターが 13 テストで Not Found エラーになっていた
+- Next: E2E テストが全パスすることを確認
+
+### 2026-04-19 - エディトリアル風デザインリニューアル (pr-package 2 適用)
+- What: globals.css に OKLCH デザイントークン追加、layout.tsx に Instrument Serif/Geist フォント追加、新規共有コンポーネント (radar-chart/bean-mark/roast-dots/score-bar) 作成、LP/NavBar/card/feed-card/coffee-slider を全面刷新
+- Why: pr-package 2 のエディトリアル風テイスティングジャーナルデザインを適用
+- Next: ブラウザで LP/NavBar/カード/フィード/スライダーの表示確認
+
 ### 2026-03-30 - お問い合わせページにメール送信フォームを追加
 - What: Resend + Server Action + useActionState でメール送信フォームを実装（PR #43 に追加）
 - Why: GitHub Issues リンクだけでなくフォームからメール送信できるようにするため
@@ -123,3 +133,15 @@
 - Why: 小さな修正を意味単位で記録し、Claude が毎回同じルールで作業できるようにするため
 - Rejected: AGENTS.md を別途作成する案 — CLAUDE.md に統合した方が Claude が確実に読む
 - Next: 実際の開発作業でエントリーが適切な粒度で記録されているか運用確認
+
+### 2026-04-19 - エディトリアルデザイン全体の CSS 変数統一
+- What: `amber-*` / `neutral-*` / `gray-*` Tailwind カラーをアプリ全体で CSS 変数（`--ink`, `--espresso`, `--rule`, `--paper`, `--background-2`等）に置換。評価詳細ビューで `RatingStars` を数値表示（`font-mono-num`＋軸カラー）に変更。ボタンを全て `rounded-full` pill スタイルに統一。
+- Why: pr-package 2 で導入した OKLCH デザイントークンが一部ページでのみ適用され、デザインの不一致感が生じていたため
+- Rejected: ページごとに部分適用を維持する案 — 視覚的な統一感が損われる
+- Next: ブランチ `redesign/editorial-tasting-journal` を PR としてマージ
+
+### 2026-04-19 - My Collection を Community と同じフィードレイアウトに統一
+- What: `MyPageView` の CoffeeCard グリッドを `FeedCard` フィードに置換。`FeedCard` に `showUserHeader` / `badge` props 追加（非表示時はシンプルな日付+店名ヘッダー）。`MyPageContainer` を `getCoffeeEvaluationsWithUser` に切替。`PublicBadge` をカードヘッダーに配置。
+- Why: ユーザー要望「mycollectionもcommunityと同じような形で」—グリッドとフィードの視覚差分が気になるとのフィードバック
+- Rejected: 新コンポーネントを作る案 — `FeedCard` に props 追加するだけで再利用できるため不採用
+- Next: なし

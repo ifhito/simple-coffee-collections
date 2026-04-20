@@ -31,7 +31,7 @@ export default async function UserProfilePage({ params, searchParams }: UserProf
       <ProfileContainer userId={userId} />
 
       <div className="mt-8 mb-6">
-        <h2 className="text-xl font-bold text-neutral-900 mb-4">公開評価</h2>
+        <h2 className="font-serif-display text-xl text-[var(--ink)] mb-4">公開評価</h2>
         <SearchAndSort />
       </div>
 

@@ -21,7 +21,7 @@ export default function CoffeeListError({ error, reset }: { error: Error; reset:
           </button>
           <Link
             href="/"
-            className="rounded-md border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-700 transition hover:bg-neutral-100"
+            className="rounded-full border border-[var(--rule)] px-4 py-2 text-sm font-medium text-[var(--ink-2)] transition hover:bg-[var(--background-2)]"
           >
             トップへ戻る
           </Link>

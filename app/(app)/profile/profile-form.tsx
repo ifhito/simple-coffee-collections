@@ -55,25 +55,25 @@ export function ProfileForm({ initialDisplayName, initialBio }: ProfileFormProps
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
+    <form onSubmit={handleSubmit} className="space-y-6 rounded-sm border border-[var(--rule)] bg-[var(--paper)] p-6">
       <div className="space-y-1">
         <Input
           label="表示名"
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
         />
-        <div className="flex justify-end text-xs text-neutral-500">{nameCount}/100</div>
+        <div className="flex justify-end text-xs text-[var(--ink-3)]">{nameCount}/100</div>
       </div>
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-[var(--ink-2)]">
         自己紹介
         <textarea
           value={bio}
-        onChange={(e) => setBio(e.target.value)}
-        className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
-        rows={4}
-        aria-label="自己紹介"
-      />
-      <div className="flex justify-end text-xs text-neutral-500">{bioCount}/500</div>
+          onChange={(e) => setBio(e.target.value)}
+          className="mt-1 w-full rounded-sm border border-[var(--rule)] bg-[var(--paper)] px-3 py-2 text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] focus:border-[var(--espresso)] focus:outline-none focus:ring-2 focus:ring-[var(--espresso)]/30"
+          rows={4}
+          aria-label="自己紹介"
+        />
+        <div className="flex justify-end text-xs text-[var(--ink-3)]">{bioCount}/500</div>
       </label>
 
       {error && (
@@ -83,14 +83,14 @@ export function ProfileForm({ initialDisplayName, initialBio }: ProfileFormProps
       )}
 
       {success && (
-        <p className="text-sm text-green-600" role="status">
+        <p className="text-sm text-[var(--espresso)]" role="status">
           保存しました
         </p>
       )}
 
       <button
         type="submit"
-        className="inline-flex items-center rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50"
+        className="inline-flex items-center rounded-sm border border-[var(--rule)] bg-[var(--paper)] px-4 py-2 text-sm font-medium text-[var(--ink-2)] transition hover:border-[var(--ink)] disabled:opacity-50"
         disabled={isPending}
       >
         保存

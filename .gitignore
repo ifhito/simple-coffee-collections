@@ -51,3 +51,6 @@ next-env.d.ts
 
 # logs
 audit.log
+
+# pr packages (reference artifacts, not part of the app)
+pr-package*/
