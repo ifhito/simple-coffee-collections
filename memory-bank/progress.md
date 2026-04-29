@@ -2,6 +2,13 @@
 
 実装のたびに追記する短いログです。長い議事録にはしません。
 
+### 2026-04-30 - 孤児 PR (#48〜#54 + #57) を main に統合する recovery merge
+- What: stacked PR を中間ブランチに次々マージしていた事故 (#48 が `chore/agent-harness-setup` に、#49 が `fix/type-debt-from-typecheck` に、…と base が main じゃなかった) で、合計 7 PR 分の変更が main に届いていなかった。`recovery/sync-orphaned-prs` ブランチに `origin/docs/agent-onboarding` を merge して #48〜#54 (#55 相当の AGENTS↔CLAUDE 反転含む) を取り込み、続いて `origin/fix/loading-layout-mismatch` の Proactive Surfacing コミットを cherry-pick。CLAUDE.md は #50→#55 で SSoT 反転後の構造を base に Proactive Surfacing / Auto-PR / 「全 PR は main 対象」ルールを追記、AGENTS.md は `@CLAUDE.md` 5 行 wrapper に。`feedback_pr_target_main.md` を新規作成し `MEMORY.md` 索引に追加
+- Why: stacked PR 運用で main に届かない孤児 PR が再発しないよう、CLAUDE.md / memory に「PR の base branch は必ず main」ルールを昇格させる必要があった (2026-04-30 ユーザー明示指示で承認)
+- Rejected: 個別 PR 再作成 (依存連鎖で conflict 多発)、段階的 PR 分割 (3 PR に分けても結局同じ conflict をその都度解決する手間)、force push による rebase (deny ルールあり + 履歴破壊リスク)
+- Next: 同種事故を防ぐため、Stop hook で `gh pr create --base <not-main>` 検出を追加することを検討
+- Decision: 孤児 PR の取り戻しは「単一 recovery PR」に集約する方針 (依存関係が複雑な場合に限る)
+
 ### 2026-04-29 - データフェッチ系全ルートに loading.tsx を追加 (profile / ai / users/[userId] / coffee/[id]/evaluate)
 - What: `(app)` 配下を全数調査し、データフェッチありで loading.tsx 欠落の 4 ルートに skeleton を追加。`app/(app)/profile/loading.tsx` (max-w-3xl の表示名 input + bio textarea + 送信ボタン)、`app/(app)/ai/loading.tsx` (max-w-4xl の AI 設定セクション + OCR セクション)、`app/(app)/users/[userId]/loading.tsx` (max-w-6xl のプロフィールヘッダー + SearchAndSort + 縦フィード `FeedListSkeleton showUserHeader=false`)、`app/(app)/coffee/[id]/evaluate/loading.tsx` (max-w-5xl の豆情報カード + RatingSliders 4 個 + 感想 textarea + ボタン)。それぞれ page.tsx の外側コンテナ class を 1:1 で複製
 - Why: 「ショップも同様にロードを入れて」のユーザー指示を起点に Proactive Surfacing 原則で `(app)` 全体を点検したところ、data fetching 有りで loading.tsx 欠落のルートが 4 つあった。ショップだけ揃えて他を放置するのは中途半端なので一気に揃える
@@ -19,6 +26,55 @@
 - Why: PR #46 で My Collection が 3 列グリッド → `max-w-2xl` 縦フィードに変わったが loading 表現が追従しておらず、`/coffee/my` と `/coffee/community` には loading.tsx 自体が無かった。`/coffee/loading.tsx` もリダイレクト先と全く異なるグリッドだったため、ロード中とロード後で UI がチラつく状態を解消
 - Rejected: skeleton を 3 つの loading.tsx でインライン重複 → 共通の `feed-skeleton.tsx` 1 ファイルに集約（FeedCard 構造変更時の追従コスト削減）
 - Next: `/coffee/new/loading.tsx` と `/coffee/[id]/edit/loading.tsx` に残る Tailwind ハードコード色 (`bg-amber-200`, `bg-neutral-200`) を OKLCH デザイントークン (`var(--ink)`, `var(--rule)` 等) に置き換える別タスク
+
+### 2026-04-29 - ハーネス改善定期セッション(2 時間枠で 7 件実装)
+- What: 直近 30 日の git log / progress.md / PR 履歴から繰り返しミス 10 件を抽出し `harness-debt.md` 作成。決定論的 sensor を最優先に選択し、7 件を実装: arch test 3 種(`migration-uniqueness` / `doc-size`(AGENTS≤120, CLAUDE≤30) / `skill-size`(SKILL≤200, Procedure≤8 step))、`evals/runners/run-evals.ts` に dataset.tags ↔ criteria.md drift validation 追加、Stop hook に `scripts/check-forbidden-terms.sh`(CoffeeReview 識別子検出)、UserPromptSubmit hook に `scripts/detect-template-placeholder.sh`(`{{...}}` reminder 注入)、`pre-pr-self-review` SKILL に E2E getByText 警告ステップ追加。各対策について過去失敗を再現して捕捉確認 → `harness-evidence.md` に記録。AGENTS.md は 52 行 / 24 指示で 200 制限の遥か下のため refactor 不要
+- Why: ハーネスは「足し続ける」のではなく「腐敗を構造で防ぐ」のが本質。決定論的 sensor を最優先したのは ETH 研究の "lost in instructions" 含意で、AGENTS.md 行数を物理的に縛ることで「念のため指示」追加を不可能にする
+- Rejected: D-07(null 整合性) / D-09(silent disable) / D-10(hook untracked 漏れ)は既に解消済み or 文書化済みのため `harness-backlog.md` 送りせず inline で記録、SKILL 行数 100 行案(legacy `cmux-handoff-orchestrator` SKILL 106 行と衝突 → user spec 200 行に合わせ legacy を grandfather)、forbidden-term grep に "review/レビュー" を含める案(自然文との誤検出多発のため識別子のみ `\bCoffeeReview\b` に限定)
+- Next: cmux-handoff-orchestrator SKILL の references/ 抽出(grandfathered 状態の解消)、UBIQUITOUS_LANGUAGE 拡張時に check-forbidden-terms.sh の PATTERN を同期更新する運用ルール化
+- Decision: harness-debt.md / harness-evidence.md でセッション成果を記録(継続セッションが orphaned にならないよう)
+
+### 2026-04-29 - 初見開発者 30 分向け onboarding ドキュメントを追加
+- What: `docs/agent-onboarding.md` を新設。9 セクション(WHY 120字 / 構成図 mermaid / 各要素責任 / 触れる-触れない / 失敗対応フロー / 起動コマンド / アンチパターン / Hello Harness 練習 / Required reading)で 314 行。`@AGENTS.md` から参照する代わりに、初見専用の独立ドキュメントとして配置
+- Why: ハーネスが 6 PR 分の積み重ねで複雑化したため、初見開発者が 30 分で全体像を掴める入り口が必要。Slack 等で「どこから読めばいい？」と問われたときに渡せる単一ドキュメントが無いと、口頭/Slack 説明が再生産され腐る
+- Rejected: AGENTS.md に統合(SSoT を肥大化させ "lost in instructions" リスク)、README に書く(セットアップ文脈と混ざり長大化)、複数ファイルへの分散(初見の 30 分 budget で読めない)
+- Next: Slack channel 名を実値で置換、Required reading の URL を最新でチェック、Hello Harness の "good first issue" ラベル運用を実態化
+- Decision: 「初見向け onboarding は AGENTS.md と分離する」— 理由は SSoT の規約と「初見の地図」の責務が違うため
+
+### 2026-04-29 - OCR eval ハーネスを TS-native で構築 (Hamel evals-skills 流儀)
+- What: `evals/` 配下に dataset.jsonl(10 cases) / criteria.md(13 観点) / judges/llm-judge.ts(LLM-as-judge, leak 防止のため正解ラベル非渡し) / runners/run-evals.ts(並列実行 + JSONL レポート + 90% threshold) を構築。`.github/workflows/evals.yml`(nightly + PR トリガ + artifact upload)、`scripts/eval-on-ai-change.sh`(`lib/mastra` / `lib/application/ocr` / `lib/infrastructure/ocr` / `evals` 変更時に smoke eval)、`.claude/settings.json` Stop hook に該当スクリプトを追加、README に「eval の追加方法」10 行追加、`evals/META.md` でメタ評価戦略(Money Table / leak 防止 / FP/FN チェック計画)を記録。`pnpm eval` script と `tsx` devDep を追加
+- Why: ETHチューリッヒ「Lost in Instructions」研究と Hamel "Money Table" 哲学に従い、target / judge プロンプトを分離し leak を防ぐ設計とした。本番ログ無しのため初版 dataset はコード読解 + プロンプト分析由来の 10 ケース（`bean_name vs bean_type` 混同、`roast_level` 推定の暴走、null vs ハルシネーション、多言語混在等）。Vision capability ではなくテキスト→JSON マッピング部分を評価対象とした(失敗の主要発生源と判断)
+- Rejected: Python + pytest による実装(プロジェクトが Node/TS 単一スタックで運用コスト不一致)、`src/ai/**` パス watch(`src/` ディレクトリ非存在、実態は `lib/mastra` 等)、画像 fixture 必須運用(著作権ハンドリング負担、初版は text-mode で十分)、judge プロンプトに expected を渡す案(score inflation のリスク)、Stop hook で全 eval 実行(LLM cost が発生するため smoke 3 件 + API key 未設定時はスキップ)
+- Next: 1) 実本番ログを取得して dataset を 25 件に拡大、2) judge を別 vendor (Google) でも走らせて bias 検証、3) image-mode runner 拡張で Vision 段階もテスト、4) FP/FN チェッカ追加（META.md TODO）
+- Decision: evals/META.md（メタ評価戦略）
+
+### 2026-04-29 - SKILL 3 個追加（観察ベース）+ サブエージェント 3 個を最小権限化
+- What: 観察された頻出ワークフローに基づき SKILL 3 個を追加: `pre-pr-self-review`(差分・規約・センサーのセルフチェック)、`db-migration`(Supabase migration の生成・適用・型再生成の一貫実行)、`add-llm-provider`(LLM プロバイダ追加時の entity・factory・DB constraint・types を一貫更新)。サブエージェント 3 個 (researcher / reviewer / tester) を最小権限化(researcher: Read+Grep+Glob+WebFetch / reviewer: Read+Grep / tester: Read+Bash)。AGENTS.md に「コード位置探索は researcher subagent を使い親 context で grep しない」を追加
+- Why: ハーネス導入後の頻出ワークフローを SKILL 化することで再現性を担保し、サブエージェントの権限を絞ることで親 context window の汚染を防ぐため。`add-llm-provider` は MEMORY.md の Google プロバイダ追加履歴(2026-03-09)から再現可能ワークフローとして抽出
+- Rejected: `release-notes` SKILL 案(このプロジェクトに CHANGELOG.md / git tag / GitHub Releases が観測されないため不適合と判断し差し替え)、サブエージェントへの Bash 全権付与(tester でも `pnpm test:*` 限定にすることで意図しないコマンド実行を抑制)
+- Next: ハーネス系 PR スタック (#47 → #48 → #49 → #50 → このPR) を順次マージ
+- Decision: 「テンプレ採用前に observable な根拠を示す」運用方針（リリースノート差し替えのきっかけ）
+
+### 2026-04-29 - AGENTS.md を spec 駆動で再構成し CLAUDE.md を 2 行ラッパー化
+- What: AGENTS.md を 6 セクション固定テンプレート(Stack / Build & Test / Conventions / Programmatic checks / Out of scope / More context)に書き換え 51 行に圧縮、CLAUDE.md を `@AGENTS.md` 参照 + Claude 固有スキル利用方針のみの 10 行に縮約
+- Why: ETHチューリッヒ「Lost in Instructions」研究準拠で冗長指示を排除。AGENTS.md を single source of truth にし、Claude/Codex/Cursor 間のドリフトを防ぐ。Conventions の各項に「なぜ」を 1 行添えることで grey-area 判断を効かせやすくする
+- Rejected: AGENTS.md と CLAUDE.md に責務分散(指示の重複が出る)、CLAUDE.md を完全な 2 行ラッパーに(`.claude/skills/` の能動利用方針はユーザ判断で残す)、`Last Updated`/`Version` メタ情報の保持(git log で十分)
+- Next: ハーネス系 PR スタック (#47 → #48 → #49 → このPR) を順次マージ
+- Decision: spec-workflow MCP は AGENTS.md に書かない(任意ツール扱い)、`.claude/skills/` の能動利用は CLAUDE.md に明記
+
+### 2026-04-29 - 型定義を `type` に統一し ESLint で強制 (issue #20)
+- What: `.eslintrc.json` に `@typescript-eslint/consistent-type-definitions: ['error', 'type']` を追加、`@typescript-eslint/eslint-plugin` と `parser` を直接 devDep に追加(pnpm hoist 経由では eslint が解決できなかったため)、`pnpm lint --fix` で 42 件の `interface` を自動的に `type` に変換、AGENTS.md の Boundaries に 1 行追加、`docs/decisions/2026-04-29-type-vs-interface.md` を新設
+- Why: type と interface が混在(123 vs 42 で 75% が type)してルール不在だったため。type は interface の機能を包含し、union/intersection も書ける。コードベース大多数が既に type 寄りなので統一コストが最小
+- Rejected: interface 統一(union が書けず変換規模も大きい)、両方許容(ESLint で表現できずレビュー依存になる)、オブジェクト形=interface・union=type(機械的に enforce できない)
+- Next: ハーネス PR (#47) → type-debt PR (#48) → この PR の順でマージ
+- Decision: docs/decisions/2026-04-29-type-vs-interface.md
+
+### 2026-04-29 - typecheck で発見した既存型エラー 316 → 0 件に解消
+- What: `jest.setup.js` を `jest.setup.ts` に改名(jest-dom 型拡張が tsconfig include に反映)で 290 件解消、`lib/types/__tests__/coffee.test.ts` の mock 6 箇所に `notes: null` 追加、`lib/infrastructure/repositories/__tests__/supabase-coffee-evaluation-repository.test.ts` の `makeRow` に `notes: null` 追加、`lib/domain/__tests__/coffee-evaluation.test.ts` の `evaluation.acidity.value` 等を `?.value` に変更(エンティティ refactor で `Rating | null` 化)、`lib/__tests__/actions/coffee.test.ts` の `redirect as jest.Mock` を `as unknown as jest.Mock` に修正、`lib/__tests__/api/coffee.test.ts` の `'newest'` を `'created_at_desc'` に修正、`page.test.tsx` 系の `jest.fn(() => ...)` を `jest.fn((..._args: unknown[]) => ...)` に変更し spread args TS2556 を解消、`evaluation-form.test.tsx` の `new Promise()` を `new Promise<void>()` に変更、`share-link.test.tsx` の不要な `@ts-expect-error` を削除、`coffee/page.test.tsx` の `CoffeeListPage({})` を `CoffeeListPage()` に修正
+- Why: ハーネス PR (#47) で導入した Stop hook の `tsc --noEmit` が CI の盲点だった既存型負債を一気に表面化させたため。最初は 11 件と見積もったが、jest-dom 型拡張未反映が他の型解決をブロックしており、実数は 316 件だった
+- Rejected: `tsconfig.json` の `exclude` に `__tests__` を追加(テストの型安全性を捨てるため非推奨)、Stop hook の typecheck を `|| true` で無視(センサーの意義が薄れる)
+- Next: ハーネス PR (#47) → この PR の順でマージ。Jest 全 503 テスト pass を確認済み
+- Decision: harness PR (chore/agent-harness-setup) と type-debt PR (fix/type-debt-from-typecheck) を分けてレビューしやすくした
 
 ### 2026-04-29 - エージェントハーネス最小セット導入 (Claude Code / Codex 共通)
 - What: AGENTS.md を運用メモに整理(80行以内)、`.claude/settings.json` に Stop hook (`tsc --noEmit` + `lint --quiet`) と `.env`/`secrets`/`supabase db reset` 等の deny を追加、`package.json` に `typecheck` スクリプト追加、共通 SKILL 3 個 (`coffee-ubiquitous-language` / `progress-logger` / `clean-arch-boundary`) を `.agents/skills/` に作成し `.claude/skills/` から symlink、サブエージェント 3 個 (`researcher` / `reviewer` / `tester`) を `.claude/agents/` に追加、`lib/__tests__/architecture/layer-dependency.test.ts` で Clean Arch 層境界を Jest テスト化(41 ファイル pass)、`@types/jest` を devDependencies に追加

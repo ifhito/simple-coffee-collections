@@ -49,6 +49,28 @@
             "type": "command",
             "command": "pnpm lint --quiet",
             "timeout": 90000
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/eval-on-ai-change.sh",
+            "timeout": 180000
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/check-forbidden-terms.sh",
+            "timeout": 30000
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/detect-template-placeholder.sh",
+            "timeout": 5000
           }
         ]
       }

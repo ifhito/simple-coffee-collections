@@ -5,7 +5,7 @@ export type OcrExecutionResult =
   | { success: true; data: OcrExtractedData }
   | { error: string }
 
-export interface OcrExecutor {
+export type OcrExecutor = {
   execute(
     model: OcrModel,
     imageBuffer: Buffer,

@@ -1,7 +1,7 @@
 import { Result, ok, fail } from '../../shared/result'
 import { LlmProvider, LlmProviderType } from './llm-provider'
 
-export interface LlmSettingsConfig {
+export type LlmSettingsConfig = {
   provider: LlmProviderType
   providerTemplate?: string | null
   apiUrl?: string | null

@@ -10,7 +10,7 @@ import userEvent from '@testing-library/user-event'
 const mockGetUserProfile = jest.fn()
 const mockGetCurrentUser = jest.fn()
 const mockGetCoffeeEvaluationsWithUser = jest.fn()
-const mockNotFound = jest.fn(() => {
+const mockNotFound = jest.fn((..._args: unknown[]) => {
   throw new Error('NEXT_NOT_FOUND')
 })
 const mockRouterPush = jest.fn()

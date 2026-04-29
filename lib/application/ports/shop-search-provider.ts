@@ -4,11 +4,11 @@
  * @module lib/application/ports/shop-search-provider
  */
 
-export interface ShopSearchResult {
+export type ShopSearchResult = {
   id: string
   name: string
 }
 
-export interface ShopSearchProvider {
+export type ShopSearchProvider = {
   search(query: string, limit?: number): Promise<ShopSearchResult[]>
 }
