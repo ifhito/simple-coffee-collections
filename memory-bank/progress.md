@@ -2,6 +2,13 @@
 
 実装のたびに追記する短いログです。長い議事録にはしません。
 
+### 2026-04-29 - ハーネス改善定期セッション(2 時間枠で 7 件実装)
+- What: 直近 30 日の git log / progress.md / PR 履歴から繰り返しミス 10 件を抽出し `harness-debt.md` 作成。決定論的 sensor を最優先に選択し、7 件を実装: arch test 3 種(`migration-uniqueness` / `doc-size`(AGENTS≤120, CLAUDE≤30) / `skill-size`(SKILL≤200, Procedure≤8 step))、`evals/runners/run-evals.ts` に dataset.tags ↔ criteria.md drift validation 追加、Stop hook に `scripts/check-forbidden-terms.sh`(CoffeeReview 識別子検出)、UserPromptSubmit hook に `scripts/detect-template-placeholder.sh`(`{{...}}` reminder 注入)、`pre-pr-self-review` SKILL に E2E getByText 警告ステップ追加。各対策について過去失敗を再現して捕捉確認 → `harness-evidence.md` に記録。AGENTS.md は 52 行 / 24 指示で 200 制限の遥か下のため refactor 不要
+- Why: ハーネスは「足し続ける」のではなく「腐敗を構造で防ぐ」のが本質。決定論的 sensor を最優先したのは ETH 研究の "lost in instructions" 含意で、AGENTS.md 行数を物理的に縛ることで「念のため指示」追加を不可能にする
+- Rejected: D-07(null 整合性) / D-09(silent disable) / D-10(hook untracked 漏れ)は既に解消済み or 文書化済みのため `harness-backlog.md` 送りせず inline で記録、SKILL 行数 100 行案(legacy `cmux-handoff-orchestrator` SKILL 106 行と衝突 → user spec 200 行に合わせ legacy を grandfather)、forbidden-term grep に "review/レビュー" を含める案(自然文との誤検出多発のため識別子のみ `\bCoffeeReview\b` に限定)
+- Next: cmux-handoff-orchestrator SKILL の references/ 抽出(grandfathered 状態の解消)、UBIQUITOUS_LANGUAGE 拡張時に check-forbidden-terms.sh の PATTERN を同期更新する運用ルール化
+- Decision: harness-debt.md / harness-evidence.md でセッション成果を記録(継続セッションが orphaned にならないよう)
+
 ### 2026-04-29 - 初見開発者 30 分向け onboarding ドキュメントを追加
 - What: `docs/agent-onboarding.md` を新設。9 セクション(WHY 120字 / 構成図 mermaid / 各要素責任 / 触れる-触れない / 失敗対応フロー / 起動コマンド / アンチパターン / Hello Harness 練習 / Required reading)で 314 行。`@AGENTS.md` から参照する代わりに、初見専用の独立ドキュメントとして配置
 - Why: ハーネスが 6 PR 分の積み重ねで複雑化したため、初見開発者が 30 分で全体像を掴める入り口が必要。Slack 等で「どこから読めばいい？」と問われたときに渡せる単一ドキュメントが無いと、口頭/Slack 説明が再生産され腐る
