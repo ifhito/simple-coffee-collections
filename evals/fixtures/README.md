@@ -1,15 +1,33 @@
-# Evals Fixtures (real images)
+# Evals Fixtures (画像入力モード)
 
-将来、実画像を用いた eval を追加する場所。
+`evals/runners/run-evals.ts` は **text-mode** と **image-mode** の 2 通りで動く:
 
-現状の `evals/runners/run-evals.ts` は **テキスト → JSON マッピング** を評価しており、画像入力はテストしていない。
+- **text-mode**: dataset の `input_text` を直接 LLM に渡す。OCR の **マッピングロジック** だけを評価。`EVAL_TARGET_MODEL` (default: `llama3.1`) を使用。
+- **image-mode**: dataset の `image_path` で指定した画像を渡し、**実 OCR (Vision capability)** から構造化抽出までを評価。`EVAL_VISION_MODEL` (default: `qwen2.5vl:latest`) を使用。
 
-## 追加の流れ
+## 同梱の合成サンプル
 
-1. 本番で OCR 失敗が起きた画像（または再現用に撮影した画像）を `evals/fixtures/<id>.png` に置く。
-2. dataset.jsonl に対応エントリを追加し、`input_image: "fixtures/<id>.png"` フィールドを足す（runner 側拡張が要る）。
-3. runner を image-mode に拡張する（`generateObject` の `messages.content` を `{type: 'image', image: ...}` に切り替え）。
+`_generate-sample.ts` で SVG を `sharp` 経由で PNG 化した架空ラベルを置いている（実コーヒーパッケージの著作権を避けるため）:
 
-なぜ最初から画像にしないか:
-- 失敗の大半は「OCR 後のテキスト → フィールドマッピング」段階で起きる（コード読解と prompt 分析より）。
-- 画像 fixtures は法的・著作権上の扱いが煩雑（パッケージ写真）。ログ整備と並行で運用する。
+- `sample-001-ethiopia.png` — Ethiopia / Yirgacheffe / Washed / 中煎り
+- `sample-002-french-roast.png` — Colombia / Huila / Natural / French Roast
+
+再生成: `pnpm tsx evals/fixtures/_generate-sample.ts`
+
+## 自前の画像を追加するには
+
+1. `evals/fixtures/<id>.png` (または .jpg / .webp / .heic) に画像を置く
+2. `evals/dataset.jsonl` に対応エントリを追加:
+
+```json
+{"id":"img-NNN","scenario":"...","image_path":"fixtures/<id>.png","tags":["criterion-id", ...]}
+```
+
+3. `pnpm eval --only=img-NNN` で単体実行
+4. 確認後コミット
+
+## 注意
+
+- 実コーヒーパッケージの写真は **撮影者の著作権** に注意。社内利用に留め、リポジトリに上げる場合は権利関係を確認する
+- HEIC は `image/heic` mime で送られるが、Ollama / vision model がサポートするか事前確認推奨（PNG / JPEG が最も互換性高い）
+- Vision モデルは text モデルより遅い（`qwen2.5vl:7b` で 1 件 5〜15 秒）

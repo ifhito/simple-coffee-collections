@@ -1,18 +1,33 @@
 import { generateObject } from 'ai'
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs'
-import { join } from 'node:path'
+import { extname, join } from 'node:path'
 import {
   CoffeeOcrOutputSchema,
   type CoffeeOcrOutput,
 } from '@/lib/mastra/tools/coffee-ocr-tool'
 import { judge, type JudgeResult } from '../judges/llm-judge'
-import { targetModel } from '../_shared/model'
+import { targetModel, visionModel } from '../_shared/model'
 
 type DatasetCase = {
   id: string
   scenario: string
-  input_text: string
+  /** OCR 後テキストのマッピングを評価する text-mode のとき必須 */
+  input_text?: string
+  /** evals/ からの相対パス。指定すると image-mode で実 OCR を評価する */
+  image_path?: string
   tags: string[]
+}
+
+const MIME_BY_EXT: Record<string, string> = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.heic': 'image/heic',
+}
+
+function detectMime(path: string): string {
+  return MIME_BY_EXT[extname(path).toLowerCase()] ?? 'application/octet-stream'
 }
 
 type CaseReport = {
@@ -44,37 +59,69 @@ function loadSystemPrompt(): string {
   )
 }
 
-async function runOne(c: DatasetCase): Promise<CaseReport> {
-  const start = Date.now()
-  try {
+async function generateForCase(c: DatasetCase): Promise<{ object: CoffeeOcrOutput; mode: 'text' | 'image' }> {
+  if (c.image_path) {
+    const imagePath = join(process.cwd(), 'evals', c.image_path)
+    const buffer = readFileSync(imagePath)
     const { object } = await generateObject({
-      model: targetModel(),
+      model: visionModel(),
       schema: CoffeeOcrOutputSchema,
       messages: [
         { role: 'system', content: loadSystemPrompt() },
         {
           role: 'user',
           content: [
-            'OCR でこのコーヒーパッケージから読み取られたテキストです。',
-            'スキーマに沿って情報を抽出してください。',
-            '',
-            c.input_text || '(no text detected)',
-          ].join('\n'),
+            {
+              type: 'image' as const,
+              image: new Uint8Array(buffer),
+              mediaType: detectMime(c.image_path),
+            },
+            {
+              type: 'text' as const,
+              text: 'このコーヒーパッケージの画像から情報を抽出してください。',
+            },
+          ],
         },
       ],
     })
+    return { object, mode: 'image' }
+  }
+
+  const { object } = await generateObject({
+    model: targetModel(),
+    schema: CoffeeOcrOutputSchema,
+    messages: [
+      { role: 'system', content: loadSystemPrompt() },
+      {
+        role: 'user',
+        content: [
+          'OCR でこのコーヒーパッケージから読み取られたテキストです。',
+          'スキーマに沿って情報を抽出してください。',
+          '',
+          c.input_text ?? '(no text detected)',
+        ].join('\n'),
+      },
+    ],
+  })
+  return { object, mode: 'text' }
+}
+
+async function runOne(c: DatasetCase): Promise<CaseReport> {
+  const start = Date.now()
+  try {
+    const { object, mode } = await generateForCase(c)
 
     const judgement = await judge({
       caseId: c.id,
       scenario: c.scenario,
-      inputText: c.input_text,
+      inputText: c.input_text ?? `(image: ${c.image_path})`,
       modelOutput: object,
       targetCriteria: c.tags,
     })
 
     return {
       caseId: c.id,
-      scenario: c.scenario,
+      scenario: `${mode === 'image' ? '[image] ' : ''}${c.scenario}`,
       durationMs: Date.now() - start,
       modelOutput: object,
       judge: judgement,

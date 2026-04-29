@@ -8,8 +8,8 @@ ETH Zurich 「Lost in Instructions」研究と Hamel Husain の "Money Table" �
 
 - target / judge いずれも `@ai-sdk/openai-compatible` 経由で Ollama を呼ぶ。
 - CI では実行しない（API コスト回避 / 開発者の意思で走らせる）。
-- 環境変数で柔軟に上書き可: `EVAL_TARGET_MODEL` / `EVAL_JUDGE_MODEL` / `EVAL_OLLAMA_BASE_URL`。
-- 既定モデルは `llama3.1`（Pull 済みであることが多い）。多言語強度を上げたい場合は `qwen2.5:7b` を推奨。
+- 環境変数で柔軟に上書き可: `EVAL_TARGET_MODEL` / `EVAL_VISION_MODEL` / `EVAL_JUDGE_MODEL` / `EVAL_OLLAMA_BASE_URL`。
+- 既定モデル: text-mode = `llama3.1`、image-mode = `qwen2.5vl:latest`、judge = `llama3.1`。多言語強度を上げたい場合は `qwen2.5:7b` を推奨。
 
 ### Hamel "Money Table" 観点
 
@@ -57,7 +57,7 @@ dataset 全 case が触る criteria をユニーク化し、`criteria.md` に書
 
 ## 既知の限界
 
-1. **画像入力をテストしていない**: 実 OCR は画像 → JSON だが、本ハーネスはテキスト → JSON のマッピング部分のみを評価する。Vision capability の劣化は捕捉できない。`evals/fixtures/` に実画像と期待出力を置く拡張を後続課題とする。
+1. **fixtures は架空合成画像のみ**: `_generate-sample.ts` で SVG → PNG した架空ラベル 2 枚を image-mode の動作確認に同梱しているが、実コーヒーパッケージの写真は著作権配慮で含まない。本番運用画像を使った eval は社内環境で fixture を追加する想定。
 2. **本番ログ無し**: 観察由来でなくコード読解由来の dataset。最初の実運用ログが取れた時点で 5〜10 件入れ替える。
 3. **judge と target が同 vendor / 同モデル**: ローカル Ollama では default で同じモデルが両者を担う。バイアス相関が大きい。`EVAL_JUDGE_MODEL` を別モデル（例: target=`llama3.1`, judge=`qwen2.5`）にして相互検証する運用が望ましい。
 4. **threshold 90% は仮置き**: dataset のサンプル数 10 では P95 信頼区間が広い。さらに Ollama モデルは Claude 等より精度が低いため、最初の数回の実走で観測される baseline pass 率に基づいて閾値を再設定する。
@@ -68,3 +68,4 @@ dataset 全 case が触る criteria をユニーク化し、`criteria.md` に書
 | 日付 | 変更 | 根拠 |
 |---|---|---|
 | 2026-04-29 | 初版（dataset 10 件 / criteria 13 個 / target=judge=Ollama llama3.1 default） | コード読解と prompt 分析、ローカル開発に絞った設計 |
+| 2026-04-29 | image-mode 追加（`image_path` フィールド、`EVAL_VISION_MODEL` 既定 `qwen2.5vl`、合成 fixture 2 枚同梱） | 「OCR eval が画像を見ていない」というレビュー指摘への対応 |

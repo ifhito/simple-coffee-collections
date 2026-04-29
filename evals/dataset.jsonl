@@ -8,3 +8,5 @@
 {"id":"ocr-008","scenario":"住所が明記されたパッケージ","input_text":"PHILOCOFFEA\nブラジル ブラジル ピーベリー\n中深煎り\n千葉県船橋市本町2-1-1","tags":["shop_address_extract","roast_normalization"]}
 {"id":"ocr-009","scenario":"複数の焙煎度候補（マーケティング表現）","input_text":"オリジナルブレンド\nコクのある深煎り仕上げ\nミディアムローストの軽やかさ\n猿田彦珈琲","tags":["roast_normalization_ambiguous"]}
 {"id":"ocr-010","scenario":"英語のみ・グレードと品種の混在","input_text":"COLOMBIA HUILA SUPREMO\nWashed Process\nFrench Roast\nROASTERY DEPT.","tags":["en_only","bean_separation","grade_vs_origin","roast_normalization"]}
+{"id":"img-001","scenario":"合成画像: Ethiopia Yirgacheffe / Washed / 中煎り","image_path":"fixtures/sample-001-ethiopia.png","tags":["roast_normalization","bean_separation","mixed_language"]}
+{"id":"img-002","scenario":"合成画像: Colombia Huila / French Roast","image_path":"fixtures/sample-002-french-roast.png","tags":["roast_normalization_edge","bean_separation","grade_vs_origin"]}
