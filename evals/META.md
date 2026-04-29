@@ -4,16 +4,24 @@ ETH Zurich 「Lost in Instructions」研究と Hamel Husain の "Money Table" �
 
 ## 設計方針
 
+### 実行環境: ローカル Ollama 専用
+
+- target / judge いずれも `@ai-sdk/openai-compatible` 経由で Ollama を呼ぶ。
+- CI では実行しない（API コスト回避 / 開発者の意思で走らせる）。
+- 環境変数で柔軟に上書き可: `EVAL_TARGET_MODEL` / `EVAL_JUDGE_MODEL` / `EVAL_OLLAMA_BASE_URL`。
+- 既定モデルは `llama3.1`（Pull 済みであることが多い）。多言語強度を上げたい場合は `qwen2.5:7b` を推奨。
+
 ### Hamel "Money Table" 観点
 
 | 項目 | 値 | 含意 |
 |---|---|---|
 | 失敗 1 件のユーザコスト | 〜30 秒（手動修正） | 重大事故ではないが回数が増えると痛い |
 | 失敗の本番頻度 | 不明（ログ未取得） | データを取って閾値再設定が必要 |
-| eval 1 回のコスト | 〜10 cases × 2 LLM call ≒ $0.02〜0.10 | nightly + 変更時で月数ドル想定 |
-| eval 構築の固定コスト | dataset / criteria / judge / runner / CI = ~600 行 | minimum viable harness |
+| eval 1 回の API コスト | **$0**（ローカル Ollama 利用） | コストガードを思考から外せる |
+| eval 1 回の時間コスト | 〜10 cases × 2 推論 = 1〜3 分（M2 + 7B class） | smoke (3 件) なら 30 秒程度 |
+| eval 構築の固定コスト | dataset / criteria / judge / runner = 約 500 行 | minimum viable harness |
 
-「コストが小さく、価値が中程度の問題」に対する **MVP 評価** として位置付ける。失敗観察データを継続的に蓄積して dataset を更新する前提。
+API コストがゼロなので「**回す/回さない**」をコストではなく純粋な「**信頼度**」で判断できる。Ollama モデルはクラウドモデルより judging 精度が低いため、threshold (90%) の意味も「絶対基準」ではなく「**回帰検出の相対基準**」として運用する。
 
 ### ETH 研究の含意
 
@@ -51,11 +59,12 @@ dataset 全 case が触る criteria をユニーク化し、`criteria.md` に書
 
 1. **画像入力をテストしていない**: 実 OCR は画像 → JSON だが、本ハーネスはテキスト → JSON のマッピング部分のみを評価する。Vision capability の劣化は捕捉できない。`evals/fixtures/` に実画像と期待出力を置く拡張を後続課題とする。
 2. **本番ログ無し**: 観察由来でなくコード読解由来の dataset。最初の実運用ログが取れた時点で 5〜10 件入れ替える。
-3. **judge と target が同 vendor (Anthropic)**: 推論バイアスの相関が懸念。判定が安定したら judge を別 vendor (Google) にも切り替えてバイアス検証する。
-4. **threshold 90% は仮置き**: dataset のサンプル数 10 では P95 信頼区間が広い。dataset を 25 以上に増やしてから再キャリブレーションする。
+3. **judge と target が同 vendor / 同モデル**: ローカル Ollama では default で同じモデルが両者を担う。バイアス相関が大きい。`EVAL_JUDGE_MODEL` を別モデル（例: target=`llama3.1`, judge=`qwen2.5`）にして相互検証する運用が望ましい。
+4. **threshold 90% は仮置き**: dataset のサンプル数 10 では P95 信頼区間が広い。さらに Ollama モデルは Claude 等より精度が低いため、最初の数回の実走で観測される baseline pass 率に基づいて閾値を再設定する。
+5. **CI では検証されない**: ローカルで開発者の意志により走らせる前提。リリース前に手動でフルラン（`pnpm eval`）する運用が必要。
 
 ## 改訂ログ
 
 | 日付 | 変更 | 根拠 |
 |---|---|---|
-| 2026-04-29 | 初版（dataset 10 件 / criteria 13 個 / judge=Haiku 4.5 / target=Sonnet 4.6） | コード読解と prompt 分析 |
+| 2026-04-29 | 初版（dataset 10 件 / criteria 13 個 / target=judge=Ollama llama3.1 default） | コード読解と prompt 分析、ローカル開発に絞った設計 |

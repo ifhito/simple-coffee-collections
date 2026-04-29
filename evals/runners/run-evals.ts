@@ -1,5 +1,4 @@
 import { generateObject } from 'ai'
-import { createAnthropic } from '@ai-sdk/anthropic'
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import {
@@ -7,6 +6,7 @@ import {
   type CoffeeOcrOutput,
 } from '@/lib/mastra/tools/coffee-ocr-tool'
 import { judge, type JudgeResult } from '../judges/llm-judge'
+import { targetModel } from '../_shared/model'
 
 type DatasetCase = {
   id: string
@@ -42,12 +42,6 @@ function loadSystemPrompt(): string {
     '{{ROAST_LEVEL_GUIDE}}',
     'light, cinnamon, medium, high, city, full_city, french'
   )
-}
-
-function targetModel() {
-  const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) throw new Error('ANTHROPIC_API_KEY is required to run evals')
-  return createAnthropic({ apiKey })('claude-sonnet-4-6')
 }
 
 async function runOne(c: DatasetCase): Promise<CaseReport> {
