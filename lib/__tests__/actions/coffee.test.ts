@@ -130,7 +130,7 @@ describe('Coffee Evaluation Server Actions', () => {
 
       // Verify order: revalidatePath before redirect
       const revalidateCall = (revalidatePath as jest.Mock).mock.invocationCallOrder[0]
-      const redirectCall = (redirect as jest.Mock).mock.invocationCallOrder[0]
+      const redirectCall = (redirect as unknown as jest.Mock).mock.invocationCallOrder[0]
       expect(revalidateCall).toBeLessThan(redirectCall)
     })
 
@@ -499,7 +499,7 @@ describe('Coffee Evaluation Server Actions', () => {
 
       // Verify order: revalidatePath before redirect
       const revalidateCall = (revalidatePath as jest.Mock).mock.invocationCallOrder[0]
-      const redirectCall = (redirect as jest.Mock).mock.invocationCallOrder[0]
+      const redirectCall = (redirect as unknown as jest.Mock).mock.invocationCallOrder[0]
       expect(revalidateCall).toBeLessThan(redirectCall)
     })
 

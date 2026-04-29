@@ -2,10 +2,10 @@ import React from 'react'
 import { render } from '@testing-library/react'
 
 const mockGetCurrentUser = jest.fn()
-const mockRedirect = jest.fn(() => {
+const mockRedirect = jest.fn((..._args: unknown[]) => {
   throw new Error('NEXT_REDIRECT')
 })
-const mockCoffeeListContainer = jest.fn(() => <div data-testid="coffee-list-container" />)
+const mockCoffeeListContainer = jest.fn((..._args: unknown[]) => <div data-testid="coffee-list-container" />)
 
 jest.mock('@/lib/api/auth', () => ({
   getCurrentUser: (...args: any[]) => mockGetCurrentUser(...args),
@@ -34,7 +34,7 @@ describe('/coffee page redirect logic', () => {
     mockGetCurrentUser.mockResolvedValue({ id: 'user-123' })
 
     await expect(async () => {
-      await CoffeeListPage({})
+      await CoffeeListPage()
     }).rejects.toThrow('NEXT_REDIRECT')
 
     expect(mockRedirect).toHaveBeenCalledWith('/coffee/my')
@@ -45,7 +45,7 @@ describe('/coffee page redirect logic', () => {
     mockGetCurrentUser.mockRejectedValue(new Error('Auth required'))
 
     await expect(async () => {
-      await CoffeeListPage({})
+      await CoffeeListPage()
     }).rejects.toThrow('NEXT_REDIRECT')
 
     expect(mockRedirect).toHaveBeenCalledWith('/coffee/community')

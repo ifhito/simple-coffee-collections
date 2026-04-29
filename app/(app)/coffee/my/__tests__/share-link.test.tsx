@@ -28,7 +28,6 @@ const sampleEvaluation = {
 
 describe('MyPageView profile share integration (RED)', () => {
   it('renders copy profile link button with provided URL', () => {
-    // @ts-expect-error profileShareUrl to be added in implementation
     render(<MyPageView evaluations={[sampleEvaluation] as any} profileShareUrl="https://example.com/users/user-1" />)
 
     const copyButton = screen.getByTestId('copy-profile-link')

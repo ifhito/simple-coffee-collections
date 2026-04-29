@@ -43,6 +43,7 @@ describe('Coffee Evaluation Data Fetching', () => {
     is_public: true,
     created_at: '2025-01-01T00:00:00.000Z',
     updated_at: '2025-01-01T00:00:00.000Z',
+    notes: null,
   }
 
   const mockEvaluations: CoffeeEvaluationDisplay[] = [
@@ -484,7 +485,7 @@ describe('Coffee Evaluation Data Fetching', () => {
         user_id: 'user-123',
         is_public: true,
         search: 'カフェ',
-        sort: 'newest',
+        sort: 'created_at_desc',
       })
 
       // Assert
