@@ -21,7 +21,7 @@ export const BEAN_INFO_CONSTRAINTS = {
 /**
  * Input for creating BeanInfo
  */
-export interface BeanInfoInput {
+export type BeanInfoInput = {
   beanName: string
   beanType?: string
   roastLevel?: string | null

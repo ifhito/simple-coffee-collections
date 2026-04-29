@@ -24,6 +24,7 @@ db:migrate   npx supabase migration up
 
 - 用語は `@docs/UBIQUITOUS_LANGUAGE_DICTIONARY.md` の正本に従う（例: `CoffeeEvaluation` ✓ / `CoffeeReview` ✗）。
 - Clean Architecture 層依存: `domain ← application ← infrastructure / presentation`。`lib/domain/**` は外側を import しない。
+- 型定義は `type` を使う（`interface` 禁止 / lint で強制。詳細: `@docs/decisions/2026-04-29-type-vs-interface.md`）。
 - UI 文言は日本語、コードは英語。
 
 ## Workflow

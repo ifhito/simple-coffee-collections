@@ -22,7 +22,7 @@ export type CoffeeEvaluationId = string
 /**
  * Input for creating a new CoffeeEvaluation (with ratings)
  */
-export interface CreateCoffeeEvaluationInput {
+export type CreateCoffeeEvaluationInput = {
   userId: string
   shopName?: string
   shopId?: string | null
@@ -39,7 +39,7 @@ export interface CreateCoffeeEvaluationInput {
 /**
  * Input for creating a bean-only CoffeeEvaluation (without ratings)
  */
-export interface CreateBeanOnlyInput {
+export type CreateBeanOnlyInput = {
   userId: string
   shopName?: string
   shopId?: string | null
@@ -52,7 +52,7 @@ export interface CreateBeanOnlyInput {
 /**
  * Input for updating an existing CoffeeEvaluation
  */
-export interface UpdateCoffeeEvaluationInput {
+export type UpdateCoffeeEvaluationInput = {
   shopName?: string
   shopId?: string | null
   beanName?: string
@@ -68,7 +68,7 @@ export interface UpdateCoffeeEvaluationInput {
 /**
  * Properties for reconstructing a CoffeeEvaluation from persistence
  */
-export interface CoffeeEvaluationProps {
+export type CoffeeEvaluationProps = {
   id: CoffeeEvaluationId
   userId: string
   shopInfo: ShopInfo

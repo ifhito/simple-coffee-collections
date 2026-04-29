@@ -22,7 +22,7 @@ import type { User } from '@supabase/supabase-js'
  */
 type ActionResponse = { error: string } | void
 
-interface ParsedBeanInfo {
+type ParsedBeanInfo = {
   shop_name: string
   shop_id: string | null
   bean_type: string
@@ -32,7 +32,7 @@ interface ParsedBeanInfo {
   is_public: boolean
 }
 
-interface ParsedRatings {
+type ParsedRatings = {
   acidity: number
   bitterness: number
   aroma: number

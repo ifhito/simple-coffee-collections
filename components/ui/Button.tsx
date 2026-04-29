@@ -1,11 +1,11 @@
 import React, { ButtonHTMLAttributes, ReactNode } from 'react'
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+type ButtonProps = {
   children: ReactNode
   variant?: 'primary' | 'secondary'
   fullWidth?: boolean
   loading?: boolean
-}
+} & ButtonHTMLAttributes<HTMLButtonElement>
 
 export function Button({
   children,

@@ -53,7 +53,7 @@ export type CoffeeEvaluationWithUser = CoffeeEvaluationDisplay & {
  * Form data for creating a new coffee evaluation
  * Bean name and rating fields are required; shop name, bean type, and roast level are optional
  */
-export interface CoffeeEvaluationFormInput {
+export type CoffeeEvaluationFormInput = {
   shop_name?: string
   bean_type?: string
   bean_name: string
@@ -70,7 +70,7 @@ export interface CoffeeEvaluationFormInput {
  * Form data for editing an existing coffee evaluation
  * All fields are optional for partial updates
  */
-export interface CoffeeEvaluationEditFormInput {
+export type CoffeeEvaluationEditFormInput = {
   shop_name?: string
   bean_type?: string
   bean_name?: string
@@ -86,7 +86,7 @@ export interface CoffeeEvaluationEditFormInput {
 /**
  * User profile form input for creating/updating profile
  */
-export interface UserProfileFormInput {
+export type UserProfileFormInput = {
   display_name: string | null
   bio: string | null
 }
@@ -153,14 +153,14 @@ export const UserProfileValidation = {
  * Coffee evaluation with user profile joined
  * Used for displaying evaluation list with creator info
  */
-export interface CoffeeEvaluationWithProfile extends CoffeeEvaluation {
+export type CoffeeEvaluationWithProfile = {
   user_profile?: UserProfile | null
-}
+} & CoffeeEvaluation
 
 /**
  * Form validation error messages
  */
-export interface FormValidationErrors {
+export type FormValidationErrors = {
   shop_name?: string
   bean_type?: string
   bean_name?: string
@@ -200,7 +200,7 @@ export type CoffeeEvaluationSortOption =
 /**
  * Search and filter parameters for coffee evaluations
  */
-export interface CoffeeEvaluationSearchParams {
+export type CoffeeEvaluationSearchParams = {
   search?: string                          // Search query (shop_name, bean_type, roast_level)
   sort?: CoffeeEvaluationSortOption        // Sort option
   user_id?: string                         // Filter by user

@@ -28,7 +28,7 @@ export type EvaluationSortOption =
 /**
  * Filter parameters for querying evaluations
  */
-export interface EvaluationQueryParams {
+export type EvaluationQueryParams = {
   /** Filter by user ID */
   userId?: string
   /** Filter by public/private status */
@@ -46,7 +46,7 @@ export interface EvaluationQueryParams {
 /**
  * Evaluation with display name (for list views with user info)
  */
-export interface EvaluationWithDisplayName {
+export type EvaluationWithDisplayName = {
   evaluation: CoffeeEvaluation
   displayName: string | null
 }
@@ -60,7 +60,7 @@ export interface EvaluationWithDisplayName {
  * - Query building and execution
  * - Error handling and translation
  */
-export interface CoffeeEvaluationRepository {
+export type CoffeeEvaluationRepository = {
   /**
    * Find a single evaluation by ID
    * @param id - Evaluation ID
