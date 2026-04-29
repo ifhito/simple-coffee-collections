@@ -30,6 +30,7 @@ Helps enthusiasts track their coffee journey, discover patterns, and explore new
 1. Branch: `git checkout -b feature/name`
 2. spec-workflow MCP: Requirements → Design → Tasks → Implementation
 3. TDD: Test → Fail → Implement → Pass → Refactor (80%+ coverage)
+4. **Auto-PR**: タスク完了後は明示指示なしで commit → push → `gh pr create` まで自動実行する（destructive 操作・force push・main への直接 push は事前確認）。タスクごとに新規ブランチを切り、PR 本文には Summary / Test plan を含める
 
 ### Ubiquitous Language (MANDATORY)
 
@@ -79,4 +80,4 @@ Helps enthusiasts track their coffee journey, discover patterns, and explore new
 
 ---
 
-**Last Updated**: 2026-03-11 | **Version**: 1.2.0
+**Last Updated**: 2026-04-29 | **Version**: 1.3.0

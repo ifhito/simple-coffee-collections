@@ -1,9 +1,9 @@
 import {
   FeedListSkeleton,
   SearchAndSortSkeleton,
-} from './_components/list/feed-skeleton'
+} from '../_components/list/feed-skeleton'
 
-export default function CoffeeListLoading() {
+export default function CommunityLoading() {
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-6 sm:py-10">
       <div className="mb-6 flex items-center justify-between">
