@@ -20,6 +20,7 @@ const customJestConfig = {
     '/node_modules/',
     '/.next/',
     '/e2e/', // Exclude Playwright E2E tests
+    '/evals/', // Exclude LLM eval suite (run via `pnpm eval`)
   ],
 }
 

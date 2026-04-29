@@ -1,0 +1,10 @@
+{"id":"ocr-001","scenario":"単一原産国の標準的なパッケージ","input_text":"Ethiopia Yirgacheffe G1\nWashed\n中煎り\nブルーボトルコーヒー\n東京都渋谷区...","tags":["roast_normalization","bean_separation","mixed_language"]}
+{"id":"ocr-002","scenario":"日本語のみ・浅煎り表記","input_text":"エチオピア イルガチェフェ\nゲイシャ品種\n浅煎り\nオニバスコーヒー","tags":["roast_normalization","bean_separation","ja_only"]}
+{"id":"ocr-003","scenario":"焙煎度の非定型表記（極深煎り→french）","input_text":"インドネシア マンデリン G1\nウォッシュド\n極深煎り\n猿田彦珈琲","tags":["roast_normalization_edge","atypical_term"]}
+{"id":"ocr-004","scenario":"焙煎度テキスト無し（パッケージ色からの推定誘導）","input_text":"ブラジル サントス No.2\nナチュラル\nスターバックス","tags":["null_when_unknown","no_hallucination_roast"]}
+{"id":"ocr-005","scenario":"テキスト極小（産地名のみ）","input_text":"ケニア","tags":["minimal_input","null_when_unknown"]}
+{"id":"ocr-006","scenario":"無関係画像（OCR 不能シナリオ）","input_text":"","tags":["empty_input","all_null"]}
+{"id":"ocr-007","scenario":"shop_name と bean_name の混在","input_text":"BLUE BOTTLE COFFEE\nORIGINAL BLEND\nMEDIUM ROAST","tags":["shop_vs_bean","brand_blend"]}
+{"id":"ocr-008","scenario":"住所が明記されたパッケージ","input_text":"PHILOCOFFEA\nブラジル ブラジル ピーベリー\n中深煎り\n千葉県船橋市本町2-1-1","tags":["shop_address_extract","roast_normalization"]}
+{"id":"ocr-009","scenario":"複数の焙煎度候補（マーケティング表現）","input_text":"オリジナルブレンド\nコクのある深煎り仕上げ\nミディアムローストの軽やかさ\n猿田彦珈琲","tags":["roast_normalization_ambiguous","multi_hint"]}
+{"id":"ocr-010","scenario":"英語のみ・グレードと品種の混在","input_text":"COLOMBIA HUILA SUPREMO\nWashed Process\nFrench Roast\nROASTERY DEPT.","tags":["en_only","bean_separation","grade_vs_origin","roast_normalization"]}
