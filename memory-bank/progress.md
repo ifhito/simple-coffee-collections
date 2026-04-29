@@ -2,6 +2,12 @@
 
 実装のたびに追記する短いログです。長い議事録にはしません。
 
+### 2026-04-29 - /shops のロード状態を整え、Suspense fallback と loading.tsx を skeleton 化
+- What: `app/(app)/shops/_components/shop-skeleton.tsx` を新規作成し `ShopSearchSkeleton` / `ShopListSkeleton` を export。`app/(app)/shops/loading.tsx` を新規追加し、page.tsx と同じ `max-w-4xl` ヘッダー + ShopSearch box + 3 列 grid (sm:grid-cols-2 lg:grid-cols-3) を 1:1 で skeleton 化。`app/(app)/shops/page.tsx` の Suspense fallback を `null` / `<p>読み込み中...</p>` から `<ShopSearchSkeleton />` / `<ShopListSkeleton />` に置換
+- Why: `/shops` には loading.tsx が無く、page.tsx の Suspense fallback も雑（ShopSearch は null、ShopList はプレーンテキスト 1 行）でロード後の grid と全く違う形だったため、My Collection / Community と同じく CLS が起きていた。同 PR で扱った coffee 系ロード一貫性の路線にショップも揃える
+- Rejected: skeleton をインラインで page.tsx と loading.tsx に二重実装 → `_components/shop-skeleton.tsx` に共通化（feed-skeleton.tsx と同じパターン）
+- Next: 認証必須ルートのため Playwright で実画面確認できなかった点を、ローカルログイン状態での目視確認に回す
+
 ### 2026-04-29 - ロード中／ロード後のレイアウト不一致を解消 (My Collection / Community / /coffee)
 - What: `app/(app)/coffee/_components/list/feed-skeleton.tsx` を新規作成し `FeedListSkeleton` / `SearchAndSortSkeleton` を export。`app/(app)/coffee/my/loading.tsx` と `app/(app)/coffee/community/loading.tsx` を新規追加し、page.tsx と同じ外側コンテナ (`max-w-6xl` → ヘッダー → SearchAndSort → `max-w-2xl` 縦フィード) を skeleton 化。`app/(app)/coffee/loading.tsx` を旧 3 列グリッドからリダイレクト先と一致する縦フィード skeleton に書き換え。Playwright で desktop/mobile の skeleton レンダリングを確認
 - Why: PR #46 で My Collection が 3 列グリッド → `max-w-2xl` 縦フィードに変わったが loading 表現が追従しておらず、`/coffee/my` と `/coffee/community` には loading.tsx 自体が無かった。`/coffee/loading.tsx` もリダイレクト先と全く異なるグリッドだったため、ロード中とロード後で UI がチラつく状態を解消
