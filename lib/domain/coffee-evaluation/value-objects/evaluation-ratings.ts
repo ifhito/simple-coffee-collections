@@ -14,7 +14,7 @@ import { Rating, RatingValue } from './rating'
 /**
  * Input for creating EvaluationRatings from raw numbers
  */
-export interface EvaluationRatingsInput {
+export type EvaluationRatingsInput = {
   acidity: number
   bitterness: number
   aroma: number

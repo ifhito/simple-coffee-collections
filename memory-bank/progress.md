@@ -2,6 +2,13 @@
 
 実装のたびに追記する短いログです。長い議事録にはしません。
 
+### 2026-04-29 - 型定義を `type` に統一し ESLint で強制 (issue #20)
+- What: `.eslintrc.json` に `@typescript-eslint/consistent-type-definitions: ['error', 'type']` を追加、`@typescript-eslint/eslint-plugin` と `parser` を直接 devDep に追加(pnpm hoist 経由では eslint が解決できなかったため)、`pnpm lint --fix` で 42 件の `interface` を自動的に `type` に変換、AGENTS.md の Boundaries に 1 行追加、`docs/decisions/2026-04-29-type-vs-interface.md` を新設
+- Why: type と interface が混在(123 vs 42 で 75% が type)してルール不在だったため。type は interface の機能を包含し、union/intersection も書ける。コードベース大多数が既に type 寄りなので統一コストが最小
+- Rejected: interface 統一(union が書けず変換規模も大きい)、両方許容(ESLint で表現できずレビュー依存になる)、オブジェクト形=interface・union=type(機械的に enforce できない)
+- Next: ハーネス PR (#47) → type-debt PR (#48) → この PR の順でマージ
+- Decision: docs/decisions/2026-04-29-type-vs-interface.md
+
 ### 2026-04-29 - typecheck で発見した既存型エラー 316 → 0 件に解消
 - What: `jest.setup.js` を `jest.setup.ts` に改名(jest-dom 型拡張が tsconfig include に反映)で 290 件解消、`lib/types/__tests__/coffee.test.ts` の mock 6 箇所に `notes: null` 追加、`lib/infrastructure/repositories/__tests__/supabase-coffee-evaluation-repository.test.ts` の `makeRow` に `notes: null` 追加、`lib/domain/__tests__/coffee-evaluation.test.ts` の `evaluation.acidity.value` 等を `?.value` に変更(エンティティ refactor で `Rating | null` 化)、`lib/__tests__/actions/coffee.test.ts` の `redirect as jest.Mock` を `as unknown as jest.Mock` に修正、`lib/__tests__/api/coffee.test.ts` の `'newest'` を `'created_at_desc'` に修正、`page.test.tsx` 系の `jest.fn(() => ...)` を `jest.fn((..._args: unknown[]) => ...)` に変更し spread args TS2556 を解消、`evaluation-form.test.tsx` の `new Promise()` を `new Promise<void>()` に変更、`share-link.test.tsx` の不要な `@ts-expect-error` を削除、`coffee/page.test.tsx` の `CoffeeListPage({})` を `CoffeeListPage()` に修正
 - Why: ハーネス PR (#47) で導入した Stop hook の `tsc --noEmit` が CI の盲点だった既存型負債を一気に表面化させたため。最初は 11 件と見積もったが、jest-dom 型拡張未反映が他の型解決をブロックしており、実数は 316 件だった

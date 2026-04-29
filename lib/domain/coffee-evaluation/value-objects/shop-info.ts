@@ -19,7 +19,7 @@ export const SHOP_INFO_CONSTRAINTS = {
 /**
  * Primitive representation for serialization
  */
-export interface ShopInfoPrimitive {
+export type ShopInfoPrimitive = {
   shopName: string
   shopId: string | null
 }

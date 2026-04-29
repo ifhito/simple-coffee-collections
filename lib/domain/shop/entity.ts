@@ -7,7 +7,7 @@
  * @module lib/domain/shop/entity
  */
 
-export interface ShopProps {
+export type ShopProps = {
   id: string
   name: string
   normalizedName: string

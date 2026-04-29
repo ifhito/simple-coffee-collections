@@ -2,7 +2,7 @@
 
 import { useState, useId } from 'react'
 
-interface PublicToggleProps {
+type PublicToggleProps = {
   defaultChecked: boolean
   name: string
 }

@@ -9,7 +9,7 @@
 import type { Shop } from './entity'
 import type { Result } from '../shared/result'
 
-export interface ShopRepository {
+export type ShopRepository = {
   findById(id: string): Promise<Result<Shop | null, Error>>
   findOrCreate(name: string): Promise<Result<Shop, Error>>
 }

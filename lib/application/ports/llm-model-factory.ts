@@ -12,7 +12,7 @@ export type InlineLlmModelInput = {
   apiKey: string
 }
 
-export interface LlmModelFactory {
+export type LlmModelFactory = {
   createFromUserSettings(
     settings: UserLlmSettings,
     decryptedApiKey: string

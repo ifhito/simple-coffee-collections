@@ -10,7 +10,7 @@
 /**
  * Represents a successful operation result
  */
-export interface Success<T> {
+export type Success<T> = {
   readonly ok: true
   readonly value: T
 }
@@ -18,7 +18,7 @@ export interface Success<T> {
 /**
  * Represents a failed operation result
  */
-export interface Failure<E = Error> {
+export type Failure<E = Error> = {
   readonly ok: false
   readonly error: E
 }
