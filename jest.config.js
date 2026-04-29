@@ -7,7 +7,7 @@ const createJestConfig = nextJest({
 
 // Add any custom config to be passed to Jest
 const customJestConfig = {
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   testEnvironment: 'jest-environment-jsdom',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
@@ -20,6 +20,7 @@ const customJestConfig = {
     '/node_modules/',
     '/.next/',
     '/e2e/', // Exclude Playwright E2E tests
+    '/evals/', // Exclude LLM eval suite (run via `pnpm eval`)
   ],
 }
 

@@ -3,7 +3,7 @@ import type { LlmProviderType } from '@/lib/domain/llm-settings'
 /**
  * Input DTO for saving LLM settings (includes plain-text API key from form)
  */
-export interface LlmSettingsInput {
+export type LlmSettingsInput = {
   provider: LlmProviderType
   providerTemplate?: string | null
   apiUrl?: string | null
@@ -15,7 +15,7 @@ export interface LlmSettingsInput {
 /**
  * Output DTO for reading LLM settings (never exposes the raw API key)
  */
-export interface LlmSettingsOutput {
+export type LlmSettingsOutput = {
   provider: LlmProviderType
   providerTemplate: string | null
   apiUrl: string | null

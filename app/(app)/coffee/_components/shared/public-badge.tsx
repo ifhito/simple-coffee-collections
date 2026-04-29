@@ -15,7 +15,7 @@
 
 import { getVisibilityText, VISIBILITY_BADGE_STYLES } from '@/lib/constants/visibility'
 
-interface PublicBadgeProps {
+type PublicBadgeProps = {
   isPublic: boolean
   className?: string
 }

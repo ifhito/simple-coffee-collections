@@ -1,9 +1,9 @@
 import React, { InputHTMLAttributes } from 'react'
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+type InputProps = {
   label?: string
   error?: string
-}
+} & InputHTMLAttributes<HTMLInputElement>
 
 export function Input({
   label,

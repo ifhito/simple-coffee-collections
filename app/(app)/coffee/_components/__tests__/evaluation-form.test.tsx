@@ -208,7 +208,7 @@ describe('EvaluationForm', () => {
     let resolveAction: () => void
     mockCreateCoffeeEvaluation.mockImplementation(
       () =>
-        new Promise((resolve) => {
+        new Promise<void>((resolve) => {
           resolveAction = resolve
         })
     )

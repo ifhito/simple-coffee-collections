@@ -12,7 +12,7 @@ import type { RatingValue, EvaluationSortOption } from '@/lib/domain'
 /**
  * Input DTO for creating a new coffee evaluation
  */
-export interface CreateEvaluationInput {
+export type CreateEvaluationInput = {
   /** Shop/cafe name (optional) */
   shopName?: string
   /** Shop entity ID (optional) */
@@ -38,7 +38,7 @@ export interface CreateEvaluationInput {
 /**
  * Input DTO for updating an existing coffee evaluation
  */
-export interface UpdateEvaluationInput {
+export type UpdateEvaluationInput = {
   /** Evaluation ID */
   id: string
   /** Shop/cafe name */
@@ -66,7 +66,7 @@ export interface UpdateEvaluationInput {
 /**
  * Query parameters for listing evaluations
  */
-export interface ListEvaluationsQuery {
+export type ListEvaluationsQuery = {
   /** Filter by user ID */
   userId?: string
   /** Filter by public/private status */
@@ -86,7 +86,7 @@ export interface ListEvaluationsQuery {
 /**
  * Output DTO for a coffee evaluation
  */
-export interface EvaluationOutput {
+export type EvaluationOutput = {
   id: string
   userId: string
   shopName: string
@@ -107,9 +107,9 @@ export interface EvaluationOutput {
 /**
  * Output DTO for evaluation with user display name
  */
-export interface EvaluationWithUserOutput extends EvaluationOutput {
+export type EvaluationWithUserOutput = {
   displayName: string | null
-}
+} & EvaluationOutput
 
 /**
  * Use case result type

@@ -1,6 +1,6 @@
 import { LlmSettings } from './value-objects/llm-settings'
 
-export interface UserLlmSettingsProps {
+export type UserLlmSettingsProps = {
   id: string
   userId: string
   settings: LlmSettings

@@ -96,6 +96,31 @@ pnpm exec playwright install chromium
 pnpm test:e2e
 ```
 
+## OCR Evals (ローカル専用 / Ollama)
+
+`pnpm eval` で OCR の品質を計測する LLM-as-judge ベースの評価ハーネス（`evals/`）。**CI では走らない**（コスト回避のためローカル Ollama 前提）。詳細は `evals/META.md`。
+
+### モード
+
+- **text-mode**: dataset の `input_text` を LLM に渡し、OCR 後の **マッピングロジック** を評価（`EVAL_TARGET_MODEL` / default: `llama3.1`）
+- **image-mode**: dataset の `image_path` で指定した画像を渡し、**実 OCR (Vision)** からマッピングまで評価（`EVAL_VISION_MODEL` / default: `qwen2.5vl:latest`）
+
+### 前提
+
+- `ollama serve` が `http://localhost:11434` で起動している
+- text モデル（例 `llama3.1`）と vision モデル（例 `qwen2.5vl`）を `ollama pull <model>` 済み
+- 環境変数で上書き可: `EVAL_TARGET_MODEL` / `EVAL_VISION_MODEL` / `EVAL_JUDGE_MODEL` / `EVAL_OLLAMA_BASE_URL`
+
+### eval の追加方法（10 行以内）
+
+1. text-mode: `{"id":"ocr-NNN","scenario":"...","input_text":"...","tags":["criterion-id"]}`
+2. image-mode: `{"id":"img-NNN","scenario":"...","image_path":"fixtures/<id>.png","tags":[...]}`
+3. 既存 criterion で足りなければ `evals/criteria.md` に追記。
+4. `pnpm eval --only=<id>` で単体実行し judge の理由を確認。
+5. ローカル smoke は `pnpm eval --smoke`（先頭 3 件、text モードが多い想定）。
+6. 確認後 `git add evals/ && git commit` して PR を出す。
+7. 画像 fixture を増やすなら `evals/fixtures/README.md` も参照。
+
 ## Project Structure
 
 ```
