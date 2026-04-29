@@ -2,6 +2,12 @@
 
 実装のたびに追記する短いログです。長い議事録にはしません。
 
+### 2026-04-30 - Proactive Surfacing メタ disposition を Claude に embed (気付き → 確認 → ルール昇格)
+- What: `~/.claude/projects/-Users-hotake-Documents-coffee-app-simple-coffee-collections/memory/feedback_proactive_surfacing.md` を新規作成し「節目で『他にやった方が良い follow-up は?』を自問 → 未ルール化案件は一行確認 → OK ならその場で `feedback_<topic>.md` 作成 + `MEMORY.md` 索引追記でルール昇格」というメタ disposition を embed。`MEMORY.md` の `## Workflow` セクションを 2 行構成 (メタ + Auto-PR 実例) に書き換え。`CLAUDE.md` の Feature Development Workflow に step 4 (Proactive Surfacing) と step 5 (Auto-PR 昇格済みルール) を追加。Last Updated/Version を 2026-04-30 / 1.4.0 に更新
+- Why: 旧 Auto-PR ルール (2026-04-29 確立、常に PR 自動作成) は具体例として正しかったが、ユーザー本意は PR 限定の自動化ではなく「follow-up 全般を能動提案 → OK ならルール化する disposition」だった。能動性 (Notice/Ask) と学習ループ (Promote) の組み合わせで「同じ確認を 2 度させない」を実現する
+- Rejected: Stop hook での機械的 nudge (judgement 必要なものは LLM 側で動かす方針)、旧 `feedback_auto_pr.md` の削除 (昇格済みルール実例として温存し、新 disposition から参照する構造)、Proactive Surfacing と Auto-PR の合流 (step 4 はメタ disposition、step 5 は具体ルールで層を分けた方が読みやすい)
+- Next: 効果が観察できなければ Stop hook で Edit/Write 直後限定の self-prompt nudge を追加検討。次タスク以降で Claude が他ジャンル (docs / E2E / 隣接 cleanup) の follow-up を能動提案するか、OK されたら新ルールが追加されるかを観察
+
 ### 2026-04-29 - ロード中／ロード後のレイアウト不一致を解消 (My Collection / Community / /coffee)
 - What: `app/(app)/coffee/_components/list/feed-skeleton.tsx` を新規作成し `FeedListSkeleton` / `SearchAndSortSkeleton` を export。`app/(app)/coffee/my/loading.tsx` と `app/(app)/coffee/community/loading.tsx` を新規追加し、page.tsx と同じ外側コンテナ (`max-w-6xl` → ヘッダー → SearchAndSort → `max-w-2xl` 縦フィード) を skeleton 化。`app/(app)/coffee/loading.tsx` を旧 3 列グリッドからリダイレクト先と一致する縦フィード skeleton に書き換え。Playwright で desktop/mobile の skeleton レンダリングを確認
 - Why: PR #46 で My Collection が 3 列グリッド → `max-w-2xl` 縦フィードに変わったが loading 表現が追従しておらず、`/coffee/my` と `/coffee/community` には loading.tsx 自体が無かった。`/coffee/loading.tsx` もリダイレクト先と全く異なるグリッドだったため、ロード中とロード後で UI がチラつく状態を解消
