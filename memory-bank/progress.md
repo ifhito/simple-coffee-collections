@@ -2,7 +2,12 @@
 
 実装のたびに追記する短いログです。長い議事録にはしません。
 
-### 2026-04-19 - E2E テスト修正: coffee-card → feed-card セレクター更新
+### 2026-04-29 - エージェントハーネス最小セット導入 (Claude Code / Codex 共通)
+- What: AGENTS.md を運用メモに整理(80行以内)、`.claude/settings.json` に Stop hook (`tsc --noEmit` + `lint --quiet`) と `.env`/`secrets`/`supabase db reset` 等の deny を追加、`package.json` に `typecheck` スクリプト追加、共通 SKILL 3 個 (`coffee-ubiquitous-language` / `progress-logger` / `clean-arch-boundary`) を `.agents/skills/` に作成し `.claude/skills/` から symlink、サブエージェント 3 個 (`researcher` / `reviewer` / `tester`) を `.claude/agents/` に追加、`lib/__tests__/architecture/layer-dependency.test.ts` で Clean Arch 層境界を Jest テスト化(41 ファイル pass)、`@types/jest` を devDependencies に追加
+- Why: ETHチューリッヒ研究を踏まえ、冗長な指示を避けつつ Claude/Codex 双方で動く最小ハーネスを敷くため。型検査を Stop hook に組み込むことで CI の盲点(typecheck 未実行)を補完
+- Rejected: `next-lint` を ESLint CLI へ移行(Next.js 16 の警告が出ているが範囲外)、Stop hook で `pnpm test` 実行(重い)、アーキテクチャ境界を eslint-plugin-import で表現(プラグイン追加コスト > Jest 1 ファイル)
+- Next: **Stop hook で typecheck が 11 件の既存型エラーを発見**(`coffee-evaluation.test.ts` の Rating null 化未追従 6 件、`actions/coffee.test.ts` の `redirect as jest.Mock` キャスト 2 件、`api/coffee.test.ts` の notes 不足 + sort option 不一致 2 件、`Input.test.tsx` の `toHaveAttribute` 型未解決 1 件)。これらは別タスクとして type-debt 修正 PR で対応する
+- Decision: `harness-audit.md` (audit 結果と提案) をリポジトリ直下に保存
 - What: `e2e/fixtures/coffee-list.ts` の `openEvaluationDetail` セレクターを `[data-testid="coffee-card"], [data-testid="feed-card"]` に変更。`community.spec.ts` と `search-and-sort.spec.ts` のインラインセレクターも `feed-card` に更新
 - Why: My Collection が FeedCard（`data-testid="feed-card"`）に切り替わったため、旧 `coffee-card` セレクターが 13 テストで Not Found エラーになっていた
 - Next: E2E テストが全パスすることを確認
