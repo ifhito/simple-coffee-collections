@@ -3,9 +3,12 @@ import * as path from 'node:path'
 
 const ROOT = path.resolve(__dirname, '..', '..', '..')
 
+// CLAUDE.md is the SSoT (auto-loaded by Claude Code). AGENTS.md is a thin
+// wrapper containing only `@CLAUDE.md` for tools that read AGENTS.md by
+// convention (e.g., Codex). Limits are swapped accordingly.
 const LIMITS = [
-  { file: 'AGENTS.md', max: 120 },
-  { file: 'CLAUDE.md', max: 30 },
+  { file: 'CLAUDE.md', max: 120 },
+  { file: 'AGENTS.md', max: 30 },
 ] as const
 
 describe('Doc size limits (anti "lost in instructions")', () => {

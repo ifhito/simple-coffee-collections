@@ -20,9 +20,9 @@ flowchart TB
 
   subgraph SSoT["Source of Truth"]
     direction LR
-    A["AGENTS.md<br/>運用 SSoT"]
-    C["CLAUDE.md<br/>= @AGENTS.md + Claude固有"]
-    C -->|参照| A
+    C["CLAUDE.md<br/>運用 SSoT (auto-load by Claude Code)"]
+    A["AGENTS.md<br/>= @CLAUDE.md (wrapper for Codex)"]
+    A -->|参照| C
   end
 
   subgraph Skills[".agents/skills/ ⇄ .claude/skills/ (symlink)"]
@@ -69,8 +69,8 @@ flowchart TB
 
 | 要素 | 責任 |
 |---|---|
-| **AGENTS.md** | エージェント・人間共通の運用 SSoT（コマンド / 規約 / 禁則 / 参照ポインタ） |
-| **CLAUDE.md** | `@AGENTS.md` 参照 + Claude 固有の skill 利用方針のみ（10 行） |
+| **CLAUDE.md** | エージェント・人間共通の運用 SSoT（コマンド / 規約 / 禁則 / Claude 固有 / 参照ポインタ）。Claude Code が auto-load する |
+| **AGENTS.md** | Codex 等が読む慣習ファイル。`@CLAUDE.md` のみを含む 5 行のラッパー |
 | **`.agents/skills/`** | 再現可能ワークフロー（Codex も読む一次格納） |
 | **`.claude/skills/`** | `.agents/skills/` への symlink（Claude Code 用参照点） |
 | **`.claude/agents/`** | サブエージェント定義（`tools:` で最小権限） |
@@ -87,7 +87,7 @@ flowchart TB
 
 | 触れていい | 触らない |
 |---|---|
-| `AGENTS.md` の Conventions に新規 1 行追加 | `next-env.d.ts`（Next.js 自動生成） |
+| `CLAUDE.md` の Conventions に新規 1 行追加（SSoT） | `next-env.d.ts`（Next.js 自動生成） |
 | `.agents/skills/<name>/SKILL.md` 新規・既存改善 | 適用済 `supabase/migrations/*.sql`（不変） |
 | `.claude/agents/<name>.md` 新規・既存改善 | `pnpm-lock.yaml`（必ず `pnpm` 経由で更新） |
 | `evals/dataset.jsonl` 新規ケース追加 | `.env` / `.env.local` / `secrets/**` |
@@ -102,7 +102,7 @@ flowchart TB
 失敗観測
   ↓
 既存ハーネスのどこで防げたか確認
-  ├── 規約違反 →  AGENTS.md Conventions に 1 行追加（why 付き）
+  ├── 規約違反 →  CLAUDE.md Conventions に 1 行追加（why 付き）
   ├── 手順抜け →  既存 SKILL に追記、または新規 SKILL
   ├── 機械検出可 → ESLint ルール / Stop hook
   └── 用語ぶれ → docs/UBIQUITOUS_LANGUAGE_DICTIONARY.md 追記
@@ -164,7 +164,7 @@ codex
 # IDE 連携 (VS Code 拡張) からも同じ harness を読む
 ```
 
-両者とも `AGENTS.md` を SSoT とする。Skills は `.agents/skills/` を一次に置き、`.claude/skills/` は symlink なので Claude / Codex 双方から同じ内容を参照する。
+両者とも `CLAUDE.md` を SSoT とする（Codex は `AGENTS.md` の `@CLAUDE.md` 参照経由で同内容を取り込む）。Skills は `.agents/skills/` を一次に置き、`.claude/skills/` は symlink なので Claude / Codex 双方から同じ内容を参照する。
 
 ---
 
@@ -197,8 +197,8 @@ description: 機能設計・実装・テスト・PR・リリースまで全部�
 |---|---|---|
 | **megaskill** | 1 SKILL 複数ジョブで適用判断が曖昧化 | 1 SKILL = 1 ジョブ |
 | **MCP 積みすぎ** | ツール検索の精度低下、起動時間増 | 必要なものだけ。本リポは `spec-workflow` のみ |
-| **CLAUDE.md 500 行超** | auto-load context window 圧迫 | 本リポは 10 行 + `@AGENTS.md` |
-| **「念のため」指示** | リンタの仕事を奪う / ノイズ | 業界標準は AGENTS.md に書かない |
+| **CLAUDE.md 500 行超** | auto-load context window 圧迫 | 本リポは 63 行（arch test で ≤120 強制） |
+| **「念のため」指示** | リンタの仕事を奪う / ノイズ | 業界標準は CLAUDE.md に書かない |
 | **silent disable** | `if: secret != ''` で skip し緑になる | 動かないなら明示的に外す（本リポの evals が CI 不在なのは意図的） |
 | **subagent に full Bash 付与** | 想定外コマンド実行リスク | researcher / reviewer は Read+Grep のみ |
 | **expected を judge に渡す eval** | reward hacking で score 膨張 | criteria だけで pass/fail（leak 防止） |
@@ -276,7 +276,7 @@ EOF
 
 PR 作成後、以下を自問する:
 
-- 今回エージェントは AGENTS.md / SKILL のどれに従って動いたか？
+- 今回エージェントは CLAUDE.md / SKILL のどれに従って動いたか？
 - 従わなかった or 不足だった部分はあるか？
 - あれば「**4. ミスをしたときのフロー**」に従ってハーネスを改善する PR を別途出す
 

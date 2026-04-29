@@ -2,6 +2,13 @@
 
 実装のたびに追記する短いログです。長い議事録にはしません。
 
+### 2026-04-29 - SSoT を CLAUDE.md に反転（AGENTS.md は wrapper 化）
+- What: 旧 AGENTS.md (54 行 SSoT) の内容を CLAUDE.md に移し SSoT 化、AGENTS.md は `@CLAUDE.md` のみを含む 5 行ラッパーへ縮約。`lib/__tests__/architecture/doc-size.test.ts` の上限を swap (CLAUDE ≤120 / AGENTS ≤30)。`docs/agent-onboarding.md` の構成図・責任表・触れていいファイル表・起動コマンド説明・アンチパターン記述を新構造に追従
+- Why: Claude Code は CLAUDE.md だけを auto-load する仕様。SSoT を AGENTS.md に置くと CLAUDE.md → `@AGENTS.md` を経由しないと正本に届かず、CLAUDE.md 単体では「何もわからない」leaf になっていた。本来 Claude Code の主要 entry が SSoT であるべきで、AGENTS.md は Codex 等の慣習 entry を SSoT に橋渡しする wrapper にする方が読み手フレンドリー
+- Rejected: 相互参照のまま維持(SSoT 候補が 2 つあり「どちらを編集すべきか」が曖昧。`@` 参照の経路として cleanであっても運用判断には不向き)、CLAUDE.md は短いまま AGENTS.md SSoT 維持(PR #50 spec 由来だが Claude 主導開発の auto-load 仕様と整合しない)
+- Next: harness-debt.md / harness-evidence.md などのメタ文書も将来「CLAUDE.md = SSoT」前提で記述する。新規ハーネス改善セッションでも CLAUDE.md を編集 target とする運用に切替
+- Decision: CLAUDE.md = SSoT、AGENTS.md = wrapper。一方向 reference (`AGENTS.md → @CLAUDE.md`)
+
 ### 2026-04-29 - ハーネス改善定期セッション(2 時間枠で 7 件実装)
 - What: 直近 30 日の git log / progress.md / PR 履歴から繰り返しミス 10 件を抽出し `harness-debt.md` 作成。決定論的 sensor を最優先に選択し、7 件を実装: arch test 3 種(`migration-uniqueness` / `doc-size`(AGENTS≤120, CLAUDE≤30) / `skill-size`(SKILL≤200, Procedure≤8 step))、`evals/runners/run-evals.ts` に dataset.tags ↔ criteria.md drift validation 追加、Stop hook に `scripts/check-forbidden-terms.sh`(CoffeeReview 識別子検出)、UserPromptSubmit hook に `scripts/detect-template-placeholder.sh`(`{{...}}` reminder 注入)、`pre-pr-self-review` SKILL に E2E getByText 警告ステップ追加。各対策について過去失敗を再現して捕捉確認 → `harness-evidence.md` に記録。AGENTS.md は 52 行 / 24 指示で 200 制限の遥か下のため refactor 不要
 - Why: ハーネスは「足し続ける」のではなく「腐敗を構造で防ぐ」のが本質。決定論的 sensor を最優先したのは ETH 研究の "lost in instructions" 含意で、AGENTS.md 行数を物理的に縛ることで「念のため指示」追加を不可能にする
