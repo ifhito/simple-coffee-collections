@@ -2,6 +2,13 @@
 
 実装のたびに追記する短いログです。長い議事録にはしません。
 
+### 2026-04-29 - SKILL 3 個追加（観察ベース）+ サブエージェント 3 個を最小権限化
+- What: 観察された頻出ワークフローに基づき SKILL 3 個を追加: `pre-pr-self-review`(差分・規約・センサーのセルフチェック)、`db-migration`(Supabase migration の生成・適用・型再生成の一貫実行)、`add-llm-provider`(LLM プロバイダ追加時の entity・factory・DB constraint・types を一貫更新)。サブエージェント 3 個 (researcher / reviewer / tester) を最小権限化(researcher: Read+Grep+Glob+WebFetch / reviewer: Read+Grep / tester: Read+Bash)。AGENTS.md に「コード位置探索は researcher subagent を使い親 context で grep しない」を追加
+- Why: ハーネス導入後の頻出ワークフローを SKILL 化することで再現性を担保し、サブエージェントの権限を絞ることで親 context window の汚染を防ぐため。`add-llm-provider` は MEMORY.md の Google プロバイダ追加履歴(2026-03-09)から再現可能ワークフローとして抽出
+- Rejected: `release-notes` SKILL 案(このプロジェクトに CHANGELOG.md / git tag / GitHub Releases が観測されないため不適合と判断し差し替え)、サブエージェントへの Bash 全権付与(tester でも `pnpm test:*` 限定にすることで意図しないコマンド実行を抑制)
+- Next: ハーネス系 PR スタック (#47 → #48 → #49 → #50 → このPR) を順次マージ
+- Decision: 「テンプレ採用前に observable な根拠を示す」運用方針（リリースノート差し替えのきっかけ）
+
 ### 2026-04-29 - AGENTS.md を spec 駆動で再構成し CLAUDE.md を 2 行ラッパー化
 - What: AGENTS.md を 6 セクション固定テンプレート(Stack / Build & Test / Conventions / Programmatic checks / Out of scope / More context)に書き換え 51 行に圧縮、CLAUDE.md を `@AGENTS.md` 参照 + Claude 固有スキル利用方針のみの 10 行に縮約
 - Why: ETHチューリッヒ「Lost in Instructions」研究準拠で冗長指示を排除。AGENTS.md を single source of truth にし、Claude/Codex/Cursor 間のドリフトを防ぐ。Conventions の各項に「なぜ」を 1 行添えることで grey-area 判断を効かせやすくする
