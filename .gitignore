@@ -54,3 +54,4 @@ audit.log
 
 # pr packages (reference artifacts, not part of the app)
 pr-package*/
+evals/reports/
