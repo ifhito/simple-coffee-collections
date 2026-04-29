@@ -2,6 +2,13 @@
 
 実装のたびに追記する短いログです。長い議事録にはしません。
 
+### 2026-04-29 - OCR eval ハーネスを TS-native で構築 (Hamel evals-skills 流儀)
+- What: `evals/` 配下に dataset.jsonl(10 cases) / criteria.md(13 観点) / judges/llm-judge.ts(LLM-as-judge, leak 防止のため正解ラベル非渡し) / runners/run-evals.ts(並列実行 + JSONL レポート + 90% threshold) を構築。`.github/workflows/evals.yml`(nightly + PR トリガ + artifact upload)、`scripts/eval-on-ai-change.sh`(`lib/mastra` / `lib/application/ocr` / `lib/infrastructure/ocr` / `evals` 変更時に smoke eval)、`.claude/settings.json` Stop hook に該当スクリプトを追加、README に「eval の追加方法」10 行追加、`evals/META.md` でメタ評価戦略(Money Table / leak 防止 / FP/FN チェック計画)を記録。`pnpm eval` script と `tsx` devDep を追加
+- Why: ETHチューリッヒ「Lost in Instructions」研究と Hamel "Money Table" 哲学に従い、target / judge プロンプトを分離し leak を防ぐ設計とした。本番ログ無しのため初版 dataset はコード読解 + プロンプト分析由来の 10 ケース（`bean_name vs bean_type` 混同、`roast_level` 推定の暴走、null vs ハルシネーション、多言語混在等）。Vision capability ではなくテキスト→JSON マッピング部分を評価対象とした(失敗の主要発生源と判断)
+- Rejected: Python + pytest による実装(プロジェクトが Node/TS 単一スタックで運用コスト不一致)、`src/ai/**` パス watch(`src/` ディレクトリ非存在、実態は `lib/mastra` 等)、画像 fixture 必須運用(著作権ハンドリング負担、初版は text-mode で十分)、judge プロンプトに expected を渡す案(score inflation のリスク)、Stop hook で全 eval 実行(LLM cost が発生するため smoke 3 件 + API key 未設定時はスキップ)
+- Next: 1) 実本番ログを取得して dataset を 25 件に拡大、2) judge を別 vendor (Google) でも走らせて bias 検証、3) image-mode runner 拡張で Vision 段階もテスト、4) FP/FN チェッカ追加（META.md TODO）
+- Decision: evals/META.md（メタ評価戦略）
+
 ### 2026-04-29 - SKILL 3 個追加（観察ベース）+ サブエージェント 3 個を最小権限化
 - What: 観察された頻出ワークフローに基づき SKILL 3 個を追加: `pre-pr-self-review`(差分・規約・センサーのセルフチェック)、`db-migration`(Supabase migration の生成・適用・型再生成の一貫実行)、`add-llm-provider`(LLM プロバイダ追加時の entity・factory・DB constraint・types を一貫更新)。サブエージェント 3 個 (researcher / reviewer / tester) を最小権限化(researcher: Read+Grep+Glob+WebFetch / reviewer: Read+Grep / tester: Read+Bash)。AGENTS.md に「コード位置探索は researcher subagent を使い親 context で grep しない」を追加
 - Why: ハーネス導入後の頻出ワークフローを SKILL 化することで再現性を担保し、サブエージェントの権限を絞ることで親 context window の汚染を防ぐため。`add-llm-provider` は MEMORY.md の Google プロバイダ追加履歴(2026-03-09)から再現可能ワークフローとして抽出
