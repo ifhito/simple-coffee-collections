@@ -96,18 +96,24 @@ pnpm exec playwright install chromium
 pnpm test:e2e
 ```
 
-## OCR Evals
+## OCR Evals (ローカル専用 / Ollama)
 
-`pnpm eval` で OCR 抽出の品質を計測する LLM-as-judge ベースの評価ハーネス（`evals/`）。詳細は `evals/META.md`。
+`pnpm eval` で OCR 抽出の品質を計測する LLM-as-judge ベースの評価ハーネス（`evals/`）。**CI では走らない**（コスト回避のためローカル Ollama 前提）。詳細は `evals/META.md`。
+
+### 前提
+
+- `ollama serve` が `http://localhost:11434` で起動している
+- 任意のモデルを `ollama pull <model>` 済み（推奨: `qwen2.5:7b` / `llama3.1`）
+- 環境変数で上書き可: `EVAL_TARGET_MODEL` / `EVAL_JUDGE_MODEL` / `EVAL_OLLAMA_BASE_URL`
 
 ### eval の追加方法（10 行以内）
 
 1. `evals/dataset.jsonl` に 1 行追加: `{"id":"ocr-NNN","scenario":"...","input_text":"...","tags":["criterion-id", ...]}`
 2. 既存 criterion で足りない観点があれば `evals/criteria.md` に追記。
-3. `ANTHROPIC_API_KEY=... pnpm eval --only=ocr-NNN` で単体実行し、judge の理由を確認。
+3. `pnpm eval --only=ocr-NNN` で単体実行し、judge の理由を確認。
 4. ローカル smoke は `pnpm eval --smoke`（先頭 3 件）。
 5. 失敗が再現するか、true positive かを確認したうえで dataset を確定。
-6. `git add evals/dataset.jsonl evals/criteria.md && git commit` して PR を出す（CI で nightly に走る）。
+6. `git add evals/dataset.jsonl evals/criteria.md && git commit` して PR を出す。
 
 ## Project Structure
 

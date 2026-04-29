@@ -1,9 +1,9 @@
 import { generateObject } from 'ai'
-import { createAnthropic } from '@ai-sdk/anthropic'
 import { z } from 'zod'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import type { CoffeeOcrOutput } from '@/lib/mastra/tools/coffee-ocr-tool'
+import { judgeModel } from '../_shared/model'
 
 export type Judgment = {
   criterionId: string
@@ -35,14 +35,6 @@ function loadCriteria(): string {
     'utf-8'
   )
   return cachedCriteria
-}
-
-function judgeModel() {
-  const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) {
-    throw new Error('ANTHROPIC_API_KEY is required for the LLM judge')
-  }
-  return createAnthropic({ apiKey })('claude-haiku-4-5-20251001')
 }
 
 /**
