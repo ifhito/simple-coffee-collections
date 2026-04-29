@@ -17,7 +17,8 @@ allowed-tools: Read, Grep, Glob, Bash
 3. プログラム的チェック (`pnpm typecheck` / `pnpm lint --quiet` / `pnpm test --testPathPattern=__tests__/architecture`) を回す。
 4. 残骸 (`console.log`, `.only`, `xit`, `debugger`) を grep で検出する。
 5. `memory-bank/progress.md` に当日エントリがあるか確認する。
-6. 結果を「✅ 通過 / ⚠️ 要修正」のセクションでまとめて返す。
+6. E2E (`*.spec.ts`) を変更した場合、固定 UI 文言依存 (`getByText`) の使用量を grep で確認し、`getByRole` / `getByTestId` への置換を検討する（過去に文言変更で複数回壊れたため）。
+7. 結果を「✅ 通過 / ⚠️ 要修正」のセクションでまとめて返す。
 
 詳細手順は `references/pre-pr-self-review.md` を参照。
 
