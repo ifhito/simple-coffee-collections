@@ -23,6 +23,7 @@ format       pnpm lint --fix      # 専用 formatter なし、ESLint --fix の�
 - 実装後は `memory-bank/progress.md` に 1 エントリ追記（What / Why / Rejected / Next 形式）。なぜ: コミットメッセージには「却下案」「次の課題」が残らず、将来の自分やエージェントが読める情報が失われるため。
 - 再迷走しそうな設計判断は `docs/decisions/<date>-<topic>.md` に残す。なぜ: 命名・責務分割の判断はコードを読んでも復元できず、判断の粒度を ADR より細かく取りたいため。
 - UI 文言は日本語、コード・コメント・コミットメッセージは英語または日本語。なぜ: ユーザー文脈は日本語固定だが、技術用語は英語の方が型定義・ライブラリ検索で当たりやすいため。
+- Use the researcher subagent when you need to locate code patterns; never grep yourself in the parent context. なぜ: 大量の grep 結果が親 context window を圧迫し、後続判断の精度が落ちるため。
 
 ## Programmatic checks the agent MUST run before finishing
 
