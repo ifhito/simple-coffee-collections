@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { ShopSearch } from './_components/shop-search'
 import { ShopList } from './_components/shop-list'
+import { ShopListSkeleton, ShopSearchSkeleton } from './_components/shop-skeleton'
 
 export const metadata: Metadata = {
   title: '店舗一覧',
@@ -24,11 +25,11 @@ export default async function ShopsPage({
         </p>
       </header>
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<ShopSearchSkeleton />}>
         <ShopSearch />
       </Suspense>
 
-      <Suspense fallback={<p className="text-sm text-[var(--ink-3)]">読み込み中...</p>}>
+      <Suspense fallback={<ShopListSkeleton />}>
         <ShopList search={search} />
       </Suspense>
     </section>
