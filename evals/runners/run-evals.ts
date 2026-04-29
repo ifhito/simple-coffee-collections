@@ -50,6 +50,43 @@ function loadDataset(): DatasetCase[] {
     .map((l) => JSON.parse(l) as DatasetCase)
 }
 
+function loadCriterionIds(): Set<string> {
+  const raw = readFileSync(join(process.cwd(), 'evals/criteria.md'), 'utf-8')
+  const ids = new Set<string>()
+  // h3 headings define criterion IDs. Each heading may declare 1+ IDs:
+  //   ### `single_id`
+  //   ### `a` / `b` / `c`
+  for (const line of raw.split('\n')) {
+    if (!line.startsWith('### ')) continue
+    for (const m of line.matchAll(/`([a-z0-9_]+)`/g)) {
+      ids.add(m[1])
+    }
+  }
+  return ids
+}
+
+/**
+ * Fail fast if dataset.jsonl references a tag not defined in criteria.md.
+ * Caught at runtime in 2026-04-29 (atypical_term / multi_hint drift).
+ */
+function validateDataset(cases: DatasetCase[]): void {
+  const defined = loadCriterionIds()
+  const errors: string[] = []
+  for (const c of cases) {
+    for (const tag of c.tags) {
+      if (!defined.has(tag)) {
+        errors.push(`  - ${c.id}: tag "${tag}" is not defined in criteria.md`)
+      }
+    }
+  }
+  if (errors.length > 0) {
+    console.error('Dataset / criteria drift detected:')
+    console.error(errors.join('\n'))
+    console.error('Add the missing criterion to evals/criteria.md, or remove the tag from dataset.jsonl.')
+    process.exit(1)
+  }
+}
+
 function loadSystemPrompt(): string {
   const path = join(process.cwd(), 'lib/mastra/prompts/coffee-ocr.md')
   const raw = readFileSync(path, 'utf-8')
@@ -167,7 +204,9 @@ function parseFlags() {
 
 async function main() {
   const flags = parseFlags()
-  let cases = loadDataset()
+  const allCases = loadDataset()
+  validateDataset(allCases)
+  let cases = allCases
   if (flags.only) cases = cases.filter((c) => c.id === flags.only)
   if (flags.tag) cases = cases.filter((c) => c.tags.includes(flags.tag!))
   if (flags.smoke) cases = cases.slice(0, 3)
