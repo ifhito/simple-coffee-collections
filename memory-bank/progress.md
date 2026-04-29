@@ -2,6 +2,13 @@
 
 実装のたびに追記する短いログです。長い議事録にはしません。
 
+### 2026-04-29 - typecheck で発見した既存型エラー 316 → 0 件に解消
+- What: `jest.setup.js` を `jest.setup.ts` に改名(jest-dom 型拡張が tsconfig include に反映)で 290 件解消、`lib/types/__tests__/coffee.test.ts` の mock 6 箇所に `notes: null` 追加、`lib/infrastructure/repositories/__tests__/supabase-coffee-evaluation-repository.test.ts` の `makeRow` に `notes: null` 追加、`lib/domain/__tests__/coffee-evaluation.test.ts` の `evaluation.acidity.value` 等を `?.value` に変更(エンティティ refactor で `Rating | null` 化)、`lib/__tests__/actions/coffee.test.ts` の `redirect as jest.Mock` を `as unknown as jest.Mock` に修正、`lib/__tests__/api/coffee.test.ts` の `'newest'` を `'created_at_desc'` に修正、`page.test.tsx` 系の `jest.fn(() => ...)` を `jest.fn((..._args: unknown[]) => ...)` に変更し spread args TS2556 を解消、`evaluation-form.test.tsx` の `new Promise()` を `new Promise<void>()` に変更、`share-link.test.tsx` の不要な `@ts-expect-error` を削除、`coffee/page.test.tsx` の `CoffeeListPage({})` を `CoffeeListPage()` に修正
+- Why: ハーネス PR (#47) で導入した Stop hook の `tsc --noEmit` が CI の盲点だった既存型負債を一気に表面化させたため。最初は 11 件と見積もったが、jest-dom 型拡張未反映が他の型解決をブロックしており、実数は 316 件だった
+- Rejected: `tsconfig.json` の `exclude` に `__tests__` を追加(テストの型安全性を捨てるため非推奨)、Stop hook の typecheck を `|| true` で無視(センサーの意義が薄れる)
+- Next: ハーネス PR (#47) → この PR の順でマージ。Jest 全 503 テスト pass を確認済み
+- Decision: harness PR (chore/agent-harness-setup) と type-debt PR (fix/type-debt-from-typecheck) を分けてレビューしやすくした
+
 ### 2026-04-29 - エージェントハーネス最小セット導入 (Claude Code / Codex 共通)
 - What: AGENTS.md を運用メモに整理(80行以内)、`.claude/settings.json` に Stop hook (`tsc --noEmit` + `lint --quiet`) と `.env`/`secrets`/`supabase db reset` 等の deny を追加、`package.json` に `typecheck` スクリプト追加、共通 SKILL 3 個 (`coffee-ubiquitous-language` / `progress-logger` / `clean-arch-boundary`) を `.agents/skills/` に作成し `.claude/skills/` から symlink、サブエージェント 3 個 (`researcher` / `reviewer` / `tester`) を `.claude/agents/` に追加、`lib/__tests__/architecture/layer-dependency.test.ts` で Clean Arch 層境界を Jest テスト化(41 ファイル pass)、`@types/jest` を devDependencies に追加
 - Why: ETHチューリッヒ研究を踏まえ、冗長な指示を避けつつ Claude/Codex 双方で動く最小ハーネスを敷くため。型検査を Stop hook に組み込むことで CI の盲点(typecheck 未実行)を補完

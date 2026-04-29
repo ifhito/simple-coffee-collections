@@ -27,6 +27,7 @@ describe('Coffee Type Definitions', () => {
         is_public: true,
         created_at: '2025-01-01T00:00:00.000Z',
         updated_at: '2025-01-01T00:00:00.000Z',
+        notes: null,
       }
 
       const display: CoffeeEvaluationDisplay = {
@@ -56,6 +57,7 @@ describe('Coffee Type Definitions', () => {
         is_public: true,
         created_at: '2025-01-01T00:00:00.000Z',
         updated_at: '2025-01-01T00:00:00.000Z',
+        notes: null,
       }
 
       const withUser: CoffeeEvaluationWithUser = {
@@ -84,6 +86,7 @@ describe('Coffee Type Definitions', () => {
         is_public: true,
         created_at: '2025-01-01T00:00:00.000Z',
         updated_at: '2025-01-01T00:00:00.000Z',
+        notes: null,
         display_name: 'ユーザー名',
       }
 
@@ -102,6 +105,7 @@ describe('Coffee Type Definitions', () => {
         is_public: true,
         created_at: '2025-01-01T00:00:00.000Z',
         updated_at: '2025-01-01T00:00:00.000Z',
+        notes: null,
         display_name: null,
       }
 
@@ -127,6 +131,7 @@ describe('Coffee Type Definitions', () => {
           is_public: true,
           created_at: '2025-01-01T00:00:00.000Z',
           updated_at: '2025-01-01T00:00:00.000Z',
+          notes: null,
           display_name: 'ユーザーA',
         },
         {
@@ -144,6 +149,7 @@ describe('Coffee Type Definitions', () => {
           is_public: true,
           created_at: '2025-01-01T00:00:00.000Z',
           updated_at: '2025-01-01T00:00:00.000Z',
+          notes: null,
           display_name: null,
         },
       ]

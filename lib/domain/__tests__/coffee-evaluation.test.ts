@@ -29,10 +29,10 @@ describe('CoffeeEvaluation Entity', () => {
         expect(evaluation.beanName).toBe('Ethiopia Yirgacheffe')
         expect(evaluation.beanType).toBe('アフリカ')
         expect(evaluation.roastLevel).toBe('中煎り')
-        expect(evaluation.acidity.value).toBe(7)
-        expect(evaluation.bitterness.value).toBe(5)
-        expect(evaluation.aroma.value).toBe(8)
-        expect(evaluation.overallRating.value).toBe(8)
+        expect(evaluation.acidity?.value).toBe(7)
+        expect(evaluation.bitterness?.value).toBe(5)
+        expect(evaluation.aroma?.value).toBe(8)
+        expect(evaluation.overallRating?.value).toBe(8)
         expect(evaluation.isPublic).toBe(true)
       }
     })
@@ -304,10 +304,10 @@ describe('CoffeeEvaluation Entity', () => {
       expect(updateResult.ok).toBe(true)
       if (updateResult.ok) {
         expect(updateResult.value.beanName).toBe('Updated Bean')
-        expect(updateResult.value.overallRating.value).toBe(9)
+        expect(updateResult.value.overallRating?.value).toBe(9)
         // Other fields should remain unchanged
         expect(updateResult.value.shopName).toBe('スターバックス')
-        expect(updateResult.value.acidity.value).toBe(7)
+        expect(updateResult.value.acidity?.value).toBe(7)
       }
     })
 

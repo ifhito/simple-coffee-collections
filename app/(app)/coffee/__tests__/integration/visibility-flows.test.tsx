@@ -7,7 +7,7 @@ import { render, screen, cleanup } from '@testing-library/react'
 
 const mockGetCurrentUser = jest.fn()
 const mockGetCoffeeEvaluationsWithUser = jest.fn()
-const mockRedirect = jest.fn(() => {
+const mockRedirect = jest.fn((..._args: unknown[]) => {
   throw new Error('NEXT_REDIRECT')
 })
 

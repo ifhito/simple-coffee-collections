@@ -9,7 +9,7 @@ import userEvent from '@testing-library/user-event'
 
 const mockGetCurrentUser = jest.fn()
 const mockGetCoffeeEvaluations = jest.fn()
-const mockRedirect = jest.fn(() => {
+const mockRedirect = jest.fn((..._args: unknown[]) => {
   throw new Error('NEXT_REDIRECT')
 })
 const mockRouterPush = jest.fn()

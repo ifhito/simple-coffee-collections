@@ -26,6 +26,7 @@ function makeRow(overrides: Partial<CoffeeEvaluationRowWithShop> = {}): CoffeeEv
     is_public: true,
     created_at: '2026-03-11T00:00:00.000Z',
     updated_at: '2026-03-11T00:00:00.000Z',
+    notes: null,
     shops: null,
     ...overrides,
   }
