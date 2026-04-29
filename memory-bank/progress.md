@@ -2,6 +2,13 @@
 
 実装のたびに追記する短いログです。長い議事録にはしません。
 
+### 2026-04-29 - 初見開発者 30 分向け onboarding ドキュメントを追加
+- What: `docs/agent-onboarding.md` を新設。9 セクション(WHY 120字 / 構成図 mermaid / 各要素責任 / 触れる-触れない / 失敗対応フロー / 起動コマンド / アンチパターン / Hello Harness 練習 / Required reading)で 314 行。`@AGENTS.md` から参照する代わりに、初見専用の独立ドキュメントとして配置
+- Why: ハーネスが 6 PR 分の積み重ねで複雑化したため、初見開発者が 30 分で全体像を掴める入り口が必要。Slack 等で「どこから読めばいい？」と問われたときに渡せる単一ドキュメントが無いと、口頭/Slack 説明が再生産され腐る
+- Rejected: AGENTS.md に統合(SSoT を肥大化させ "lost in instructions" リスク)、README に書く(セットアップ文脈と混ざり長大化)、複数ファイルへの分散(初見の 30 分 budget で読めない)
+- Next: Slack channel 名を実値で置換、Required reading の URL を最新でチェック、Hello Harness の "good first issue" ラベル運用を実態化
+- Decision: 「初見向け onboarding は AGENTS.md と分離する」— 理由は SSoT の規約と「初見の地図」の責務が違うため
+
 ### 2026-04-29 - OCR eval ハーネスを TS-native で構築 (Hamel evals-skills 流儀)
 - What: `evals/` 配下に dataset.jsonl(10 cases) / criteria.md(13 観点) / judges/llm-judge.ts(LLM-as-judge, leak 防止のため正解ラベル非渡し) / runners/run-evals.ts(並列実行 + JSONL レポート + 90% threshold) を構築。`.github/workflows/evals.yml`(nightly + PR トリガ + artifact upload)、`scripts/eval-on-ai-change.sh`(`lib/mastra` / `lib/application/ocr` / `lib/infrastructure/ocr` / `evals` 変更時に smoke eval)、`.claude/settings.json` Stop hook に該当スクリプトを追加、README に「eval の追加方法」10 行追加、`evals/META.md` でメタ評価戦略(Money Table / leak 防止 / FP/FN チェック計画)を記録。`pnpm eval` script と `tsx` devDep を追加
 - Why: ETHチューリッヒ「Lost in Instructions」研究と Hamel "Money Table" 哲学に従い、target / judge プロンプトを分離し leak を防ぐ設計とした。本番ログ無しのため初版 dataset はコード読解 + プロンプト分析由来の 10 ケース（`bean_name vs bean_type` 混同、`roast_level` 推定の暴走、null vs ハルシネーション、多言語混在等）。Vision capability ではなくテキスト→JSON マッピング部分を評価対象とした(失敗の主要発生源と判断)
