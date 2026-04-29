@@ -2,6 +2,12 @@
 
 実装のたびに追記する短いログです。長い議事録にはしません。
 
+### 2026-04-29 - ロード中／ロード後のレイアウト不一致を解消 (My Collection / Community / /coffee)
+- What: `app/(app)/coffee/_components/list/feed-skeleton.tsx` を新規作成し `FeedListSkeleton` / `SearchAndSortSkeleton` を export。`app/(app)/coffee/my/loading.tsx` と `app/(app)/coffee/community/loading.tsx` を新規追加し、page.tsx と同じ外側コンテナ (`max-w-6xl` → ヘッダー → SearchAndSort → `max-w-2xl` 縦フィード) を skeleton 化。`app/(app)/coffee/loading.tsx` を旧 3 列グリッドからリダイレクト先と一致する縦フィード skeleton に書き換え。Playwright で desktop/mobile の skeleton レンダリングを確認
+- Why: PR #46 で My Collection が 3 列グリッド → `max-w-2xl` 縦フィードに変わったが loading 表現が追従しておらず、`/coffee/my` と `/coffee/community` には loading.tsx 自体が無かった。`/coffee/loading.tsx` もリダイレクト先と全く異なるグリッドだったため、ロード中とロード後で UI がチラつく状態を解消
+- Rejected: skeleton を 3 つの loading.tsx でインライン重複 → 共通の `feed-skeleton.tsx` 1 ファイルに集約（FeedCard 構造変更時の追従コスト削減）
+- Next: `/coffee/new/loading.tsx` と `/coffee/[id]/edit/loading.tsx` に残る Tailwind ハードコード色 (`bg-amber-200`, `bg-neutral-200`) を OKLCH デザイントークン (`var(--ink)`, `var(--rule)` 等) に置き換える別タスク
+
 ### 2026-04-29 - エージェントハーネス最小セット導入 (Claude Code / Codex 共通)
 - What: AGENTS.md を運用メモに整理(80行以内)、`.claude/settings.json` に Stop hook (`tsc --noEmit` + `lint --quiet`) と `.env`/`secrets`/`supabase db reset` 等の deny を追加、`package.json` に `typecheck` スクリプト追加、共通 SKILL 3 個 (`coffee-ubiquitous-language` / `progress-logger` / `clean-arch-boundary`) を `.agents/skills/` に作成し `.claude/skills/` から symlink、サブエージェント 3 個 (`researcher` / `reviewer` / `tester`) を `.claude/agents/` に追加、`lib/__tests__/architecture/layer-dependency.test.ts` で Clean Arch 層境界を Jest テスト化(41 ファイル pass)、`@types/jest` を devDependencies に追加
 - Why: ETHチューリッヒ研究を踏まえ、冗長な指示を避けつつ Claude/Codex 双方で動く最小ハーネスを敷くため。型検査を Stop hook に組み込むことで CI の盲点(typecheck 未実行)を補完
