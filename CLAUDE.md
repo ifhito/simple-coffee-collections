@@ -30,7 +30,12 @@ Helps enthusiasts track their coffee journey, discover patterns, and explore new
 1. Branch: `git checkout -b feature/name`
 2. spec-workflow MCP: Requirements → Design → Tasks → Implementation
 3. TDD: Test → Fail → Implement → Pass → Refactor (80%+ coverage)
-4. **Auto-PR**: タスク完了後は明示指示なしで commit → push → `gh pr create` まで自動実行する（destructive 操作・force push・main への直接 push は事前確認）。タスクごとに新規ブランチを切り、PR 本文には Summary / Test plan を含める
+4. **Proactive Surfacing**: 節目 (修正/機能追加/調査/リファクタ/完了報告後) で「他にやった方が良い follow-up は?」を自問する
+   - 既存ルール (Auto-PR 等) のスコープなら自動実行
+   - 未ルール化の案件は一行で確認 (`〜しますか?`)。1 ターン 1 提案
+   - ユーザー OK → 実行 **+ その場でルール化** (`feedback_<topic>.md` 作成 + `MEMORY.md` 索引追加 + Why に承認日記載)
+   - 候補カテゴリ: PR / E2E / docs / decision / progress.md / 隣接 cleanup / 同種問題調査 / 次ステップ scheduling
+5. **Auto-PR (昇格済みルール — 2026-04-29 承認)**: タスク完了後は明示指示なしで新規ブランチ作成 → commit → push → `gh pr create` まで自動実行。PR 本文に Summary / Test plan を含める。destructive 操作・force push・main への直接 push のみ事前確認
 
 ### Ubiquitous Language (MANDATORY)
 
@@ -80,4 +85,4 @@ Helps enthusiasts track their coffee journey, discover patterns, and explore new
 
 ---
 
-**Last Updated**: 2026-04-29 | **Version**: 1.3.0
+**Last Updated**: 2026-04-30 | **Version**: 1.4.0

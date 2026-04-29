@@ -2,6 +2,12 @@
 
 実装のたびに追記する短いログです。長い議事録にはしません。
 
+### 2026-04-30 - Proactive Surfacing メタ disposition を Claude に embed (気付き → 確認 → ルール昇格)
+- What: `~/.claude/projects/-Users-hotake-Documents-coffee-app-simple-coffee-collections/memory/feedback_proactive_surfacing.md` を新規作成し「節目で『他にやった方が良い follow-up は?』を自問 → 未ルール化案件は一行確認 → OK ならその場で `feedback_<topic>.md` 作成 + `MEMORY.md` 索引追記でルール昇格」というメタ disposition を embed。`MEMORY.md` の `## Workflow` セクションを 2 行構成 (メタ + Auto-PR 実例) に書き換え。`CLAUDE.md` の Feature Development Workflow に step 4 (Proactive Surfacing) と step 5 (Auto-PR 昇格済みルール) を追加。Last Updated/Version を 2026-04-30 / 1.4.0 に更新
+- Why: 旧 Auto-PR ルール (2026-04-29 確立、常に PR 自動作成) は具体例として正しかったが、ユーザー本意は PR 限定の自動化ではなく「follow-up 全般を能動提案 → OK ならルール化する disposition」だった。能動性 (Notice/Ask) と学習ループ (Promote) の組み合わせで「同じ確認を 2 度させない」を実現する
+- Rejected: Stop hook での機械的 nudge (judgement 必要なものは LLM 側で動かす方針)、旧 `feedback_auto_pr.md` の削除 (昇格済みルール実例として温存し、新 disposition から参照する構造)、Proactive Surfacing と Auto-PR の合流 (step 4 はメタ disposition、step 5 は具体ルールで層を分けた方が読みやすい)
+- Next: 効果が観察できなければ Stop hook で Edit/Write 直後限定の self-prompt nudge を追加検討。次タスク以降で Claude が他ジャンル (docs / E2E / 隣接 cleanup) の follow-up を能動提案するか、OK されたら新ルールが追加されるかを観察
+
 ### 2026-04-29 - データフェッチ系全ルートに loading.tsx を追加 (profile / ai / users/[userId] / coffee/[id]/evaluate)
 - What: `(app)` 配下を全数調査し、データフェッチありで loading.tsx 欠落の 4 ルートに skeleton を追加。`app/(app)/profile/loading.tsx` (max-w-3xl の表示名 input + bio textarea + 送信ボタン)、`app/(app)/ai/loading.tsx` (max-w-4xl の AI 設定セクション + OCR セクション)、`app/(app)/users/[userId]/loading.tsx` (max-w-6xl のプロフィールヘッダー + SearchAndSort + 縦フィード `FeedListSkeleton showUserHeader=false`)、`app/(app)/coffee/[id]/evaluate/loading.tsx` (max-w-5xl の豆情報カード + RatingSliders 4 個 + 感想 textarea + ボタン)。それぞれ page.tsx の外側コンテナ class を 1:1 で複製
 - Why: 「ショップも同様にロードを入れて」のユーザー指示を起点に Proactive Surfacing 原則で `(app)` 全体を点検したところ、data fetching 有りで loading.tsx 欠落のルートが 4 つあった。ショップだけ揃えて他を放置するのは中途半端なので一気に揃える
