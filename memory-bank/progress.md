@@ -2,6 +2,13 @@
 
 実装のたびに追記する短いログです。長い議事録にはしません。
 
+### 2026-04-29 - AGENTS.md を spec 駆動で再構成し CLAUDE.md を 2 行ラッパー化
+- What: AGENTS.md を 6 セクション固定テンプレート(Stack / Build & Test / Conventions / Programmatic checks / Out of scope / More context)に書き換え 51 行に圧縮、CLAUDE.md を `@AGENTS.md` 参照 + Claude 固有スキル利用方針のみの 10 行に縮約
+- Why: ETHチューリッヒ「Lost in Instructions」研究準拠で冗長指示を排除。AGENTS.md を single source of truth にし、Claude/Codex/Cursor 間のドリフトを防ぐ。Conventions の各項に「なぜ」を 1 行添えることで grey-area 判断を効かせやすくする
+- Rejected: AGENTS.md と CLAUDE.md に責務分散(指示の重複が出る)、CLAUDE.md を完全な 2 行ラッパーに(`.claude/skills/` の能動利用方針はユーザ判断で残す)、`Last Updated`/`Version` メタ情報の保持(git log で十分)
+- Next: ハーネス系 PR スタック (#47 → #48 → #49 → このPR) を順次マージ
+- Decision: spec-workflow MCP は AGENTS.md に書かない(任意ツール扱い)、`.claude/skills/` の能動利用は CLAUDE.md に明記
+
 ### 2026-04-29 - 型定義を `type` に統一し ESLint で強制 (issue #20)
 - What: `.eslintrc.json` に `@typescript-eslint/consistent-type-definitions: ['error', 'type']` を追加、`@typescript-eslint/eslint-plugin` と `parser` を直接 devDep に追加(pnpm hoist 経由では eslint が解決できなかったため)、`pnpm lint --fix` で 42 件の `interface` を自動的に `type` に変換、AGENTS.md の Boundaries に 1 行追加、`docs/decisions/2026-04-29-type-vs-interface.md` を新設
 - Why: type と interface が混在(123 vs 42 で 75% が type)してルール不在だったため。type は interface の機能を包含し、union/intersection も書ける。コードベース大多数が既に type 寄りなので統一コストが最小
