@@ -8,3 +8,4 @@
  */
 
 export * from './coffee-evaluation'
+export * from './bean-recommendation'

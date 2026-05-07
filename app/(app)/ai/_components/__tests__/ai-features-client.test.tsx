@@ -160,4 +160,70 @@ describe('AiFeaturesClient', () => {
     expect(uploadedFile.name).toBe('from-phone.heic')
     expect(uploadedFile.type).toBe('image/heic')
   })
+
+  it('renders friend bean recommendation feature and submits preferences', async () => {
+    const user = userEvent.setup()
+    ;(global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {
+          summary: '苦味控えめでフルーティーな豆を選びました。',
+          recommendations: [
+            {
+              evaluationId: 'bean-1',
+              beanName: 'Ethiopia Natural',
+              beanType: 'エチオピア',
+              roastLevel: '浅煎り',
+              shopName: 'Coffee Shop',
+              reason: '香りが華やかで苦味が控えめです。',
+              howToRecommend: '果実感があって飲みやすいよ、と伝える。',
+              caution: null,
+              confidence: 'high',
+            },
+          ],
+        },
+      }),
+    } as Response)
+
+    render(<AiFeaturesClient initialSettings={null} />)
+
+    expect(screen.getByRole('heading', { name: '友達向け豆推薦' })).toBeInTheDocument()
+
+    await user.type(
+      screen.getByLabelText('友達の好み'),
+      '苦味控えめでフルーティーな豆が好きそう'
+    )
+    await user.click(screen.getByRole('button', { name: 'おすすめを作る' }))
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith('/api/agent/bean-recommendations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          friendPreferenceText: '苦味控えめでフルーティーな豆が好きそう',
+          limit: 3,
+        }),
+      })
+    })
+    expect(await screen.findByText('苦味控えめでフルーティーな豆を選びました。')).toBeInTheDocument()
+    expect(screen.getByText('Ethiopia Natural')).toBeInTheDocument()
+    expect(screen.getByText('香りが華やかで苦味が控えめです。')).toBeInTheDocument()
+    expect(screen.getByText('果実感があって飲みやすいよ、と伝える。')).toBeInTheDocument()
+  })
+
+  it('shows friend recommendation API errors', async () => {
+    const user = userEvent.setup()
+    ;(global.fetch as jest.Mock).mockResolvedValue({
+      ok: false,
+      json: async () => ({ error: 'LLM設定が未設定です。プロフィールのAI設定からAPIキーを設定してください。' }),
+    } as Response)
+
+    render(<AiFeaturesClient initialSettings={null} />)
+
+    await user.type(screen.getByLabelText('友達の好み'), 'おすすめある？')
+    await user.click(screen.getByRole('button', { name: 'おすすめを作る' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('LLM設定が未設定です')
+  })
+
 })
