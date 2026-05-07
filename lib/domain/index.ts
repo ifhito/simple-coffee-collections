@@ -14,3 +14,6 @@ export * from './coffee-evaluation'
 
 // Shop bounded context
 export * from './shop'
+
+// Bean recommendation bounded context
+export * from './bean-recommendation'

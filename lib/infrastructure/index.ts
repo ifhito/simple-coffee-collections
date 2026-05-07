@@ -10,3 +10,5 @@
 
 export * from './supabase'
 export * from './repositories'
+
+export { MastraBeanRecommendationExecutor } from './bean-recommendation/mastra-bean-recommendation-executor'

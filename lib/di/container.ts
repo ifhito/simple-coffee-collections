@@ -11,11 +11,16 @@
  * @module lib/di/container
  */
 
-import type { CoffeeEvaluationRepository } from '@/lib/domain'
-import { SupabaseCoffeeEvaluationRepository, SupabaseShopRepository } from '@/lib/infrastructure'
+import type { BeanRecommendationRepository, CoffeeEvaluationRepository } from '@/lib/domain'
+import {
+  MastraBeanRecommendationExecutor,
+  SupabaseBeanRecommendationRepository,
+  SupabaseCoffeeEvaluationRepository,
+  SupabaseShopRepository,
+} from '@/lib/infrastructure'
 import type { UserLlmSettingsRepository } from '@/lib/domain/llm-settings'
 import { SupabaseUserLlmSettingsRepository } from '@/lib/infrastructure/repositories/supabase-user-llm-settings-repository'
-import type { ApiKeyEncryptor, LlmModelFactory, OcrExecutor } from '@/lib/application/ports'
+import type { ApiKeyEncryptor, BeanRecommendationExecutor, LlmModelFactory, OcrExecutor } from '@/lib/application/ports'
 import { Aes256GcmEncryptor } from '@/lib/infrastructure/crypto/aes-256-gcm-encryptor'
 import { DefaultLlmModelFactory } from '@/lib/infrastructure/llm/default-llm-model-factory'
 import { MastraOcrExecutor } from '@/lib/infrastructure/ocr/mastra-ocr-executor'
@@ -74,6 +79,8 @@ export function resetRepositories(): void {
   apiKeyEncryptorInstance = null
   llmModelFactoryInstance = null
   ocrExecutorInstance = null
+  beanRecommendationRepositoryInstance = null
+  beanRecommendationExecutorInstance = null
 }
 
 /**
@@ -168,4 +175,39 @@ export function getOcrExecutor(): OcrExecutor {
 
 export function setOcrExecutor(executor: OcrExecutor): void {
   ocrExecutorInstance = executor
+}
+
+
+// =============================================================================
+// BeanRecommendationRepository
+// =============================================================================
+
+let beanRecommendationRepositoryInstance: BeanRecommendationRepository | null = null
+
+export function getBeanRecommendationRepository(): BeanRecommendationRepository {
+  if (!beanRecommendationRepositoryInstance) {
+    beanRecommendationRepositoryInstance = new SupabaseBeanRecommendationRepository()
+  }
+  return beanRecommendationRepositoryInstance
+}
+
+export function setBeanRecommendationRepository(repo: BeanRecommendationRepository): void {
+  beanRecommendationRepositoryInstance = repo
+}
+
+// =============================================================================
+// BeanRecommendationExecutor
+// =============================================================================
+
+let beanRecommendationExecutorInstance: BeanRecommendationExecutor | null = null
+
+export function getBeanRecommendationExecutor(): BeanRecommendationExecutor {
+  if (!beanRecommendationExecutorInstance) {
+    beanRecommendationExecutorInstance = new MastraBeanRecommendationExecutor()
+  }
+  return beanRecommendationExecutorInstance
+}
+
+export function setBeanRecommendationExecutor(executor: BeanRecommendationExecutor): void {
+  beanRecommendationExecutorInstance = executor
 }
