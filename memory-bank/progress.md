@@ -2,6 +2,12 @@
 
 実装のたびに追記する短いログです。長い議事録にはしません。
 
+### 2026-11-03 - LLM プロバイダーの初期モデルを提供終了モデルから現行モデルへ更新
+- What: `lib/constants/llm-providers.ts` の defaultModel を更新。Anthropic `claude-3-5-sonnet-20241022` → `claude-haiku-5-5` (説明文も更新)、Groq `meta-llama/llama-4-scout-17b-16e-instruct` → `qwen/qwen3.8-27b`、OpenRouter `qwen/qwen2.5-vl-72b-instruct:free` → `nvidia/nemotron-3.5-super-vl:free`。`lib/constants/__tests__/llm-providers.test.ts` を新規追加し、提供終了モデルを初期値にしないことを検証
+- Why: Gemini のプリペイド残高切れで Claude に切り替えようとしたところ、初期値の Claude 3.5 Sonnet が提供終了済みで OCR が即失敗する状態だった。Groq の Llama 4 Scout は 2026-07-17 に提供終了、OpenRouter の Qwen2.5-VL-72B は :free 版が消えていた
+- Rejected: Fireworks の初期値変更 (公式ページで serverless かつ画像入力可のモデルを確認できず、根拠なく差し替えない)、Together (`Llama-Vision-Free` は公式ドキュメントにまだ掲載)、既存ユーザーの保存済み modelName の DB 移行 (ユーザーが設定画面で選び直せば解消するため見送り)
+- Next: Fireworks の現行 serverless 画像モデルを確認して初期値を更新。OCR エラー (課金切れ・提供終了モデル・キー無効) を日本語の案内に分類する改善
+
 ### 2026-04-30 - 孤児 PR (#48〜#54 + #57) を main に統合する recovery merge
 - What: stacked PR を中間ブランチに次々マージしていた事故 (#48 が `chore/agent-harness-setup` に、#49 が `fix/type-debt-from-typecheck` に、…と base が main じゃなかった) で、合計 7 PR 分の変更が main に届いていなかった。`recovery/sync-orphaned-prs` ブランチに `origin/docs/agent-onboarding` を merge して #48〜#54 (#55 相当の AGENTS↔CLAUDE 反転含む) を取り込み、続いて `origin/fix/loading-layout-mismatch` の Proactive Surfacing コミットを cherry-pick。CLAUDE.md は #50→#55 で SSoT 反転後の構造を base に Proactive Surfacing / Auto-PR / 「全 PR は main 対象」ルールを追記、AGENTS.md は `@CLAUDE.md` 5 行 wrapper に。`feedback_pr_target_main.md` を新規作成し `MEMORY.md` 索引に追加
 - Why: stacked PR 運用で main に届かない孤児 PR が再発しないよう、CLAUDE.md / memory に「PR の base branch は必ず main」ルールを昇格させる必要があった (2026-04-30 ユーザー明示指示で承認)

@@ -30,6 +30,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint --quiet
+
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
